@@ -20,6 +20,8 @@ public class User extends Model {
     public String email;
     public String phoneNumber;
     public char gender;
+    public String authToken;
+
 
     public String getName() {
         return name;
@@ -59,6 +61,14 @@ public class User extends Model {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 
 

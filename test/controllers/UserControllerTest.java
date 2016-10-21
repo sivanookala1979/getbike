@@ -13,8 +13,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.WithApplication;
 
-import java.util.List;
-
 import static org.junit.Assert.*;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
@@ -80,6 +78,9 @@ public class UserControllerTest extends WithApplication {
         Result result = route(fakeRequest(POST, "/login_with_otp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.id);
+        assertNotNull(actual.getAuthToken());
+        assertTrue(actual.getAuthToken().length() > 30);
     }
 
     @Test
@@ -114,8 +115,7 @@ public class UserControllerTest extends WithApplication {
     //       Setup
     //--------------------------------------------
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         Ebean.createSqlUpdate("delete from user").execute();
         Ebean.createSqlUpdate("delete from login_otp").execute();
     }

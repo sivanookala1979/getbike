@@ -10,6 +10,8 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.NumericUtils;
 
+import java.util.UUID;
+
 import static utils.CustomCollectionUtils.first;
 
 /**
@@ -42,7 +44,6 @@ public class UserController extends Controller {
         ObjectNode objectNode = Json.newObject();
         objectNode.set("result", Json.toJson(result));
         return ok(Json.toJson(objectNode));
-
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -55,6 +56,8 @@ public class UserController extends Controller {
             if (loginOtp != null && loginOtp.getGeneratedOtp().equals(userJson.get("otp").textValue())) {
                 result = "success";
             }
+            actual.setAuthToken(UUID.randomUUID().toString());
+            actual.save();
         }
         ObjectNode objectNode = Json.newObject();
         objectNode.set("result", Json.toJson(result));
