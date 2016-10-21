@@ -71,5 +71,4 @@ public class User extends Model {
         this.authToken = authToken;
     }
 
-
 }

@@ -18,7 +18,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 
-public class UserControllerTest extends WithApplication {
+public class UserControllerTest extends BaseControllerTest {
 
 
     @Test
@@ -114,18 +114,6 @@ public class UserControllerTest extends WithApplication {
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
-    @Before
-    public void setUp() {
-        Ebean.createSqlUpdate("delete from user").execute();
-        Ebean.createSqlUpdate("delete from login_otp").execute();
-    }
-
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .configure("play.http.router", "router.Routes")
-                .build();
-    }
 
     private void cAssertUser(User user, Result result) {
         JsonNode jsonNode = jsonFromResult(result);
@@ -136,14 +124,6 @@ public class UserControllerTest extends WithApplication {
         User actual = User.find.byId(jsonNode.get("id").asLong());
         assertNotNull(actual);
         assertEquals(user.getGender(), actual.getGender());
-    }
-
-    private JsonNode jsonFromResult(Result result) {
-        assertEquals(OK, result.status());
-        assertEquals("application/json", result.contentType().get());
-        assertEquals("UTF-8", result.charset().get());
-        String resultString = contentAsString(result);
-        return Json.parse(resultString);
     }
 
 }
