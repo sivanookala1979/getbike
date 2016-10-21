@@ -25,7 +25,7 @@ public class ApplicationTest extends WithApplication {
         assertEquals(OK, result.status());
         assertEquals("text/html", result.contentType().get());
         assertEquals("utf-8", result.charset().get());
-        assertTrue(contentAsString(result).contains("11Welcome234"));
+        assertTrue(contentAsString(result).contains("Welcome"));
     }
 
 }
