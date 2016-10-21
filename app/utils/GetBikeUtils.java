@@ -1,27 +1,18 @@
 package utils;
 
 
-
-        import java.io.BufferedReader;
-        import java.io.File;
-        import java.io.FileInputStream;
-        import java.io.FileOutputStream;
-        import java.io.FileWriter;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.InputStreamReader;
-        import java.io.OutputStream;
-        import java.text.ParseException;
-        import java.text.SimpleDateFormat;
-        import java.util.ArrayList;
-        import java.util.Date;
-        import java.util.List;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Srinivas Kandibanda
  * @version 1.0, Sep 13, 2010
  */
-public class GamlsUtils {
+public class GetBikeUtils {
 
     public static final String SHORT_DATE_FORMAT = "dd MMM, yy";
     public static final String SHORT_DAY_MONTH_FORMAT = "dd-MMM-yyyy";
@@ -61,7 +52,7 @@ public class GamlsUtils {
                 }
             }
             if (result.getDate() == null) {
-                GamlsLogger.fatal("Could not parse the date " + dateString);
+                GetBikeLogger.fatal("Could not parse the date " + dateString);
             }
         }
         return result.getDate();
@@ -131,8 +122,8 @@ public class GamlsUtils {
             inputStream.close();
             fw.close();
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex.getMessage());
-            GamlsLogger.fatal(ioex);
+            GetBikeLogger.fatal(ioex.getMessage());
+            GetBikeLogger.fatal(ioex);
         }
         return file;
     }
@@ -151,8 +142,8 @@ public class GamlsUtils {
             inputStream.close();
             fw.close();
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex.getMessage());
-            GamlsLogger.fatal(ioex);
+            GetBikeLogger.fatal(ioex.getMessage());
+            GetBikeLogger.fatal(ioex);
         }
         return file;
     }
@@ -169,8 +160,8 @@ public class GamlsUtils {
             inputStream.close();
             outputStream.close();
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex.getMessage());
-            GamlsLogger.fatal(ioex);
+            GetBikeLogger.fatal(ioex.getMessage());
+            GetBikeLogger.fatal(ioex);
         }
         return file;
     }
@@ -182,8 +173,8 @@ public class GamlsUtils {
                 outputStream.write(fileContents.toString().getBytes());
                 outputStream.close();
             } catch (Exception ex) {
-                GamlsLogger.fatal(ex);
-                throw new GamlsRuntimeException("Could not export the file " + filePath);
+                GetBikeLogger.fatal(ex);
+                throw new GetBikeRuntimeException("Could not export the file " + filePath);
             }
         }
     }
@@ -200,8 +191,8 @@ public class GamlsUtils {
                 result.add(line);
             }
         } catch (Exception e) {
-            GamlsLogger.fatal(e);
-            throw new GamlsRuntimeException();
+            GetBikeLogger.fatal(e);
+            throw new GetBikeRuntimeException();
         }
         return result;
     }
@@ -211,8 +202,8 @@ public class GamlsUtils {
         try {
             bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex);
-            throw new GamlsRuntimeException("Failed to open the file : " + fileName);
+            GetBikeLogger.fatal(ioex);
+            throw new GetBikeRuntimeException("Failed to open the file : " + fileName);
         }
         return bufferedReader;
     }
@@ -222,8 +213,8 @@ public class GamlsUtils {
         try {
             result = new FileInputStream(fileName);
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex);
-            throw new GamlsRuntimeException("Failed to open the file : " + fileName);
+            GetBikeLogger.fatal(ioex);
+            throw new GetBikeRuntimeException("Failed to open the file : " + fileName);
         }
         return result;
     }
@@ -234,8 +225,8 @@ public class GamlsUtils {
                 bufferedReader.close();
             }
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex);
-            throw new GamlsRuntimeException();
+            GetBikeLogger.fatal(ioex);
+            throw new GetBikeRuntimeException();
         }
     }
 
@@ -245,8 +236,8 @@ public class GamlsUtils {
                 inputStream.close();
             }
         } catch (IOException ioex) {
-            GamlsLogger.fatal(ioex);
-            throw new GamlsRuntimeException();
+            GetBikeLogger.fatal(ioex);
+            throw new GetBikeRuntimeException();
         }
     }
 
@@ -285,7 +276,7 @@ public class GamlsUtils {
                 out.close();
             }
         } catch (IOException exception) {
-            GamlsLogger.fatal(exception);
+            GetBikeLogger.fatal(exception);
         }
     }
 
@@ -301,9 +292,9 @@ public class GamlsUtils {
     }
 
     public static String backupDirectory(File projectFolder) {
-        String result = GamlsUtils.getUniqueErrorId();
+        String result = GetBikeUtils.getUniqueErrorId();
         File backupFolderForProject = new File(projectFolder.getPath() + StringUtils.UNDER_SCORE + "backup" + StringUtils.UNDER_SCORE + result);
-        GamlsUtils.copyDirectory(projectFolder, backupFolderForProject);
+        GetBikeUtils.copyDirectory(projectFolder, backupFolderForProject);
         return result;
     }
 

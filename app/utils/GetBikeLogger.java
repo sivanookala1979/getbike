@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Created by sivanookala on 21/10/16.
  */
-public class GamlsLogger {
+public class GetBikeLogger {
     public static void fatal(String s) {
     }
 

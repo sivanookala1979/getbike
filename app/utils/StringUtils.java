@@ -101,7 +101,7 @@ public class StringUtils {
         StringBuilder result = new StringBuilder();
         result.append(input);
         for (int i = input.length(); i < length; i++) {
-            result.append(GamlsUtils.SPACE);
+            result.append(GetBikeUtils.SPACE);
         }
         return result.toString();
     }
@@ -116,7 +116,7 @@ public class StringUtils {
                     result += input;
                     break;
                 }
-                result += GamlsUtils.SPACE;
+                result += GetBikeUtils.SPACE;
             }
             return result;
         }
@@ -268,14 +268,14 @@ public class StringUtils {
             List<String> lines = getLines(input.toString());
             result = new String[lines.size()][];
             for (int rowIndex = 0; rowIndex < lines.size(); rowIndex++) {
-                result[rowIndex] = lines.get(rowIndex).split(GamlsUtils.TAB);
+                result[rowIndex] = lines.get(rowIndex).split(GetBikeUtils.TAB);
             }
         }
         return result;
     }
 
     private static List<String> getLines(String inputString) {
-        StringTokenizer st = new StringTokenizer(inputString, GamlsUtils.LINE_DELIMITERS);
+        StringTokenizer st = new StringTokenizer(inputString, GetBikeUtils.LINE_DELIMITERS);
         List<String> lines = new ArrayList<String>();
         while (st.hasMoreTokens()) {
             lines.add(st.nextToken());
@@ -342,7 +342,7 @@ public class StringUtils {
                 result = true;
             }
         } catch (NumberFormatException parseException) {
-            GamlsLogger.fatal("Could not parse string " + parsedString);
+            GetBikeLogger.fatal("Could not parse string " + parsedString);
         }
         return result;
     }
@@ -351,7 +351,7 @@ public class StringUtils {
         boolean isValidNumber = true;
         HashSet<Integer> result = new HashSet<Integer>();
         try {
-            List<String> tokens = getTokens(parsedString, GamlsUtils.COMMA);
+            List<String> tokens = getTokens(parsedString, GetBikeUtils.COMMA);
             for (String token : tokens) {
                 if (token.contains(HYPHEN)) {
                     int startNumber = Integer.parseInt(getStringBefore(token, HYPHEN).trim());
@@ -367,7 +367,7 @@ public class StringUtils {
                 }
             }
         } catch (NumberFormatException parseException) {
-            GamlsLogger.fatal("Could not parse string " + parsedString);
+            GetBikeLogger.fatal("Could not parse string " + parsedString);
             isValidNumber = false;
         }
         if (!acceptZeroAndOne) {
@@ -425,15 +425,15 @@ public class StringUtils {
     }
 
     public static String ensureSpace(String input) {
-        if (input != null && !input.startsWith(GamlsUtils.SPACE)) {
-            input = GamlsUtils.SPACE + input;
+        if (input != null && !input.startsWith(GetBikeUtils.SPACE)) {
+            input = GetBikeUtils.SPACE + input;
         }
         return input;
     }
 
     public static List<String> getLinesWithOutCarriageReturnFromString(String input) {
         List<String> result = new ArrayList<String>();
-        String[] split = input.split(GamlsUtils.NEW_LINE);
+        String[] split = input.split(GetBikeUtils.NEW_LINE);
         for (String string : split) {
             if (string.endsWith(CARRIAGE_RETURN)) {
                 string = string.replaceAll(CARRIAGE_RETURN, EMPTY);
@@ -463,8 +463,8 @@ public class StringUtils {
     public static String mergeByComma(Collection<String> input) {
         String result = EMPTY;
         for (String string : input) {
-            result += string + GamlsUtils.COMMA;
+            result += string + GetBikeUtils.COMMA;
         }
-        return result.substring(0, result.lastIndexOf(GamlsUtils.COMMA));
+        return result.substring(0, result.lastIndexOf(GetBikeUtils.COMMA));
     }
 }

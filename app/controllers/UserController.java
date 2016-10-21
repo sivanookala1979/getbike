@@ -8,6 +8,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.NumericUtils;
 
 import static utils.CustomCollectionUtils.first;
 
@@ -34,7 +35,7 @@ public class UserController extends Controller {
         if (actual != null) {
             LoginOtp loginOtp = new LoginOtp();
             loginOtp.setUserId(actual.getId());
-            loginOtp.setGeneratedOtp("234567");
+            loginOtp.setGeneratedOtp(NumericUtils.generateOtp());
             loginOtp.save();
             result = "success";
         }

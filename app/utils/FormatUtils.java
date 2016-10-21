@@ -86,7 +86,7 @@ public class FormatUtils {
     }
 
     public static String formatDateShort(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(GamlsUtils.SHORT_DAY_MONTH_FORMAT);
+        SimpleDateFormat sdf = new SimpleDateFormat(GetBikeUtils.SHORT_DAY_MONTH_FORMAT);
         return sdf.format(date);
     }
 
