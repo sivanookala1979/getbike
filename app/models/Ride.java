@@ -16,6 +16,10 @@ import java.util.Date;
 public class Ride extends Model {
 
     public static final Finder<Long, Ride> find = new Finder<Long, Ride>(Ride.class);
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+    public static final String RIDE_ID = "rideId";
+    public static final String REQUESTOR_ID = "requestorId";
 
     @Id
     public Long id;

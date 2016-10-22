@@ -19,8 +19,8 @@ import static dataobject.RideStatus.RideRequested;
 public class RideController extends BaseController {
 
     public Result getBike() {
-        Double startLatitude = getDouble("latitude");
-        Double startLongitude = getDouble("longitude");
+        Double startLatitude = getDouble(Ride.LATITUDE);
+        Double startLongitude = getDouble(Ride.LONGITUDE);
         User user = currentUser();
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
@@ -33,7 +33,7 @@ public class RideController extends BaseController {
             ride.setRequestedAt(new Date());
             ride.save();
             result = SUCCESS;
-            setJson(objectNode, "rideId", ride.getId());
+            setJson(objectNode, Ride.RIDE_ID, ride.getId());
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
@@ -45,7 +45,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if(user != null)
         {
-            Long rideId = getLong("rideId");
+            Long rideId = getLong(Ride.RIDE_ID);
             Ride ride = Ride.find.byId(rideId);
             if(ride != null && RideRequested.equals(ride.getRideStatus()))
             {
