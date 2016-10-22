@@ -30,6 +30,20 @@ create table ride (
 );
 create sequence ride_seq;
 
+create table ride_location (
+  id                            bigint not null,
+  ride_id                       bigint,
+  posted_by_id                  bigint,
+  location_time                 timestamp,
+  received_at                   timestamp,
+  latitude                      double,
+  longitude                     double,
+  before_ride                   boolean,
+  during_ride                   boolean,
+  constraint pk_ride_location primary key (id)
+);
+create sequence ride_location_seq;
+
 create table user (
   id                            bigint not null,
   name                          varchar(255),
@@ -49,6 +63,9 @@ drop sequence if exists login_otp_seq;
 
 drop table if exists ride;
 drop sequence if exists ride_seq;
+
+drop table if exists ride_location;
+drop sequence if exists ride_location_seq;
 
 drop table if exists user;
 drop sequence if exists user_seq;

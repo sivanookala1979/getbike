@@ -3,13 +3,17 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Ride;
+import models.RideLocation;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
+import play.libs.Json;
 import play.mvc.Result;
 import utils.CustomCollectionUtils;
 import utils.NumericConstants;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static dataobject.RideStatus.RideAccepted;
@@ -70,6 +74,30 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("success", acceptRideJsonNode.get("result").textValue());
     }
 
+    @Test
+    public void storeLocationsTESTHappyFlow() {
+        User user = new User();
+        user.setPhoneNumber("8282828282");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Ride ride = new Ride();
+        ride.setRiderId(user.getId());
+        ride.save();
+        List<RideLocation> locationList = new ArrayList<>();
+        locationList.add(createRideLocation(ride.getId()));
+
+        Result result = route(fakeRequest(POST, "/storeLocations").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(locationList))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        List<RideLocation> actualRideLocations = RideLocation.find.all();
+        assertEquals(locationList.size(), actualRideLocations.size());
+        for (RideLocation rideLocation : actualRideLocations) {
+            assertEquals(user.getId(), rideLocation.getPostedById());
+            assertNotNull(rideLocation.getReceivedAt());
+        }
+    }
+
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
@@ -77,5 +105,13 @@ public class RideControllerTest extends BaseControllerTest {
     public void setUp() {
         super.setUp();
         Ebean.createSqlUpdate("delete from ride").execute();
+        Ebean.createSqlUpdate("delete from ride_location").execute();
     }
+
+    private RideLocation createRideLocation(Long rideId) {
+        RideLocation rideLocation = new RideLocation();
+        rideLocation.setRideId(rideId);
+        return rideLocation;
+    }
+
 }

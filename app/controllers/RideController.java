@@ -1,13 +1,14 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ride;
+import models.RideLocation;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
+import play.mvc.BodyParser;
 import play.mvc.Result;
 
-import javax.inject.Inject;
 import java.util.Date;
 
 import static dataobject.RideStatus.RideAccepted;
@@ -39,22 +40,44 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    public Result acceptRide(){
+    public Result acceptRide() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if(user != null)
-        {
+        if (user != null) {
             Long rideId = getLong(Ride.RIDE_ID);
             Ride ride = Ride.find.byId(rideId);
-            if(ride != null && RideRequested.equals(ride.getRideStatus()))
-            {
+            if (ride != null && RideRequested.equals(ride.getRideStatus())) {
                 ride.setRideStatus(RideAccepted);
                 ride.setRiderId(user.getId());
                 ride.setAcceptedAt(new Date());
                 ride.save();
                 result = SUCCESS;
             }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result storeLocations() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            JsonNode locationsJson = request().body().asJson();
+            for (int i = 0; i < locationsJson.size(); i++) {
+                JsonNode location = locationsJson.get(i);
+                RideLocation rideLocation = Json.fromJson(location, RideLocation.class);
+                Ride ride = Ride.find.byId(rideLocation.getRideId());
+                if (ride != null && ride.getRiderId().equals(user.getId())) {
+                    rideLocation.setPostedById(user.getId());
+                    rideLocation.setReceivedAt(new Date());
+                    rideLocation.save();
+                    result = SUCCESS;
+                }
+            }
+            setJson(objectNode, "locationCount", locationsJson.size());
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
