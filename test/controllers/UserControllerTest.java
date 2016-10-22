@@ -75,7 +75,7 @@ public class UserControllerTest extends BaseControllerTest {
         ObjectNode objectNode = Json.newObject();
         objectNode.set("phoneNumber", Json.toJson(user.getPhoneNumber()));
         objectNode.set("otp", Json.toJson(loginOtp.getGeneratedOtp()));
-        Result result = route(fakeRequest(POST, "/login_with_otp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
+        Result result = route(fakeRequest(POST, "/loginWithOtp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
         User actual = User.find.byId(user.id);
@@ -93,7 +93,7 @@ public class UserControllerTest extends BaseControllerTest {
         ObjectNode objectNode = Json.newObject();
         objectNode.set("phoneNumber", Json.toJson(user.getPhoneNumber()));
         objectNode.set("otp", Json.toJson(loginOtp.getGeneratedOtp() + "JUNK"));
-        Result result = route(fakeRequest(POST, "/login_with_otp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
+        Result result = route(fakeRequest(POST, "/loginWithOtp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
     }
@@ -106,7 +106,7 @@ public class UserControllerTest extends BaseControllerTest {
         ObjectNode objectNode = Json.newObject();
         objectNode.set("phoneNumber", Json.toJson(user.getPhoneNumber()));
         objectNode.set("otp", Json.toJson("JUNKJUNK"));
-        Result result = route(fakeRequest(POST, "/login_with_otp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
+        Result result = route(fakeRequest(POST, "/loginWithOtp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
     }

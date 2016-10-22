@@ -16,7 +16,7 @@ create table ride (
   id                            bigint not null,
   requestor_id                  bigint,
   rider_id                      bigint,
-  order_status                  varchar(255),
+  ride_status                   varchar(13),
   order_distance                double,
   order_amount                  double,
   requested_at                  timestamp,
@@ -25,6 +25,7 @@ create table ride (
   ride_ended_at                 timestamp,
   start_latitude                double,
   start_longitude               double,
+  constraint ck_ride_ride_status check (ride_status in ('RideRequested','RideAccepted')),
   constraint pk_ride primary key (id)
 );
 create sequence ride_seq;

@@ -8,28 +8,55 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.Date;
+
+import static dataobject.RideStatus.RideAccepted;
+import static dataobject.RideStatus.RideRequested;
 
 /**
  * Created by sivanookala on 21/10/16.
  */
-public class RideController extends Controller {
+public class RideController extends BaseController {
 
     public Result getBike() {
-        Double startLatitude = Double.parseDouble(request().getQueryString("latitude"));
-        Double startLongitude = Double.parseDouble(request().getQueryString("longitude"));
-        User user = User.find.where().eq("authToken", request().getHeader("Authorization")).findUnique();
+        Double startLatitude = getDouble("latitude");
+        Double startLongitude = getDouble("longitude");
+        User user = currentUser();
         ObjectNode objectNode = Json.newObject();
-        String result = "failure";
+        String result = FAILURE;
         if (user != null) {
             Ride ride = new Ride();
             ride.setStartLatitude(startLatitude);
             ride.setStartLongitude(startLongitude);
             ride.setRequestorId(user.getId());
+            ride.setRideStatus(RideRequested);
+            ride.setRequestedAt(new Date());
             ride.save();
-            result = "success";
-            objectNode.set("rideId", Json.toJson(ride.getId()));
+            result = SUCCESS;
+            setJson(objectNode, "rideId", ride.getId());
         }
-        objectNode.set("result", Json.toJson(result));
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result acceptRide(){
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if(user != null)
+        {
+            Long rideId = getLong("rideId");
+            Ride ride = Ride.find.byId(rideId);
+            if(ride != null && RideRequested.equals(ride.getRideStatus()))
+            {
+                ride.setRideStatus(RideAccepted);
+                ride.setRiderId(user.getId());
+                ride.setAcceptedAt(new Date());
+                ride.save();
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
     }
 }

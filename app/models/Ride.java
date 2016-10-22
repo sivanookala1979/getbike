@@ -1,8 +1,11 @@
 package models;
 
 import com.avaje.ebean.Model;
+import dataobject.RideStatus;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.util.Date;
 
@@ -18,7 +21,8 @@ public class Ride extends Model {
     public Long id;
     Long requestorId;
     Long riderId;
-    String orderStatus;
+    @Enumerated(EnumType.STRING)
+    RideStatus rideStatus;
     Double orderDistance;
     Double orderAmount;
     Date requestedAt;
@@ -52,12 +56,12 @@ public class Ride extends Model {
         this.riderId = riderId;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    public RideStatus getRideStatus() {
+        return rideStatus;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setRideStatus(RideStatus rideStatus) {
+        this.rideStatus = rideStatus;
     }
 
     public Double getOrderDistance() {
