@@ -1,20 +1,19 @@
 package controllers;
 
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.LoginOtp;
 import models.User;
-import org.junit.Before;
 import org.junit.Test;
-import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
-import play.test.WithApplication;
+import play.twirl.api.Content;
+import utils.GetBikeUtils;
+
+import java.util.Collections;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 
@@ -109,6 +108,23 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/loginWithOtp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void usersTESTHappyFlow() {
+        User user = new User();
+        user.setName("Siva Nookala");
+        user.setPhoneNumber("8282828282");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Content html = views.html.userIndex.render(Collections.singletonList(user));
+        assertEquals("text/html", html.contentType());
+        String body = html.body();
+        System.out.println("Name : " + user.getName());
+        assertTrue(body.contains(user.getName()));
+        assertTrue(body.contains(user.getPhoneNumber()));
+        assertTrue(body.contains(user.getAuthToken()));
+
     }
 
     //--------------------------------------------

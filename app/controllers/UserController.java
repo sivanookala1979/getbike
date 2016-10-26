@@ -10,6 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.NumericUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 import static utils.CustomCollectionUtils.first;
@@ -19,6 +20,11 @@ import static utils.CustomCollectionUtils.first;
  * to the application's home page.
  */
 public class UserController extends Controller {
+
+    public Result index() {
+        List<User> users = User.find.all();
+        return ok(views.html.userIndex.render(users));
+    }
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result signup() {

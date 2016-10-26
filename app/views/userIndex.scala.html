@@ -1,0 +1,18 @@
+
+@(users: List[User])
+
+<html>
+<body>
+<table border="1">
+    <tr><th>Id</th><th>Name</th><th>Phone Number</th><th>Auth Token</th></tr>
+    @for(user <- users) {
+    <tr style="overflow:auto;" >
+        <td>@user.getId()</td>
+        <td>@user.getName()</td>
+        <td>@user.getPhoneNumber()</td>
+        <td>@user.getAuthToken()</td>
+    </tr>
+    }
+</table>
+</body>
+</html>
