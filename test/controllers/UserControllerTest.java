@@ -93,6 +93,7 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/loginWithOtp").bodyJson(objectNode)).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
+        assertTrue(jsonNode.get("authToken").textValue().length() > 0);
         User actual = User.find.byId(user.id);
         assertNotNull(actual.getAuthToken());
         assertTrue(actual.getAuthToken().length() > 30);

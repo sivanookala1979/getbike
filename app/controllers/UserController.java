@@ -74,17 +74,18 @@ public class UserController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public Result loginWithOtp() {
         JsonNode userJson = request().body().asJson();
+        ObjectNode objectNode = Json.newObject();
         User actual = User.find.where().eq("phoneNumber", userJson.get("phoneNumber").textValue()).findUnique();
         String result = "failure";
         if (actual != null) {
             LoginOtp loginOtp = first(LoginOtp.find.where().eq("userId", actual.getId()).order("createdAt").findList());
             if (loginOtp != null && loginOtp.getGeneratedOtp().equals(userJson.get("otp").textValue())) {
                 result = "success";
+                actual.setAuthToken(UUID.randomUUID().toString());
+                actual.save();
+                objectNode.set("authToken", Json.toJson(actual.getAuthToken()));
             }
-            actual.setAuthToken(UUID.randomUUID().toString());
-            actual.save();
         }
-        ObjectNode objectNode = Json.newObject();
         objectNode.set("result", Json.toJson(result));
         return ok(Json.toJson(objectNode));
 
