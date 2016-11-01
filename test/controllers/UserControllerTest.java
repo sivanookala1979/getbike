@@ -69,6 +69,7 @@ public class UserControllerTest extends BaseControllerTest {
         LoginOtp loginOtp = LoginOtp.find.where().eq("userId", user.getId()).orderBy("createdAt").findList().get(0);
         assertNotNull(loginOtp);
         assertEquals(6, loginOtp.getGeneratedOtp().length());
+        assertNotNull(loginOtp.getCreatedAt());
     }
 
     @Test

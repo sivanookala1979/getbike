@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.UUID;
 
 import static utils.CustomCollectionUtils.first;
@@ -58,6 +59,7 @@ public class UserController extends Controller {
             LoginOtp loginOtp = new LoginOtp();
             loginOtp.setUserId(actual.getId());
             loginOtp.setGeneratedOtp(NumericUtils.generateOtp());
+            loginOtp.setCreatedAt(new Date());
             loginOtp.save();
             String generatedOtp = loginOtp.getGeneratedOtp();
             String phoneNumber = user.getPhoneNumber();
