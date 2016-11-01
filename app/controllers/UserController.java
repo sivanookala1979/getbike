@@ -12,7 +12,10 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import utils.NumericUtils;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.UUID;
 
 import static utils.CustomCollectionUtils.first;
@@ -29,10 +32,20 @@ public class UserController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result signup() {
+        int errorCode = 0;
         JsonNode userJson = request().body().asJson();
         User user = Json.fromJson(userJson, User.class);
-        user.save();
-        return ok(Json.toJson(user));
+        int previousUserCount = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findRowCount();
+        if (previousUserCount == 0) {
+            user.save();
+            return ok(Json.toJson(user));
+        } else {
+            errorCode = 9901;
+        }
+        ObjectNode objectNode = Json.newObject();
+        objectNode.set("errorCode", Json.toJson(errorCode));
+        objectNode.set("result", Json.toJson("failure"));
+        return ok(Json.toJson(objectNode));
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -46,12 +59,17 @@ public class UserController extends Controller {
             loginOtp.setUserId(actual.getId());
             loginOtp.setGeneratedOtp(NumericUtils.generateOtp());
             loginOtp.save();
+            String generatedOtp = loginOtp.getGeneratedOtp();
+            String phoneNumber = user.getPhoneNumber();
+            sendSms(generatedOtp, phoneNumber);
+
             result = "success";
         }
         ObjectNode objectNode = Json.newObject();
         objectNode.set("result", Json.toJson(result));
         return ok(Json.toJson(objectNode));
     }
+
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result loginWithOtp() {
@@ -70,5 +88,37 @@ public class UserController extends Controller {
         objectNode.set("result", Json.toJson(result));
         return ok(Json.toJson(objectNode));
 
+    }
+
+    private void sendSms(String generatedOtp, String phoneNumber) {
+        String message = "Dear Customer, your NETSECURE code is " + generatedOtp + ".";
+        message = message.replaceAll("%", "%25");
+        message = message.replaceAll("&", "%26");
+        //message = message.replaceAll("+", "%2B");
+        message = message.replaceAll("#", "%23");
+        message = message.replaceAll("=", "%3D");
+        message = message.replaceAll(" ", "%20");
+        String url = "http://smslane.com/vendorsms/pushsms.aspx?user=siva_nookala&password=957771&msisdn=91" + phoneNumber + "&sid=JavaMC&msg=" + message + "&fl=0&gwid=2";
+        try {
+            Process process = Runtime.getRuntime().exec("curl " + url );
+            System.out.println("Process result : " + process.waitFor());
+            OutputStream stdin = process.getOutputStream();
+            InputStream stderr = process.getErrorStream();
+            InputStream stdout = process.getInputStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stderr));
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                System.out.println("Stdout: " + line);
+            }
+
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println("Stdout: " + line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

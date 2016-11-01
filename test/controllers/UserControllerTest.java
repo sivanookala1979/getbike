@@ -45,9 +45,23 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void signupTESTAlreadyExistingUser() {
+        User user = new User();
+        user.setGender('M');
+        user.setName("Shravya M");
+        user.setEmail("shravya@vave.co.in");
+        user.setPhoneNumber("8282828282");
+        route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+        assertEquals(9901, jsonNode.get("errorCode").intValue());
+    }
+
+    @Test
     public void loginTESTHappyFlow() {
         User user = new User();
-        user.setPhoneNumber("8282828282");
+        user.setPhoneNumber("9949287789");
         user.save();
         Result result = route(fakeRequest(POST, "/login").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
@@ -69,7 +83,7 @@ public class UserControllerTest extends BaseControllerTest {
     @Test
     public void loginWithOtpTESTHappyFlow() {
         User user = new User();
-        user.setPhoneNumber("8282828282");
+        user.setPhoneNumber("9949287789");
         user.save();
         route(fakeRequest(POST, "/login").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         LoginOtp loginOtp = LoginOtp.find.where().eq("userId", user.getId()).orderBy("createdAt").findList().get(0);
