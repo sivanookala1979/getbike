@@ -27,7 +27,7 @@ import static utils.CustomCollectionUtils.first;
 public class UserController extends Controller {
 
     public Result index() {
-        return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all()));
+        return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
     }
 
     @BodyParser.Of(BodyParser.Json.class)

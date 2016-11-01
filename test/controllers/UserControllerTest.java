@@ -134,7 +134,7 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Content html = views.html.userIndex.render(Collections.singletonList(user), Ride.find.all(), RideLocation.find.all());
+        Content html = views.html.userIndex.render(Collections.singletonList(user), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all());
         assertEquals("text/html", html.contentType());
         String body = html.body();
         System.out.println("Name : " + user.getName());

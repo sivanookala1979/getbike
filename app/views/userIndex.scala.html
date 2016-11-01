@@ -1,5 +1,5 @@
 
-@(users: List[User], rides: List[Ride], rideLocations: List[RideLocation])
+@(users: List[User], rides: List[Ride], rideLocations: List[RideLocation], loginOtps: List[LoginOtp])
 
 <html>
 <body>
@@ -37,6 +37,18 @@
     </tr>
     }
 </table>
+
+<table border="1">
+    <tr><th>User Id</th><th>Otp</th><th>Created At</th></tr>
+    @for(loginOtp <- loginOtps) {
+    <tr style="overflow:auto;" >
+        <td>@loginOtp.getUserId()</td>
+        <td>@loginOtp.getGeneratedOtp()</td>
+        <td>@loginOtp.getCreatedAt()</td>
+    </tr>
+    }
+</table>
+
 
 </body>
 </html>
