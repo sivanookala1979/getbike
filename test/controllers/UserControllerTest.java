@@ -3,6 +3,8 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.LoginOtp;
+import models.Ride;
+import models.RideLocation;
 import models.User;
 import org.junit.Test;
 import play.libs.Json;
@@ -117,7 +119,7 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Content html = views.html.userIndex.render(Collections.singletonList(user));
+        Content html = views.html.userIndex.render(Collections.singletonList(user), Ride.find.all(), RideLocation.find.all());
         assertEquals("text/html", html.contentType());
         String body = html.body();
         System.out.println("Name : " + user.getName());

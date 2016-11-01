@@ -1,5 +1,5 @@
 
-@(users: List[User])
+@(users: List[User], rides: List[Ride], rideLocations: List[RideLocation])
 
 <html>
 <body>
@@ -14,5 +14,29 @@
     </tr>
     }
 </table>
+
+<table border="1">
+    <tr><th>RideId</th><th>Rider Id</th></tr>
+    @for(ride <- rides) {
+    <tr style="overflow:auto;" >
+        <td>@ride.getId()</td>
+        <td>@ride.getRiderId()</td>
+    </tr>
+    }
+</table>
+
+<table border="1">
+    <tr><th>Ride Location</th><th>Ride Id</th><th>Locatian Time</th><th>Latitude</th><th>Longitude</th></tr>
+    @for(rideLocation <- rideLocations) {
+    <tr style="overflow:auto;" >
+        <td>@rideLocation.getId()</td>
+        <td>@rideLocation.getRideId()</td>
+        <td>@rideLocation.getLocationTime()</td>
+        <td>@rideLocation.getLatitude()</td>
+        <td>@rideLocation.getLongitude()</td>
+    </tr>
+    }
+</table>
+
 </body>
 </html>
