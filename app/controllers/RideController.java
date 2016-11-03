@@ -8,10 +8,13 @@ import models.User;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
+import utils.DistanceUtils;
 
 import java.util.Date;
+import java.util.List;
 
 import static dataobject.RideStatus.RideAccepted;
+import static dataobject.RideStatus.RideClosed;
 import static dataobject.RideStatus.RideRequested;
 
 /**
@@ -78,6 +81,26 @@ public class RideController extends BaseController {
                 }
             }
             setJson(objectNode, "locationCount", locationsJson.size());
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result closeRide() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Long rideId = getLong(Ride.RIDE_ID);
+            Ride ride = Ride.find.byId(rideId);
+            if (ride != null && RideAccepted.equals(ride.getRideStatus())) {
+                ride.setRideStatus(RideClosed);
+                List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
+                ride.setOrderDistance(DistanceUtils.distanceMeters(locations));
+                ride.save();
+                objectNode.set("ride", Json.toJson(ride));
+                result = SUCCESS;
+            }
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));

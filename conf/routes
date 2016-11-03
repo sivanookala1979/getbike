@@ -11,6 +11,7 @@ POST     /login                     controllers.UserController.login
 POST     /loginWithOtp                     controllers.UserController.loginWithOtp
 GET     /getBike                    controllers.RideController.getBike
 GET     /acceptRide                    controllers.RideController.acceptRide
+GET     /closeRide                    controllers.RideController.closeRide
 POST    /storeLocations             controllers.RideController.storeLocations
 
 # Map static resources from the /public folder to the /assets URL path

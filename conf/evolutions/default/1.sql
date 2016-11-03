@@ -25,7 +25,7 @@ create table ride (
   ride_ended_at                 timestamp,
   start_latitude                double,
   start_longitude               double,
-  constraint ck_ride_ride_status check (ride_status in ('RideRequested','RideAccepted')),
+  constraint ck_ride_ride_status check (ride_status in ('RideRequested','RideAccepted','RideClosed')),
   constraint pk_ride primary key (id)
 );
 create sequence ride_seq;
