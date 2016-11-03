@@ -2,8 +2,6 @@ package utils;
 
 
 import java.math.BigDecimal;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -332,16 +330,9 @@ public class NumericUtils {
     public static String generateOtp() {
         int size = 6;
         StringBuilder generatedToken = new StringBuilder();
-        try {
-            SecureRandom number = SecureRandom.getInstance("SHA1PRNG");
-            for (int i = 0; i < size; i++) {
-                generatedToken.append(number.nextInt(9));
-            }
-        } catch (NoSuchAlgorithmException e) {
-            GetBikeLogger.fatal(e);
-            throw new GetBikeRuntimeException("Failed to generate the OTP");
+        for (int i = 0; i < size; i++) {
+            generatedToken.append(((int) (Math.random() * 10)) % 10);
         }
-
         return generatedToken.toString();
     }
 }
