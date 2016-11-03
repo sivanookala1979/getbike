@@ -6,10 +6,12 @@ import models.Ride;
 import models.RideLocation;
 import models.User;
 import mothers.RideLocationMother;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
+import play.twirl.api.Content;
 import utils.CustomCollectionUtils;
 import utils.DistanceUtils;
 import utils.NumericConstants;
@@ -20,9 +22,9 @@ import java.util.UUID;
 
 import static dataobject.RideStatus.RideAccepted;
 import static dataobject.RideStatus.RideRequested;
-
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.*;
 
 /**
@@ -137,6 +139,23 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
         assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
         assertEquals(DistanceUtils.distanceMeters(rideLocations), rideJsonObject.get("orderDistance").doubleValue());
+    }
+
+    @Test
+    public void ridePathTESTHappyFlow() {
+        User user = new User();
+        user.setName("Siva Nookala");
+        user.setPhoneNumber("8282828282");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        List<String> latLongs = new ArrayList<>();
+        latLongs.add("hello");
+        latLongs.add("hi");
+        Content html = views.html.ridePath.render(latLongs);
+        Assert.assertEquals("text/html", html.contentType());
+        String body = html.body();
+        assertTrue(body.contains("hello"));
+        assertTrue(body.contains("hi"));
     }
 
     //--------------------------------------------

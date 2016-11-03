@@ -10,12 +10,11 @@ import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.DistanceUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static dataobject.RideStatus.RideAccepted;
-import static dataobject.RideStatus.RideClosed;
-import static dataobject.RideStatus.RideRequested;
+import static dataobject.RideStatus.*;
 
 /**
  * Created by sivanookala on 21/10/16.
@@ -104,5 +103,17 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public Result ridePath() {
+        Long rideId = getLong(Ride.RIDE_ID);
+        List<String> rideLocationStrings = new ArrayList<>();
+        List<RideLocation> rideLocations = RideLocation.find.where().eq("rideId", rideId).findList();
+        for (RideLocation rideLocation : rideLocations) {
+            rideLocationStrings.add("{lat: " + rideLocation.getLatitude() +
+                    ", lng: " + rideLocation.getLongitude() +
+                    "}");
+        }
+        return ok(views.html.ridePath.render(rideLocationStrings));
     }
 }
