@@ -108,12 +108,13 @@ public class RideController extends BaseController {
     public Result ridePath() {
         Long rideId = getLong(Ride.RIDE_ID);
         List<String> rideLocationStrings = new ArrayList<>();
-        List<RideLocation> rideLocations = RideLocation.find.where().eq("rideId", rideId).findList();
+        List<RideLocation> rideLocations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
+        RideLocation firstLocation = rideLocations.get(0);
         for (RideLocation rideLocation : rideLocations) {
             rideLocationStrings.add("{lat: " + rideLocation.getLatitude() +
                     ", lng: " + rideLocation.getLongitude() +
                     "}");
         }
-        return ok(views.html.ridePath.render(rideLocationStrings));
+        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation.getLatitude(), firstLocation.getLongitude()));
     }
 }

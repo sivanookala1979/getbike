@@ -1,4 +1,4 @@
-@(rideLocations: List[String])
+@(rideLocations: List[String], firstLatitude: Double, firstLongitude: Double)
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,8 +31,8 @@
 
       function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 3,
-          center: {lat: 0, lng: -180},
+          zoom: 18,
+          center: {lat: @firstLatitude, lng: @firstLongitude},
           mapTypeId: 'terrain'
         });
 

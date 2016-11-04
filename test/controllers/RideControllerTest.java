@@ -151,11 +151,13 @@ public class RideControllerTest extends BaseControllerTest {
         List<String> latLongs = new ArrayList<>();
         latLongs.add("hello");
         latLongs.add("hi");
-        Content html = views.html.ridePath.render(latLongs);
+        Content html = views.html.ridePath.render(latLongs, 23.45, 57.68);
         Assert.assertEquals("text/html", html.contentType());
         String body = html.body();
         assertTrue(body.contains("hello"));
         assertTrue(body.contains("hi"));
+        assertTrue(body.contains("23.45"));
+        assertTrue(body.contains("57.68"));
     }
 
     //--------------------------------------------
