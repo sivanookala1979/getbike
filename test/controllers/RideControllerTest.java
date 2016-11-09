@@ -138,7 +138,7 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode rideJsonObject = closeRideJsonNode.get("ride");
         assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
         assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
-        assertEquals(DistanceUtils.distanceMeters(rideLocations), rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.distanceMeters( RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList()), rideJsonObject.get("orderDistance").doubleValue());
     }
 
     @Test

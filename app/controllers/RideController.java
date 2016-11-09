@@ -9,6 +9,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.DistanceUtils;
+import utils.GcmUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,7 @@ public class RideController extends BaseController {
             ride.save();
             result = SUCCESS;
             setJson(objectNode, Ride.RIDE_ID, ride.getId());
+            publishRideDetails(user, ride);
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
@@ -117,4 +119,17 @@ public class RideController extends BaseController {
         }
         return ok(views.html.ridePath.render(rideLocationStrings, firstLocation.getLatitude(), firstLocation.getLongitude()));
     }
+
+    private void publishRideDetails(User user, Ride ride) {
+        GcmUtils gcmUtils = new GcmUtils();
+        for (User otherUser : getRelevantRiders()) {
+            if (user.getId().equals(otherUser.getId())) continue;
+            gcmUtils.sendMessage(otherUser, "A new ride request with ride Id " + ride.getId() + " is active.");
+        }
+    }
+
+    private List<User> getRelevantRiders() {
+        return User.find.all();
+    }
+
 }
