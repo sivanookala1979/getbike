@@ -4,13 +4,14 @@
 <html>
 <body>
 <table border="1">
-    <tr><th>Id</th><th>Name</th><th>Phone Number</th><th>Auth Token</th></tr>
+    <tr><th>Id</th><th>Name</th><th>Phone Number</th><th>Auth Token</th><th>Gcm Code</th></tr>
     @for(user <- users) {
     <tr style="overflow:auto;" >
         <td>@user.getId()</td>
         <td>@user.getName()</td>
         <td>@user.getPhoneNumber()</td>
         <td>@user.getAuthToken()</td>
+        <td>@user.getGcmCode()</td>
     </tr>
     }
 </table>

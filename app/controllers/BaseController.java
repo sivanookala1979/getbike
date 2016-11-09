@@ -14,7 +14,11 @@ public class BaseController extends Controller {
     public static final String RESULT = "result";
 
     protected User currentUser() {
-        return User.find.where().eq("authToken", request().getHeader("Authorization")).findUnique();
+        String authToken = request().getHeader("Authorization");
+        if(authToken != null && !authToken.trim().isEmpty()) {
+            return User.find.where().eq("authToken", authToken).findUnique();
+        }
+        return null;
     }
 
     protected Double getDouble(String param) {
