@@ -10,7 +10,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.twirl.api.Content;
-import utils.GetBikeUtils;
+import utils.GetBikeErrorCodes;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -55,7 +55,7 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
-        assertEquals(9901, jsonNode.get("errorCode").intValue());
+        assertEquals(GetBikeErrorCodes.USER_ALREADY_EXISTS, jsonNode.get("errorCode").intValue());
     }
 
     @Test
@@ -79,6 +79,7 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/login").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
+        assertEquals(GetBikeErrorCodes.INVALID_USER, jsonNode.get("errorCode").intValue());
     }
 
     @Test
@@ -145,6 +146,33 @@ public class UserControllerTest extends BaseControllerTest {
 
     }
 
+    @Test
+    public void storeGcmCodeTESTHappyFlow() {
+        User user = new User();
+        user.setPhoneNumber("8282828282");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        String gcmCode = UUID.randomUUID().toString();
+        Result result = route(fakeRequest(GET, "/storeGcmCode?" +
+                "gcmCode" + "=" + gcmCode).header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertEquals(gcmCode, actual.getGcmCode());
+    }
+
+    @Test
+    public void storeGcmCodeTESTWithNoAuthorizationCode() {
+        User user = new User();
+        user.setPhoneNumber("8282828282");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        String gcmCode = UUID.randomUUID().toString();
+        Result result = route(fakeRequest(GET, "/storeGcmCode?" +
+                "gcmCode" + "=" + gcmCode));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+    }
     //--------------------------------------------
     //       Setup
     //--------------------------------------------

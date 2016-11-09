@@ -21,7 +21,8 @@ public class User extends Model {
     public String phoneNumber;
     public char gender;
     public String authToken;
-
+    @javax.persistence.Column(length=1024)
+    public String gcmCode;
 
     public String getName() {
         return name;
@@ -71,4 +72,11 @@ public class User extends Model {
         this.authToken = authToken;
     }
 
+    public String getGcmCode() {
+        return gcmCode;
+    }
+
+    public void setGcmCode(String gcmCode) {
+        this.gcmCode = gcmCode;
+    }
 }

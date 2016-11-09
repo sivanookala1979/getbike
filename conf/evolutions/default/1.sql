@@ -51,6 +51,7 @@ create table user (
   phone_number                  varchar(255),
   gender                        varchar(255),
   auth_token                    varchar(255),
+  gcm_code                      varchar(1024),
   constraint pk_user primary key (id)
 );
 create sequence user_seq;

@@ -9,6 +9,7 @@ GET     /users                           controllers.UserController.index
 POST     /signup                     controllers.UserController.signup
 POST     /login                     controllers.UserController.login
 POST     /loginWithOtp                     controllers.UserController.loginWithOtp
+GET     /storeGcmCode                     controllers.UserController.storeGcmCode
 GET     /getBike                    controllers.RideController.getBike
 GET     /acceptRide                    controllers.RideController.acceptRide
 GET     /closeRide                    controllers.RideController.closeRide
