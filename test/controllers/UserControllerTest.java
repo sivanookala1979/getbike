@@ -148,10 +148,7 @@ public class UserControllerTest extends BaseControllerTest {
 
     @Test
     public void storeGcmCodeTESTHappyFlow() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         String gcmCode = UUID.randomUUID().toString();
         Result result = route(fakeRequest(GET, "/storeGcmCode?" +
                 "gcmCode" + "=" + gcmCode).header("Authorization", user.getAuthToken()));
@@ -163,10 +160,7 @@ public class UserControllerTest extends BaseControllerTest {
 
     @Test
     public void storeGcmCodeTESTWithNoAuthorizationCode() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         String gcmCode = UUID.randomUUID().toString();
         Result result = route(fakeRequest(GET, "/storeGcmCode?" +
                 "gcmCode" + "=" + gcmCode));

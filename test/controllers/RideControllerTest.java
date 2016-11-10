@@ -2,10 +2,12 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
 import models.User;
 import mothers.RideLocationMother;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,14 +16,15 @@ import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.CustomCollectionUtils;
 import utils.DistanceUtils;
+import utils.GetBikeUtils;
 import utils.NumericConstants;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static dataobject.RideStatus.RideAccepted;
-import static dataobject.RideStatus.RideRequested;
+import static dataobject.RideStatus.*;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,10 +37,7 @@ public class RideControllerTest extends BaseControllerTest {
 
     @Test
     public void getBikeTESTHappyFlow() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
         Result result = route(fakeRequest(GET, "/getBike?" +
@@ -57,10 +57,7 @@ public class RideControllerTest extends BaseControllerTest {
 
     @Test
     public void acceptRideTESTHappyFlow() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
         Result getBikeResult = route(fakeRequest(GET, "/getBike?" +
@@ -81,10 +78,7 @@ public class RideControllerTest extends BaseControllerTest {
 
     @Test
     public void storeLocationsTESTHappyFlow() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         Ride ride = new Ride();
         ride.setRiderId(user.getId());
         ride.save();
@@ -105,10 +99,7 @@ public class RideControllerTest extends BaseControllerTest {
 
     @Test
     public void closeRideTESTHappyFlow() {
-        User user = new User();
-        user.setPhoneNumber("8282828282");
-        user.setAuthToken(UUID.randomUUID().toString());
-        user.save();
+        User user = loggedInUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
         Result getBikeResult = route(fakeRequest(GET, "/getBike?" +
@@ -138,8 +129,59 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode rideJsonObject = closeRideJsonNode.get("ride");
         assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
         assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
-        assertEquals(DistanceUtils.distanceMeters( RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList()), rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.distanceMeters(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList()), rideJsonObject.get("orderDistance").doubleValue());
     }
+
+
+    @Test
+    public void openRidesTESTHappyFlow() {
+        User user = loggedInUser();
+        Ride firstRide = createRide();
+        GetBikeUtils.sleep(200);
+        Ride secondRide = createRide();
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("id").longValue());
+        assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("id").longValue());
+    }
+
+    @Test
+    public void openRidesTESTWithNoOpenRides() {
+        User user = loggedInUser();
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 0;
+        assertEquals(knownNumberOfRides, ridesList.size());
+    }
+
+    @Test
+    public void openRidesTESTWithOpenAndClosedRides() {
+        User user = loggedInUser();
+        Ride firstRide = createRide();
+        GetBikeUtils.sleep(200);
+        Ride closedRide = createRide();
+        closedRide.setRideStatus(RideClosed);
+        closedRide.save();
+        Ride secondRide = createRide();
+        Ride acceptedRide = createRide();
+        acceptedRide.setRideStatus(RideAccepted);
+        acceptedRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("id").longValue());
+        assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("id").longValue());
+    }
+
 
     @Test
     public void ridePathTESTHappyFlow() {
@@ -160,6 +202,48 @@ public class RideControllerTest extends BaseControllerTest {
         assertTrue(body.contains("57.68"));
     }
 
+    @Test
+    public void currentRideTESTHappyFlow() {
+        User user = loggedInUser();
+        Ride firstRide = createRide();
+        firstRide.setRideStatus(RideAccepted);
+        firstRide.setRiderId(user.getId());
+        firstRide.save();
+        Result actual = route(fakeRequest(GET, "/currentRide").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode currentRide = responseObject.get("ride");
+        assertEquals(firstRide.getId().longValue(), currentRide.get("id").longValue());
+    }
+
+    @Test
+    public void currentRideTESTWithNoRide() {
+        User user = loggedInUser();
+        Result actual = route(fakeRequest(GET, "/currentRide").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("failure", responseObject.get("result").textValue());
+    }
+
+
+    @Test
+    public void getRideByIdTESTHappyFlow() {
+        User user = loggedInUser();
+        Ride firstRide = createRide();
+        Result actual = route(fakeRequest(GET, "/getRideById?" + Ride.RIDE_ID + "=" + firstRide.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode rideById = responseObject.get("ride");
+        assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
+    }
+
+    @Test
+    public void getRideByIdTESTWithInvalidRideId() {
+        User user = loggedInUser();
+        Result actual = route(fakeRequest(GET, "/getRideById?" + Ride.RIDE_ID + "=" + 221).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("failure", responseObject.get("result").textValue());
+    }
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
@@ -168,6 +252,16 @@ public class RideControllerTest extends BaseControllerTest {
         super.setUp();
         Ebean.createSqlUpdate("delete from ride").execute();
         Ebean.createSqlUpdate("delete from ride_location").execute();
+    }
+
+
+    @NotNull
+    private Ride createRide() {
+        Ride firstRide = new Ride();
+        firstRide.setRideStatus(RideStatus.RideRequested);
+        firstRide.setRequestedAt(new Date());
+        firstRide.save();
+        return firstRide;
     }
 
 }

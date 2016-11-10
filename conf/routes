@@ -14,6 +14,9 @@ GET     /getBike                    controllers.RideController.getBike
 GET     /acceptRide                    controllers.RideController.acceptRide
 GET     /closeRide                    controllers.RideController.closeRide
 GET     /ridePath                    controllers.RideController.ridePath
+GET     /openRides                  controllers.RideController.openRides
+GET     /currentRide                  controllers.RideController.currentRide
+GET     /getRideById                  controllers.RideController.getRideById
 POST    /storeLocations             controllers.RideController.storeLocations
 
 # Map static resources from the /public folder to the /assets URL path

@@ -120,6 +120,49 @@ public class RideController extends BaseController {
         return ok(views.html.ridePath.render(rideLocationStrings, firstLocation.getLatitude(), firstLocation.getLongitude()));
     }
 
+    public Result openRides() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(10).order("requestedAt desc").findList();
+            objectNode.set("rides", Json.toJson(openRides));
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result currentRide() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Ride currentRide = Ride.find.where().eq("riderId", user.getId()).eq("rideStatus", RideAccepted).findUnique();
+            if (currentRide != null) {
+                objectNode.set("ride", Json.toJson(currentRide));
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result getRideById() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Ride rideById = Ride.find.byId(getLong(Ride.RIDE_ID));
+            if (rideById != null) {
+                objectNode.set("ride", Json.toJson(rideById));
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     private void publishRideDetails(User user, Ride ride) {
         GcmUtils gcmUtils = new GcmUtils();
         for (User otherUser : getRelevantRiders()) {
