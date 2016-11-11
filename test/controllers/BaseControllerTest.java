@@ -25,6 +25,7 @@ public class BaseControllerTest extends WithApplication {
     @NotNull
     protected User loggedInUser() {
         User user = new User();
+        user.setName("Siva Nookala");
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();

@@ -229,11 +229,18 @@ public class RideControllerTest extends BaseControllerTest {
     public void getRideByIdTESTHappyFlow() {
         User user = loggedInUser();
         Ride firstRide = createRide();
+        firstRide.setRequestorId(user.getId());
+        firstRide.save();
         Result actual = route(fakeRequest(GET, "/getRideById?" + Ride.RIDE_ID + "=" + firstRide.getId()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode rideById = responseObject.get("ride");
         assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
+        assertEquals(firstRide.getStartLatitude(), rideById.get("startLatitude").doubleValue());
+        assertEquals(firstRide.getStartLongitude(), rideById.get("startLongitude").doubleValue());
+        assertEquals(user.getPhoneNumber(), responseObject.get("requestorPhoneNumber").textValue());
+        assertEquals(user.getName(), responseObject.get("requestorName").textValue());
+        assertEquals("Address of " + firstRide.getStartLatitude() + "," + firstRide.getStartLongitude(), responseObject.get("requestorAddress").textValue());
     }
 
     @Test
@@ -260,6 +267,8 @@ public class RideControllerTest extends BaseControllerTest {
         Ride firstRide = new Ride();
         firstRide.setRideStatus(RideStatus.RideRequested);
         firstRide.setRequestedAt(new Date());
+        firstRide.setStartLongitude(22.27);
+        firstRide.setStartLatitude(97.654);
         firstRide.save();
         return firstRide;
     }

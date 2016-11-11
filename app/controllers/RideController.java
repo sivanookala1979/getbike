@@ -156,6 +156,10 @@ public class RideController extends BaseController {
             Ride rideById = Ride.find.byId(getLong(Ride.RIDE_ID));
             if (rideById != null) {
                 objectNode.set("ride", Json.toJson(rideById));
+                User requestor = User.find.byId(rideById.getRequestorId());
+                objectNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
+                objectNode.set("requestorName", Json.toJson(requestor.getName()));
+                objectNode.set("requestorAddress", Json.toJson("Address of " + rideById.getStartLatitude() + "," + rideById.getStartLongitude()));
                 result = SUCCESS;
             }
         }
