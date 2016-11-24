@@ -55,6 +55,31 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(RideRequested, ride.getRideStatus());
     }
 
+
+    @Test
+    public void getBikeTESTWithAccessToken() {
+        User user = loggedInUser();
+        User otherUser = new User();
+        otherUser.setName("OtherName");
+        otherUser.setGcmCode("fQGK9w6iePY:APA91bEKA_u9AVswVGU0D84RSvH-DZowv33G4Mayp0gjOwljN-TMLUitP37zpPLMi4WcJSzlMccXrTdhyTCBYxn7OBAxlR_BRCAZmZ7BCccSmXkLCPFRzB4j723sUT5Ksfmm0mgQQE4e");
+        otherUser.save();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result result = route(fakeRequest(GET, "/getBike?" +
+                Ride.LATITUDE +
+                "=" + startLatitude + "&" +
+                Ride.LONGITUDE +
+                "=" + startLongitude).header("Authorization", user.getAuthToken()));
+        Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
+        JsonNode jsonNode = jsonFromResult(result);
+        assertNotNull(ride);
+        assertEquals(user.getId(), ride.getRequestorId());
+        assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
+        assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
+        assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideRequested, ride.getRideStatus());
+    }
+
     @Test
     public void acceptRideTESTHappyFlow() {
         User user = loggedInUser();

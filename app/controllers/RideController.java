@@ -171,7 +171,7 @@ public class RideController extends BaseController {
         GcmUtils gcmUtils = new GcmUtils();
         for (User otherUser : getRelevantRiders()) {
             if (user.getId().equals(otherUser.getId())) continue;
-            gcmUtils.sendMessage(otherUser, "A new ride request with ride Id " + ride.getId() + " is active.");
+            gcmUtils.sendMessage(otherUser, "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
         }
     }
 
