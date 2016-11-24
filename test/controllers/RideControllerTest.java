@@ -14,10 +14,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.twirl.api.Content;
-import utils.CustomCollectionUtils;
-import utils.DistanceUtils;
-import utils.GetBikeUtils;
-import utils.NumericConstants;
+import utils.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +25,7 @@ import static dataobject.RideStatus.*;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
 
 /**
@@ -55,7 +53,6 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(RideRequested, ride.getRideStatus());
     }
 
-
     @Test
     public void getBikeTESTWithAccessToken() {
         User user = loggedInUser();
@@ -65,6 +62,7 @@ public class RideControllerTest extends BaseControllerTest {
         otherUser.save();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
+        when(gcmUtilsMock.sendMessage(eq(otherUser), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
         Result result = route(fakeRequest(GET, "/getBike?" +
                 Ride.LATITUDE +
                 "=" + startLatitude + "&" +
@@ -78,6 +76,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideRequested, ride.getRideStatus());
+        verify(gcmUtilsMock).sendMessage(eq(otherUser), contains("A new ride request with ride Id "), eq("newRide"), anyLong());
     }
 
     @Test
@@ -89,6 +88,8 @@ public class RideControllerTest extends BaseControllerTest {
                 Ride.LATITUDE + "=" + startLatitude + "&" +
                 Ride.LONGITUDE + "=" + startLongitude).header("Authorization", user.getAuthToken()));
         JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+
+        when(gcmUtilsMock.sendMessage(user, "Your ride is accepted by Siva Nookala ( 8282828282 ) and the rider will be contacting you shortly.", "rideAccepted", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
         Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
                 Ride.RIDE_ID +
                 "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
@@ -99,6 +100,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(RideAccepted, ride.getRideStatus());
         assertNotNull(ride.getAcceptedAt());
         assertEquals("success", acceptRideJsonNode.get("result").textValue());
+        verify(gcmUtilsMock).sendMessage(user, "Your ride is accepted by Siva Nookala ( 8282828282 ) and the rider will be contacting you shortly.", "rideAccepted", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
     }
 
     @Test
@@ -276,6 +278,8 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("failure", responseObject.get("result").textValue());
     }
 
+    IGcmUtils gcmUtilsMock;
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
@@ -284,6 +288,8 @@ public class RideControllerTest extends BaseControllerTest {
         super.setUp();
         Ebean.createSqlUpdate("delete from ride").execute();
         Ebean.createSqlUpdate("delete from ride_location").execute();
+        gcmUtilsMock = mock(IGcmUtils.class);
+        ApplicationContext.defaultContext().setGcmUtils(gcmUtilsMock);
     }
 
 

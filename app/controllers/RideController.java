@@ -8,8 +8,10 @@ import models.User;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
+import utils.ApplicationContext;
 import utils.DistanceUtils;
 import utils.GcmUtils;
+import utils.IGcmUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,6 +58,9 @@ public class RideController extends BaseController {
                 ride.setRiderId(user.getId());
                 ride.setAcceptedAt(new Date());
                 ride.save();
+                User requestor = User.find.byId(ride.getRequestorId());
+                IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                gcmUtils.sendMessage(requestor, "Your ride is accepted by " + user.getName() + " ( " + user.getPhoneNumber() + " ) and the rider will be contacting you shortly.", "rideAccepted", ride.getId());
                 result = SUCCESS;
             }
         }
@@ -168,7 +173,7 @@ public class RideController extends BaseController {
     }
 
     private void publishRideDetails(User user, Ride ride) {
-        GcmUtils gcmUtils = new GcmUtils();
+        IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
         for (User otherUser : getRelevantRiders()) {
             if (user.getId().equals(otherUser.getId())) continue;
             gcmUtils.sendMessage(otherUser, "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
