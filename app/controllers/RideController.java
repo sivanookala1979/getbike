@@ -131,7 +131,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(5).order("id desc").findList();
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));
