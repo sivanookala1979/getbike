@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ride;
 import models.RideLocation;
@@ -10,7 +11,6 @@ import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.ApplicationContext;
 import utils.DistanceUtils;
-import utils.GcmUtils;
 import utils.IGcmUtils;
 
 import java.util.ArrayList;
@@ -130,8 +130,18 @@ public class RideController extends BaseController {
         String result = FAILURE;
         User user = currentUser();
         if (user != null) {
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(10).order("requestedAt desc").findList();
-            objectNode.set("rides", Json.toJson(openRides));
+            ArrayNode ridesNodes = Json.newArray();
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(5).order("id desc").findList();
+            for (Ride ride : openRides) {
+                ObjectNode rideNode = Json.newObject();
+                rideNode.set("ride", Json.toJson(ride));
+                User requestor = User.find.byId(ride.getRequestorId());
+                rideNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
+                rideNode.set("requestorName", Json.toJson(requestor.getName()));
+                rideNode.set("requestorAddress", Json.toJson("Address of " + ride.getStartLatitude() + "," + ride.getStartLongitude()));
+                ridesNodes.add(rideNode);
+            }
+            objectNode.set("rides", ridesNodes);
             result = SUCCESS;
         }
         setResult(objectNode, result);
