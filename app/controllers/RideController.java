@@ -205,6 +205,26 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result getCompleteRideById() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Ride rideById = Ride.find.byId(getLong(Ride.RIDE_ID));
+            if (rideById != null ) {
+                objectNode.set("ride", Json.toJson(rideById));
+                User requestor = User.find.byId(rideById.getRequestorId());
+                objectNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
+                objectNode.set("requestorName", Json.toJson(requestor.getName()));
+                objectNode.set("requestorAddress", Json.toJson("Address of " + rideById.getStartLatitude() + "," + rideById.getStartLongitude()));
+                objectNode.set("rideLocations", Json.toJson(RideLocation.find.where().eq("rideId", rideById.getId()).order("locationTime asc").findList()));
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     private void publishRideDetails(User user, Ride ride) {
         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
         for (User otherUser : getRelevantRiders()) {

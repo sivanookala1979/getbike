@@ -303,6 +303,30 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getCompleteRideByIdTESTHappyFlow() {
+        User user = loggedInUser();
+        Ride firstRide = createRide(user.getId());
+        List<RideLocation> rideLocations = new ArrayList<>();
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(firstRide.getId(), latlongs[i], latlongs[i + 1]);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        Result actual = route(fakeRequest(GET, "/getCompleteRideById?" + Ride.RIDE_ID + "=" + firstRide.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode rideById = responseObject.get("ride");
+        assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
+        assertEquals(firstRide.getStartLatitude(), rideById.get("startLatitude").doubleValue());
+        assertEquals(firstRide.getStartLongitude(), rideById.get("startLongitude").doubleValue());
+        assertEquals(user.getPhoneNumber(), responseObject.get("requestorPhoneNumber").textValue());
+        assertEquals(user.getName(), responseObject.get("requestorName").textValue());
+        assertEquals("Address of " + firstRide.getStartLatitude() + "," + firstRide.getStartLongitude(), responseObject.get("requestorAddress").textValue());
+        assertEquals(rideLocations.size(), responseObject.get("rideLocations").size());
+    }
+
+    @Test
     public void getRideByIdTESTWithInvalidRideId() {
         User user = loggedInUser();
         Result actual = route(fakeRequest(GET, "/getRideById?" + Ride.RIDE_ID + "=" + 221).header("Authorization", user.getAuthToken()));
