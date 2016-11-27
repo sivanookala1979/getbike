@@ -171,6 +171,29 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result getRidesGivenByMe() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            ArrayNode ridesNodes = Json.newArray();
+            List<Ride> closedRides = Ride.find.where().eq("rideStatus", RideClosed).eq("riderId", user.getId()).setMaxRows(10).order("requestedAt desc").findList();
+            for (Ride ride : closedRides) {
+                ObjectNode rideNode = Json.newObject();
+                rideNode.set("ride", Json.toJson(ride));
+                User requestor = User.find.byId(ride.getRequestorId());
+                rideNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
+                rideNode.set("requestorName", Json.toJson(requestor.getName()));
+                rideNode.set("requestorAddress", Json.toJson("Address of " + ride.getStartLatitude() + "," + ride.getStartLongitude()));
+                ridesNodes.add(rideNode);
+            }
+            objectNode.set("rides", ridesNodes);
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     public Result currentRide() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
