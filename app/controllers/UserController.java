@@ -12,10 +12,8 @@ import play.mvc.Result;
 import utils.GetBikeErrorCodes;
 import utils.NumericUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
@@ -101,6 +99,60 @@ public class UserController extends BaseController {
         if (user != null) {
             String gcmCode = getString("gcmCode");
             user.setGcmCode(gcmCode);
+            user.save();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+
+    }
+
+    public Result storeDrivingLicense() {
+        JsonNode userJson = request().body().asJson();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            String drivingLicenseNumber = userJson.get("drivingLicenseNumber").textValue();
+            user.setDrivingLicenseNumber(drivingLicenseNumber);
+            String encodedImageData = userJson.get("imageData").textValue();
+            byte[] decoded = Base64.getDecoder().decode(encodedImageData);
+            try {
+                String imagePath = "public/uploads/" + user.getId() + "-dl.png";
+                FileOutputStream fileOutputStream = new FileOutputStream(imagePath);
+                fileOutputStream.write(decoded);
+                fileOutputStream.close();
+                user.setDrivingLicenseImageName(imagePath);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            user.save();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+
+    }
+
+    public Result storeVehiclePlate() {
+        JsonNode userJson = request().body().asJson();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            String vehiclePlateNumber = userJson.get("vehiclePlateNumber").textValue();
+            user.setVehicleNumber(vehiclePlateNumber);
+            String encodedImageData = userJson.get("imageData").textValue();
+            byte[] decoded = Base64.getDecoder().decode(encodedImageData);
+            try {
+                String imagePath = "uploads/" + user.getId() + "-vp.png";
+                FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
+                fileOutputStream.write(decoded);
+                fileOutputStream.close();
+                user.setVehiclePlateImageName("assets/" + imagePath);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             user.save();
             result = SUCCESS;
         }
