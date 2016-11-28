@@ -12,6 +12,7 @@ import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.GetBikeErrorCodes;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -167,6 +168,42 @@ public class UserControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
     }
+
+    @Test
+    public void storeDrivingLicenseTESTHappyFlow() {
+        User user = loggedInUser();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("imageData", "aGVsbG8gaGVsbG8gaGVsbG8=");
+        objectNode.put("drivingLicenseNumber", "HYD/55522/3333");
+        Result result = route(fakeRequest(POST, "/storeDrivingLicense").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertNotNull(actual.getDrivingLicenseImageName());
+        assertTrue(actual.getDrivingLicenseImageName().endsWith(".png"));
+        assertEquals("HYD/55522/3333", actual.getDrivingLicenseNumber());
+        assertTrue(new File(actual.getDrivingLicenseImageName().replace("assets", "public")).exists());
+        new File(actual.getDrivingLicenseImageName().replace("assets", "public")).deleteOnExit();
+    }
+
+    @Test
+    public void storeVehiclePlateTESTHappyFlow() {
+        User user = loggedInUser();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("imageData", "aGVsbG8gaGVsbG8gaGVsbG8=");
+        objectNode.put("vehiclePlateNumber", "AP09BF3497");
+        Result result = route(fakeRequest(POST, "/storeVehiclePlate").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertNotNull(actual.getVehiclePlateImageName());
+        assertTrue(actual.getVehiclePlateImageName().endsWith(".png"));
+        assertEquals("AP09BF3497", actual.getVehicleNumber());
+        assertTrue(new File(actual.getVehiclePlateImageName().replace("assets", "public")).exists());
+        new File(actual.getVehiclePlateImageName().replace("assets", "public")).deleteOnExit();
+    }
+
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------

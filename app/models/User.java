@@ -21,8 +21,14 @@ public class User extends Model {
     public String phoneNumber;
     public char gender;
     public String authToken;
-    @javax.persistence.Column(length=1024)
+    @javax.persistence.Column(length = 1024)
     public String gcmCode;
+    String vehiclePlateImageName;
+    String vehicleNumber;
+    String drivingLicenseImageName;
+    String drivingLicenseNumber;
+    boolean validProofsUploaded;
+
 
     public String getName() {
         return name;
@@ -78,5 +84,45 @@ public class User extends Model {
 
     public void setGcmCode(String gcmCode) {
         this.gcmCode = gcmCode;
+    }
+
+    public String getVehiclePlateImageName() {
+        return vehiclePlateImageName;
+    }
+
+    public void setVehiclePlateImageName(String vehiclePlateImageName) {
+        this.vehiclePlateImageName = vehiclePlateImageName;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getDrivingLicenseImageName() {
+        return drivingLicenseImageName;
+    }
+
+    public void setDrivingLicenseImageName(String drivingLicenseImageName) {
+        this.drivingLicenseImageName = drivingLicenseImageName;
+    }
+
+    public String getDrivingLicenseNumber() {
+        return drivingLicenseNumber;
+    }
+
+    public void setDrivingLicenseNumber(String drivingLicenseNumber) {
+        this.drivingLicenseNumber = drivingLicenseNumber;
+    }
+
+    public boolean isValidProofsUploaded() {
+        return validProofsUploaded;
+    }
+
+    public void setValidProofsUploaded(boolean validProofsUploaded) {
+        this.validProofsUploaded = validProofsUploaded;
     }
 }

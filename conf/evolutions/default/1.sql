@@ -52,6 +52,11 @@ create table user (
   gender                        varchar(255),
   auth_token                    varchar(255),
   gcm_code                      varchar(1024),
+  vehicle_plate_image_name      varchar(255),
+  vehicle_number                varchar(255),
+  driving_license_image_name    varchar(255),
+  driving_license_number        varchar(255),
+  valid_proofs_uploaded         boolean,
   constraint pk_user primary key (id)
 );
 create sequence user_seq;
