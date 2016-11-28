@@ -123,6 +123,21 @@ public class RideControllerTest extends BaseControllerTest {
         }
     }
 
+    @Test
+    public void estimateRideTESTHappyFlow() {
+        User user = loggedInUser();
+        Ride ride = new Ride();
+        ride.setRiderId(user.getId());
+        ride.save();
+        List<RideLocation> locationList = new ArrayList<>();
+        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 44.35, 56.77));
+        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 43.35, 56.67));
+        Result result = route(fakeRequest(POST, "/estimateRide").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(locationList))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        System.out.println(jsonNode);
+        assertEquals(DistanceUtils.distanceMeters(locationList), jsonNode.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.distanceMeters(locationList) * 3.0 / 1000.0, jsonNode.get("orderAmount").doubleValue());
+    }
 
     @Test
     public void closeRideTESTHappyFlow() {

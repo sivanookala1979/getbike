@@ -92,6 +92,24 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result estimateRide() {
+        Ride ride = new Ride();
+        User user = currentUser();
+        if (user != null) {
+            JsonNode locationsJson = request().body().asJson();
+            ArrayList<RideLocation> rideLocations = new ArrayList<>();
+            for (int i = 0; i < locationsJson.size(); i++) {
+                JsonNode location = locationsJson.get(i);
+                RideLocation rideLocation = Json.fromJson(location, RideLocation.class);
+                rideLocations.add(rideLocation);
+            }
+            ride.setOrderDistance(DistanceUtils.distanceMeters(rideLocations));
+            ride.setOrderAmount(ride.getOrderDistance() * 3.0 / 1000.0);
+        }
+        return ok(Json.toJson(ride));
+    }
+
     public Result closeRide() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
@@ -234,7 +252,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             Ride rideById = Ride.find.byId(getLong(Ride.RIDE_ID));
-            if (rideById != null ) {
+            if (rideById != null) {
                 objectNode.set("ride", Json.toJson(rideById));
                 User requestor = User.find.byId(rideById.getRequestorId());
                 objectNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
