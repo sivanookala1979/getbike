@@ -118,11 +118,11 @@ public class UserController extends BaseController {
             String encodedImageData = userJson.get("imageData").textValue();
             byte[] decoded = Base64.getDecoder().decode(encodedImageData);
             try {
-                String imagePath = "public/uploads/" + user.getId() + "-dl.png";
-                FileOutputStream fileOutputStream = new FileOutputStream(imagePath);
+                String imagePath = "uploads/" + user.getId() + "-dl.png";
+                FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
                 fileOutputStream.write(decoded);
                 fileOutputStream.close();
-                user.setDrivingLicenseImageName(imagePath);
+                user.setDrivingLicenseImageName("assets/" + imagePath);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

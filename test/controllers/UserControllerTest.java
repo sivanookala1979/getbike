@@ -179,9 +179,10 @@ public class UserControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
         User actual = User.find.byId(user.getId());
+        assertEquals("HYD/55522/3333", actual.getDrivingLicenseNumber());
         assertNotNull(actual.getDrivingLicenseImageName());
         assertTrue(actual.getDrivingLicenseImageName().endsWith(".png"));
-        assertEquals("HYD/55522/3333", actual.getDrivingLicenseNumber());
+        assertTrue(actual.getDrivingLicenseImageName().startsWith("assets"));
         assertTrue(new File(actual.getDrivingLicenseImageName().replace("assets", "public")).exists());
         new File(actual.getDrivingLicenseImageName().replace("assets", "public")).deleteOnExit();
     }
@@ -196,9 +197,10 @@ public class UserControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
         User actual = User.find.byId(user.getId());
+        assertEquals("AP09BF3497", actual.getVehicleNumber());
         assertNotNull(actual.getVehiclePlateImageName());
         assertTrue(actual.getVehiclePlateImageName().endsWith(".png"));
-        assertEquals("AP09BF3497", actual.getVehicleNumber());
+        assertTrue(actual.getVehiclePlateImageName().startsWith("assets"));
         assertTrue(new File(actual.getVehiclePlateImageName().replace("assets", "public")).exists());
         new File(actual.getVehiclePlateImageName().replace("assets", "public")).deleteOnExit();
     }
