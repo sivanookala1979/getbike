@@ -182,9 +182,10 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("HYD/55522/3333", actual.getDrivingLicenseNumber());
         assertNotNull(actual.getDrivingLicenseImageName());
         assertTrue(actual.getDrivingLicenseImageName().endsWith(".png"));
-        assertTrue(actual.getDrivingLicenseImageName().startsWith("assets"));
-        assertTrue(new File(actual.getDrivingLicenseImageName().replace("assets", "public")).exists());
-        new File(actual.getDrivingLicenseImageName().replace("assets", "public")).deleteOnExit();
+        assertTrue(new File("public/"+actual.getDrivingLicenseImageName()).exists());
+        Result imageCheckResult = route(fakeRequest(GET, "/" + actual.getDrivingLicenseImageName()));
+        assertEquals(200, imageCheckResult.status());
+        new File("public/"+actual.getDrivingLicenseImageName()).deleteOnExit();
     }
 
     @Test
@@ -200,9 +201,10 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("AP09BF3497", actual.getVehicleNumber());
         assertNotNull(actual.getVehiclePlateImageName());
         assertTrue(actual.getVehiclePlateImageName().endsWith(".png"));
-        assertTrue(actual.getVehiclePlateImageName().startsWith("assets"));
-        assertTrue(new File(actual.getVehiclePlateImageName().replace("assets", "public")).exists());
-        new File(actual.getVehiclePlateImageName().replace("assets", "public")).deleteOnExit();
+        assertTrue(new File("public/" + actual.getVehiclePlateImageName()).exists());
+        Result imageCheckResult = route(fakeRequest(GET, "/" + actual.getVehiclePlateImageName()));
+        assertEquals(200, imageCheckResult.status());
+        new File("public/" + actual.getVehiclePlateImageName()).deleteOnExit();
     }
 
 

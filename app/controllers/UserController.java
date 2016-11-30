@@ -122,7 +122,7 @@ public class UserController extends BaseController {
                 FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
                 fileOutputStream.write(decoded);
                 fileOutputStream.close();
-                user.setDrivingLicenseImageName("assets/" + imagePath);
+                user.setDrivingLicenseImageName(imagePath);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -149,7 +149,7 @@ public class UserController extends BaseController {
                 FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
                 fileOutputStream.write(decoded);
                 fileOutputStream.close();
-                user.setVehiclePlateImageName("assets/" + imagePath);
+                user.setVehiclePlateImageName(imagePath);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

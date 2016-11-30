@@ -1,8 +1,12 @@
 package controllers;
 
-import play.mvc.*;
+import play.mvc.Controller;
+import play.mvc.Result;
+import views.html.index;
 
-import views.html.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -18,6 +22,21 @@ public class HomeController extends Controller {
      */
     public Result index() {
         return ok(index.render("Your new application is ready."));
+    }
+
+    public Result imageAt(String imageName) {
+        File imageFile = new File("public/uploads/" + imageName);
+        try {
+            if (imageFile.exists()) {
+                String resourceType = "image+" + imageName.substring(imageName.length() - 3);
+                return ok(new FileInputStream(imageFile)).as(resourceType);
+            } else {
+                return notFound(imageFile.getAbsoluteFile());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return notFound(imageFile.getAbsoluteFile());
+        }
     }
 
 }
