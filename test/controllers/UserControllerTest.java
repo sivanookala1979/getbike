@@ -229,6 +229,26 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(otherUser.getDrivingLicenseImageName(), jsonNode.get("profile").get("drivingLicenseImageName").textValue());
     }
 
+    @Test
+    public void getPublicProfileTESTWithNoUserId() {
+        User user = loggedInUser();
+        user.setDrivingLicenseNumber("2827829/AP/2929");
+        user.setVehicleNumber("AP01K02");
+        user.setVehiclePlateImageName("/assets/3445-vp.png");
+        user.setDrivingLicenseImageName("/assets/28927-vpg.jpg");
+        user.save();
+        Result result = route(fakeRequest(GET, "/getPublicProfile/0").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getName(), jsonNode.get("profile").get("name").textValue());
+        assertEquals(user.getPhoneNumber(), jsonNode.get("profile").get("phoneNumber").textValue());
+        assertEquals(user.getDrivingLicenseNumber(), jsonNode.get("profile").get("drivingLicenseNumber").textValue());
+        assertEquals(user.getVehicleNumber(), jsonNode.get("profile").get("vehicleNumber").textValue());
+        assertEquals(user.getVehiclePlateImageName(), jsonNode.get("profile").get("vehiclePlateImageName").textValue());
+        assertEquals(user.getDrivingLicenseImageName(), jsonNode.get("profile").get("drivingLicenseImageName").textValue());
+    }
+
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
