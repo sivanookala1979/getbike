@@ -30,13 +30,13 @@ public class DistanceUtils {
 
     /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
     /*::	This function converts decimal degrees to radians						 :*/
-	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
     private static double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
 
     /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-	/*::	This function converts radians to decimal degrees						 :*/
+    /*::	This function converts radians to decimal degrees						 :*/
 	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
     private static double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
@@ -51,5 +51,13 @@ public class DistanceUtils {
             result += distanceInMeters;
         }
         return result;
+    }
+
+    public static double distanceKilometers(List<RideLocation> locationList) {
+        return ((int) (distanceMeters(locationList) / 10)) / 100.0;
+    }
+
+    public static double estimatePrice(double distanceInKilometers) {
+        return (int) (distanceInKilometers * 8.0);
     }
 }

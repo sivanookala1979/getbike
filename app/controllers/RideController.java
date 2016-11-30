@@ -104,8 +104,8 @@ public class RideController extends BaseController {
                 RideLocation rideLocation = Json.fromJson(location, RideLocation.class);
                 rideLocations.add(rideLocation);
             }
-            ride.setOrderDistance(DistanceUtils.distanceMeters(rideLocations));
-            ride.setOrderAmount(ride.getOrderDistance() * 3.0 / 1000.0);
+            ride.setOrderDistance(DistanceUtils.distanceKilometers(rideLocations));
+            ride.setOrderAmount(DistanceUtils.estimatePrice(ride.getOrderDistance()));
         }
         return ok(Json.toJson(ride));
     }

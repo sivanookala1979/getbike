@@ -135,8 +135,8 @@ public class RideControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/estimateRide").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(locationList))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         System.out.println(jsonNode);
-        assertEquals(DistanceUtils.distanceMeters(locationList), jsonNode.get("orderDistance").doubleValue());
-        assertEquals(DistanceUtils.distanceMeters(locationList) * 3.0 / 1000.0, jsonNode.get("orderAmount").doubleValue());
+        assertEquals(DistanceUtils.distanceKilometers(locationList), jsonNode.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.estimatePrice(DistanceUtils.distanceKilometers(locationList)), jsonNode.get("orderAmount").doubleValue());
     }
 
     @Test
