@@ -2,6 +2,7 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
@@ -36,19 +37,22 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void getBikeTESTHappyFlow() {
         User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
-        Result result = route(fakeRequest(GET, "/getBike?" +
-                Ride.LATITUDE +
-                "=" + startLatitude + "&" +
-                Ride.LONGITUDE +
-                "=" + startLongitude).header("Authorization", user.getAuthToken()));
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        Result result = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
         assertNotNull(ride);
         assertEquals(user.getId(), ride.getRequestorId());
         assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
         assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
+        assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
+        assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideRequested, ride.getRideStatus());
     }
@@ -63,11 +67,7 @@ public class RideControllerTest extends BaseControllerTest {
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
         when(gcmUtilsMock.sendMessage(eq(otherUser), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
-        Result result = route(fakeRequest(GET, "/getBike?" +
-                Ride.LATITUDE +
-                "=" + startLatitude + "&" +
-                Ride.LONGITUDE +
-                "=" + startLongitude).header("Authorization", user.getAuthToken()));
+        Result result = requestGetBike(user, startLatitude, startLongitude);
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
         assertNotNull(ride);
@@ -84,11 +84,8 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
-        Result getBikeResult = route(fakeRequest(GET, "/getBike?" +
-                Ride.LATITUDE + "=" + startLatitude + "&" +
-                Ride.LONGITUDE + "=" + startLongitude).header("Authorization", user.getAuthToken()));
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
         JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
-
         when(gcmUtilsMock.sendMessage(user, "Your ride is accepted by Siva Nookala ( 8282828282 ) and the rider will be contacting you shortly.", "rideAccepted", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
         Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
                 Ride.RIDE_ID +
@@ -144,9 +141,7 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
-        Result getBikeResult = route(fakeRequest(GET, "/getBike?" +
-                Ride.LATITUDE + "=" + startLatitude + "&" +
-                Ride.LONGITUDE + "=" + startLongitude).header("Authorization", user.getAuthToken()));
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
         JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
         route(fakeRequest(GET, "/acceptRide?" +
                 Ride.RIDE_ID +
@@ -401,6 +396,15 @@ public class RideControllerTest extends BaseControllerTest {
         firstRide.setRequestorId(rideRequestorId);
         firstRide.save();
         return firstRide;
+    }
+
+    private Result requestGetBike(User user, double startLatitude, double startLongitude) {
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        return route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
     }
 
 }

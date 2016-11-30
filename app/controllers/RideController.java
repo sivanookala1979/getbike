@@ -24,16 +24,20 @@ import static dataobject.RideStatus.*;
  */
 public class RideController extends BaseController {
 
+    @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
-        Double startLatitude = getDouble(Ride.LATITUDE);
-        Double startLongitude = getDouble(Ride.LONGITUDE);
         User user = currentUser();
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         if (user != null) {
+            JsonNode locationsJson = request().body().asJson();
+            Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
+            Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
             Ride ride = new Ride();
             ride.setStartLatitude(startLatitude);
             ride.setStartLongitude(startLongitude);
+            ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
+            ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
             ride.setRequestorId(user.getId());
             ride.setRideStatus(RideRequested);
             ride.setRequestedAt(new Date());

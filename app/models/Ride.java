@@ -35,6 +35,8 @@ public class Ride extends Model {
     Date rideEndedAt;
     Double startLatitude;
     Double startLongitude;
+    String sourceAddress;
+    String destinationAddress;
 
     public Long getId() {
         return id;
@@ -130,5 +132,21 @@ public class Ride extends Model {
 
     public void setStartLongitude(Double startLongitude) {
         this.startLongitude = startLongitude;
+    }
+
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
+
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
     }
 }
