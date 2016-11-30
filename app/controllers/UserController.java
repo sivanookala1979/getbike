@@ -104,8 +104,30 @@ public class UserController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
-
     }
+
+    public Result getPublicProfile(Long userId) {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            User requestedUser = User.find.byId(userId);
+            if (requestedUser != null) {
+                User publicUser = new User();
+                publicUser.setName(requestedUser.getName());
+                publicUser.setPhoneNumber(requestedUser.getPhoneNumber());
+                publicUser.setVehiclePlateImageName(requestedUser.getVehiclePlateImageName());
+                publicUser.setVehicleNumber(requestedUser.getVehicleNumber());
+                publicUser.setDrivingLicenseImageName(requestedUser.getDrivingLicenseImageName());
+                publicUser.setDrivingLicenseNumber(requestedUser.getDrivingLicenseNumber());
+                objectNode.set("profile", Json.toJson(publicUser));
+            }
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 
     public Result storeDrivingLicense() {
         JsonNode userJson = request().body().asJson();

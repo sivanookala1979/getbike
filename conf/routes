@@ -20,6 +20,7 @@ GET     /getRideById                  controllers.RideController.getRideById
 GET     /getMyCompletedRides                  controllers.RideController.getMyCompletedRides
 GET     /getRidesGivenByMe                  controllers.RideController.getRidesGivenByMe
 GET     /getCompleteRideById                  controllers.RideController.getCompleteRideById
+GET     /getPublicProfile/:userId                  controllers.UserController.getPublicProfile(userId:Long)
 POST    /storeLocations             controllers.RideController.storeLocations
 POST    /estimateRide             controllers.RideController.estimateRide
 POST    /storeDrivingLicense      controllers.UserController.storeDrivingLicense
