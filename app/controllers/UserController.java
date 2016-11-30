@@ -111,7 +111,10 @@ public class UserController extends BaseController {
         String result = FAILURE;
         User user = currentUser();
         if (user != null) {
-            User requestedUser = User.find.byId(userId);
+            User requestedUser = user;
+            if (userId != null && userId > 0) {
+                requestedUser = User.find.byId(userId);
+            }
             if (requestedUser != null) {
                 User publicUser = new User();
                 publicUser.setName(requestedUser.getName());
