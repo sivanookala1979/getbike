@@ -63,6 +63,7 @@ create table user (
   id                            bigint not null,
   name                          varchar(255),
   email                         varchar(255),
+  password                      varchar(255),
   phone_number                  varchar(255),
   gender                        varchar(255),
   auth_token                    varchar(255),
@@ -75,6 +76,14 @@ create table user (
   constraint pk_user primary key (id)
 );
 create sequence user_seq;
+
+create table user_login (
+  id                            bigint not null,
+  username                      varchar(255),
+  password                      varchar(255),
+  constraint pk_user_login primary key (id)
+);
+create sequence user_login_seq;
 
 
 # --- !Downs
@@ -93,4 +102,7 @@ drop sequence if exists system_settings_seq;
 
 drop table if exists user;
 drop sequence if exists user_seq;
+
+drop table if exists user_login;
+drop sequence if exists user_login_seq;
 
