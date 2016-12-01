@@ -23,6 +23,26 @@ public class DistanceUtilsTest {
     }
 
     @Test
+    public void calculateBasePriceTESTHappyFlow() {
+        assertEquals(20.0, DistanceUtils.calculateBasePrice(1.5, 5));
+        assertEquals(23.0, DistanceUtils.calculateBasePrice(1.5, 8));
+        assertEquals(31.0, DistanceUtils.calculateBasePrice(5, 8));
+        assertEquals(392.1, DistanceUtils.calculateBasePrice(75.3, 87.9));
+        assertEquals(77.6, DistanceUtils.calculateBasePrice(9.4, 37));
+        assertEquals(103.0, DistanceUtils.calculateBasePrice(10, 60));
+        assertEquals(125.0, DistanceUtils.calculateBasePrice(13, 70));
+    }
+
+    @Test
+    public void estimateBasePriceTESTHappyFlow() {
+        assertEquals(353.0, DistanceUtils.estimateBasePrice(50));
+        assertEquals(73.0, DistanceUtils.estimateBasePrice(10));
+        assertEquals(22.5, DistanceUtils.estimateBasePrice(2.5));
+        assertEquals(20.0, DistanceUtils.estimateBasePrice(0.5));
+        assertEquals(110.8, DistanceUtils.estimateBasePrice(15.4));
+    }
+
+    @Test
     public void distanceMetersTESTHappyFlow() {
         assertEquals(8.34094914310627, DistanceUtils.distanceMeters(14.9026234, 79.9940092, 14.902665, 79.9940738));
     }

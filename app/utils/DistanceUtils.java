@@ -37,7 +37,7 @@ public class DistanceUtils {
 
     /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
     /*::	This function converts radians to decimal degrees						 :*/
-	/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
     private static double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
@@ -57,7 +57,37 @@ public class DistanceUtils {
         return ((int) (distanceMeters(locationList) / 10)) / 100.0;
     }
 
-    public static double estimatePrice(double distanceInKilometers) {
-        return (int) (distanceInKilometers * 8.0);
+
+    public static int timeInMinutes(List<RideLocation> locationList) {
+        return (int)((locationList.get(locationList.size() - 1).getLocationTime().getTime() - locationList.get(0).getLocationTime().getTime()) / (1000.0 * 60.0));
+    }
+
+    public static double estimateBasePrice(double distanceInKilometers) {
+        double estimatedTimeInMinutesForTravellingAKm = 3;
+        return calculateBasePrice(distanceInKilometers, distanceInKilometers * estimatedTimeInMinutesForTravellingAKm);
+    }
+
+    public static double calculateBasePrice(double distanceInKilometers, double timeInMinutes) {
+        double basePrice = 20.0;
+        int freeKilometers = 3;
+        double pricePerKilometer = 4.0;
+        double pricePerMinute = 1.0;
+        double freeTimeInMinutes = 5;
+        return calculateBasePrice(basePrice, freeKilometers, pricePerKilometer, pricePerMinute, distanceInKilometers, timeInMinutes, freeTimeInMinutes);
+    }
+
+    private static double calculateBasePrice(double basePrice, int freeKilometers, double pricePerKilometer, double pricePerMinute, double distanceInKilometers, double timeInMinutes, double freeTimeInMinutes) {
+        double result = 0;
+        // Add Base Price
+        result += basePrice;
+        // Add Price For Distance
+        if (distanceInKilometers > freeKilometers) {
+            result += (distanceInKilometers - freeKilometers) * pricePerKilometer;
+        }
+        // Add Price For Time
+        if (timeInMinutes > freeTimeInMinutes) {
+            result += (timeInMinutes - freeTimeInMinutes) * pricePerMinute;
+        }
+        return result;
     }
 }

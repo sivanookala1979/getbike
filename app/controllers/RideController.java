@@ -109,7 +109,7 @@ public class RideController extends BaseController {
                 rideLocations.add(rideLocation);
             }
             ride.setOrderDistance(DistanceUtils.distanceKilometers(rideLocations));
-            ride.setOrderAmount(DistanceUtils.estimatePrice(ride.getOrderDistance()));
+            ride.setOrderAmount(DistanceUtils.estimateBasePrice(ride.getOrderDistance()));
         }
         return ok(Json.toJson(ride));
     }
@@ -125,6 +125,7 @@ public class RideController extends BaseController {
                 ride.setRideStatus(RideClosed);
                 List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
                 ride.setOrderDistance(DistanceUtils.distanceMeters(locations));
+                ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
                 ride.save();
                 objectNode.set("ride", Json.toJson(ride));
                 result = SUCCESS;

@@ -127,13 +127,13 @@ public class RideControllerTest extends BaseControllerTest {
         ride.setRiderId(user.getId());
         ride.save();
         List<RideLocation> locationList = new ArrayList<>();
-        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 44.35, 56.77));
-        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 43.35, 56.67));
+        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 44.35, 56.77, 0));
+        locationList.add(RideLocationMother.createRideLocation(ride.getId(), 43.35, 56.67, 2));
         Result result = route(fakeRequest(POST, "/estimateRide").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(locationList))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         System.out.println(jsonNode);
         assertEquals(DistanceUtils.distanceKilometers(locationList), jsonNode.get("orderDistance").doubleValue());
-        assertEquals(DistanceUtils.estimatePrice(DistanceUtils.distanceKilometers(locationList)), jsonNode.get("orderAmount").doubleValue());
+        assertEquals(DistanceUtils.estimateBasePrice(DistanceUtils.distanceKilometers(locationList)), jsonNode.get("orderAmount").doubleValue());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class RideControllerTest extends BaseControllerTest {
 
         double latlongs[] = RideLocationMother.LAT_LONGS;
         for (int i = 0; i < latlongs.length; i += 2) {
-            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1]);
+            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1], i);
             rideLocation.save();
             rideLocations.add(rideLocation);
         }
@@ -166,7 +166,9 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode rideJsonObject = closeRideJsonNode.get("ride");
         assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
         assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
-        assertEquals(DistanceUtils.distanceMeters(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList()), rideJsonObject.get("orderDistance").doubleValue());
+        double expectedDistance = DistanceUtils.distanceMeters(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
+        assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations)), rideJsonObject.get("orderAmount").doubleValue());
     }
 
 
@@ -346,7 +348,7 @@ public class RideControllerTest extends BaseControllerTest {
         List<RideLocation> rideLocations = new ArrayList<>();
         double latlongs[] = RideLocationMother.LAT_LONGS;
         for (int i = 0; i < latlongs.length; i += 2) {
-            RideLocation rideLocation = RideLocationMother.createRideLocation(firstRide.getId(), latlongs[i], latlongs[i + 1]);
+            RideLocation rideLocation = RideLocationMother.createRideLocation(firstRide.getId(), latlongs[i], latlongs[i + 1], i);
             rideLocation.save();
             rideLocations.add(rideLocation);
         }

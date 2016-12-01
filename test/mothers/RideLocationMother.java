@@ -41,12 +41,12 @@ public class RideLocationMother {
         return rideLocation;
     }
 
-    public static RideLocation createRideLocation(Long rideId, Double latitude, Double longitude) {
+    public static RideLocation createRideLocation(Long rideId, Double latitude, Double longitude, int i) {
         RideLocation rideLocation = new RideLocation();
         rideLocation.setRideId(rideId);
         rideLocation.setLatitude(latitude);
         rideLocation.setLongitude(longitude);
-        rideLocation.setLocationTime(new Date());
+        rideLocation.setLocationTime(new Date(new Date().getTime() + i * 60 * 1000));
         return rideLocation;
     }
 
