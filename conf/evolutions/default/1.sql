@@ -46,6 +46,14 @@ create table ride_location (
 );
 create sequence ride_location_seq;
 
+create table system_settings (
+  id                            bigint not null,
+  key                           varchar(255),
+  value                         varchar(255),
+  constraint pk_system_settings primary key (id)
+);
+create sequence system_settings_seq;
+
 create table user (
   id                            bigint not null,
   name                          varchar(255),
@@ -74,6 +82,9 @@ drop sequence if exists ride_seq;
 
 drop table if exists ride_location;
 drop sequence if exists ride_location_seq;
+
+drop table if exists system_settings;
+drop sequence if exists system_settings_seq;
 
 drop table if exists user;
 drop sequence if exists user_seq;

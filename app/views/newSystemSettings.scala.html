@@ -1,0 +1,95 @@
+@(systemSettingsForm : Form[models.SystemSettings], pageType: String)
+
+@import helper._
+@import views.html.custom_views._
+
+@systemSettingsId = @{session.get("systemSettingsId")}
+@main("Get Bike"){
+<script>
+    $(document).ready(function(){
+        $("#saveButton").on('click', function(){
+                var jsonResponse = tableToJson();
+                alert('json->'+JSON.stringify(jsonResponse));
+                $.ajax({
+                             type : "POST",
+                             dataType: "json",
+                             url : "@routes.SystemSettingsController.saveData()",
+                             contentType: "application/json; charset=utf-8",
+                             data: JSON.stringify(jsonResponse),
+                             success : function(result) {
+                                console.log(result);
+                                if(result.success = "success"){
+                                    location.href="/systemSettings/systemSettingList";
+                                }else{
+                                    location.href="/systemSettings/newSystemSetting";
+                                }
+                             },
+                             error : function() {
+                                 location.href="/systemSettings/newSystemSetting";
+                                 return false;
+                             }
+                 });
+        });
+
+    });
+
+    function tableToJson(){
+            var rowData ={};
+            var key = document.getElementById("key").value;
+            var value = document.getElementById("value").value;
+            rowData["key"] = key;
+            rowData["value"] = value;
+        return rowData;
+    }
+
+</script>
+<div class="container">
+    @if(flash.containsKey("error")) {
+    <div class="well">
+        <div id="error-message" class="text-danger">
+            @flash.get("error")
+        </div>
+    </div>
+    }
+    <div class="row"  style="margin-top:2px; margin: 0px;">
+        <div class="row">
+            <div class="col-sm-6">
+                @text(systemSettingsForm("key"),
+                label = "",
+                placeholder = "Key",
+                help = "",
+                labelClass="",
+                textClass="col-sm-12 text-left")
+            </div>
+            <div class="col-sm-6">
+                @text(systemSettingsForm("value"),
+                label = "",
+                placeholder = "Value",
+                help = "",
+                labelClass="",
+                textClass="col-sm-12 text-left")
+            </div>
+        </div>
+
+        @if(null != systemSettingsId){
+            <input type="hidden" name="systemSettingsId" id="systemSettingsId" value="@systemSettingsId">
+        }
+
+        <div class="col-sm-12">
+            <button type="button" id="cancelButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                Cancel
+            </button>
+            @if(pageType.equals("edit")){
+            <buton type="button" id="editButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                Update
+            </buton>
+            }else{
+            <button type="button" id="saveButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                Save
+            </button>
+            }
+        </div>
+    </div>
+</div>
+</div>
+}

@@ -1,0 +1,184 @@
+@(header: String = "", colClass: String ="", tableHeaders: LinkedHashMap[String, String], searchUrl: String, editUrl: String = "", deleteUrl: String ="")
+@main("Get Bike"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
+
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+</style>
+<div class="container" id="list-view-app-id">
+    <div class="row">
+        <div class="@colClass text-center" style="margin-left: 80px;">
+            <div data-ng-controller="ProductController">
+                <div class="row">
+                    <div class="col-sm-6 text-left" style="padding-bottom:10px;">
+                        <input data-ng-model="input" placeholder="Search" data-ng-change="doSearch(input)" style="margin-top: 15px; border-radius: 10px;" autofocus>
+                    </div>
+
+                </div>
+                <table class="table table-striped" style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%">
+                    <thead style="border-bottom: 1px solid grey;">
+                    @for((header, searchItem) <- tableHeaders){
+                    <th ng-click="sort('@{searchItem}')">@header
+                        <span class="glyphicon sort-icon" ng-show="sortKey=='@{searchItem}'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                    </th>
+                    }
+                    <th></th>
+                    </thead>
+                    <tbody infinite-scroll='loadMore()'>
+                    <tr ng-repeat="(index, product) in products|orderBy:sortKey:reverse" class="text-left">
+                        @for((header, feildName) <- tableHeaders) {
+                            @if(header.equals("#")){
+                                 <td>{{index+1}}</td>
+                            }else{
+                                @if(header.equals("Edit")){
+                                    <td>
+                                        <a href="#" ng-hide="editingData[product.id]" ng-click="modify(product)"><span class="glyphicon glyphicon-edit"></span></a>
+                                        <a href="#" ng-show="editingData[product.id]" ng-click="update(product)"><span class="glyphicon glyphicon-floppy-disk"></span></a>
+                                    </td>
+                                }else{
+                                    @if(header.equals("Delete")){
+                                        <td>
+                                            <a href="#" ng-hide="deletingData[product.id]" ng-click="delete(product.id)"><span class="glyphicon glyphicon-remove"></span></a>
+                                        </td>
+                                    }else {
+                                    <td>
+                                        <div ng-hide="editingData[product.id]">{{product.@feildName}}</div>
+                                        <div ng-show="editingData[product.id]"><input type="text" ng-model="product.@feildName" /></div>
+                                    </td>
+                                    }
+                                }
+                            }
+                        }
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+<script>
+
+    var listViewApp = angular.module("myApp", []);
+
+    listViewApp.controller("ProductController", function ($scope, $http) {
+            $scope.products = [];
+            $scope.editingData = {};
+            $scope.input = "";
+            $scope.offset = 0;
+            $scope.loadDataOnScroll = true;
+            $scope.doSearch = function() {
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : "@{searchUrl}" + $scope.input+"?offset="+$scope.offset,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data["result"]!=null && data["result"].length>0){
+                        $scope.products = [];
+                        $scope.products = $scope.products.concat(data["result"]);
+                        $scope.editingData = {};
+
+                        for (var i = 0, length = $scope.products.length; i < length; i++) {
+                            $scope.editingData[$scope.products[i].id] = false;
+                        }
+
+                    }else{
+                        $scope.loadDataOnScroll=false;
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+            };
+            $scope.doSearch();
+
+            $scope.delete = function(id) {
+                if(window.confirm("Are you sure you want to delete this record?")){
+                    var httpRequest = $http({
+                        method : 'GET',
+                        url : "@{deleteUrl}" + id,
+                    }).success(function(data, status) {
+                        console.log(data);
+                        if(data.success = "success"){
+                            $scope.offset = 0;
+                            $scope.products = [];
+                            $scope.loadDataOnScroll = true;
+                            $scope.doSearch();
+                        }else{
+                            alert('Record deletion failed.');
+                            return false;
+                        }
+                    }).error(function(arg) {
+                        console.log(arg);
+                    });
+                }
+            };
+
+        $scope.sort = function(keyname){
+            $scope.sortKey = keyname;
+            $scope.reverse = !$scope.reverse;
+        };
+
+        $scope.modify = function(tableData){
+          $scope.editingData[tableData.id] = true;
+        };
+
+        $scope.update = function(tableData){
+            $.ajax({
+                             type : "POST",
+                             dataType: "json",
+                             url : "@editUrl"+tableData.id,
+                             contentType: "application/json; charset=utf-8",
+                             data: JSON.stringify(tableData),
+                             success : function(data, status) {
+                             console.log(data);
+                                if(data.success = "success"){
+                                    $scope.offset = 0;
+                                    $scope.products = [];
+                                    $scope.loadDataOnScroll = true;
+                                    $scope.doSearch();
+                                }else if(data.failure = "failure"){
+                                    alert('Please Enter Name value');
+                                    return false;
+                                }else if(data.dataExist = "dataExist"){
+                                    alert('Data already exist.');
+                                    return;
+                                }
+                             },
+                             error : function() {
+                                 return false;
+                             }
+                 });
+        };
+
+        $scope.loadMore = function() {
+            $scope.offset = $scope.offset+20;
+            if($scope.loadDataOnScroll){
+                $scope.doSearch();
+            }
+        }
+
+        }); //end of angular Js
+
+    </script>
+}

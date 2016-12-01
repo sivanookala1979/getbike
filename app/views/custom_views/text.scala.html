@@ -1,0 +1,15 @@
+@(field: Field, label: String = "CHANGEME", placeholder: String = "", help: String = "", colValue: String="", labelClass: String="col-sm-3", textClass: String="col-sm-9", disableField: String = "")
+
+  <div class="form-group @if(field.hasErrors) {has-error}">
+      <label class="@labelClass control-label">@label</label>
+      <div class="@textClass">
+        <input type="text"
+                class="form-control"
+                id="@field.id"
+                name="@field.name"
+                value="@colValue"
+              placeholder="@placeholder" @if(disableField.equals("edit")) {readOnly}/>
+        <span class="help-block">@help</span>
+        <span class="help-block">@{<!--field.error.map { error => error.message }-->}</span>
+     </div>
+  </div>
