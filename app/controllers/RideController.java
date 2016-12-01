@@ -128,13 +128,13 @@ public class RideController extends BaseController {
             if (ride != null && RideAccepted.equals(ride.getRideStatus())) {
                 ride.setRideStatus(RideClosed);
                 List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
-                ride.setOrderDistance(DistanceUtils.distanceMeters(locations));
+                ride.setOrderDistance(DistanceUtils.distanceKilometers(locations));
                 ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
-                ride.setTotalFare(ride.getOrderAmount());
+                ride.setTotalFare(DistanceUtils.round2(ride.getOrderAmount()));
                 ride.setTaxesAndFees(DistanceUtils.round2(ride.getTotalFare() * 0.061));
-                ride.setSubTotal(ride.getTotalFare() + ride.getTaxesAndFees());
-                ride.setRoundingOff((ride.getSubTotal() - ride.getSubTotal().intValue()));
-                ride.setTotalBill((double) ride.getSubTotal().intValue());
+                ride.setSubTotal(DistanceUtils.round2(ride.getTotalFare() + ride.getTaxesAndFees()));
+                ride.setRoundingOff(DistanceUtils.round2((ride.getSubTotal() - ride.getSubTotal().intValue())));
+                ride.setTotalBill(DistanceUtils.round2((double) ride.getSubTotal().intValue()));
                 if (locations.size() >= 2) {
                     ride.setRideStartedAt(locations.get(0).getLocationTime());
                     ride.setRideEndedAt(locations.get(locations.size() - 1).getLocationTime());
