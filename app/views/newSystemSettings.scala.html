@@ -4,12 +4,14 @@
 @import views.html.custom_views._
 
 @systemSettingsId = @{session.get("systemSettingsId")}
-@main("Get Bike"){
+@main("Get Bike", "New System Settings"){
 <script>
     $(document).ready(function(){
+        $("#cancelButton").on('click', function(){
+            location.href="/systemSettings/systemSettingList";
+        });
         $("#saveButton").on('click', function(){
                 var jsonResponse = tableToJson();
-                alert('json->'+JSON.stringify(jsonResponse));
                 $.ajax({
                              type : "POST",
                              dataType: "json",
@@ -52,8 +54,8 @@
     </div>
     }
     <div class="row"  style="margin-top:2px; margin: 0px;">
-        <div class="row">
-            <div class="col-sm-6">
+        <div class="row text-center">
+            <div class="col-sm-4">
                 @text(systemSettingsForm("key"),
                 label = "",
                 placeholder = "Key",
@@ -61,7 +63,7 @@
                 labelClass="",
                 textClass="col-sm-12 text-left")
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 @text(systemSettingsForm("value"),
                 label = "",
                 placeholder = "Value",
@@ -69,25 +71,14 @@
                 labelClass="",
                 textClass="col-sm-12 text-left")
             </div>
-        </div>
-
-        @if(null != systemSettingsId){
-            <input type="hidden" name="systemSettingsId" id="systemSettingsId" value="@systemSettingsId">
-        }
-
-        <div class="col-sm-12">
             <button type="button" id="cancelButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
                 Cancel
             </button>
-            @if(pageType.equals("edit")){
-            <buton type="button" id="editButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-                Update
-            </buton>
-            }else{
             <button type="button" id="saveButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
                 Save
             </button>
-            }
+        </div>
+
         </div>
     </div>
 </div>

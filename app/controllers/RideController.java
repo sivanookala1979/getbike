@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ride;
 import models.RideLocation;
+import models.SystemSettings;
 import models.User;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -15,6 +16,7 @@ import utils.IGcmUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static dataobject.RideStatus.*;
@@ -24,6 +26,8 @@ import static dataobject.RideStatus.*;
  */
 public class RideController extends BaseController {
 
+    public LinkedHashMap<String, String> rideTableHeaders=getTableHeadersList(new String[]{"","", "Ride Id", "Rider Id"}, new String[]{"", "", "id", "riderId"});
+    public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"","", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime","latitude","longitude"});
     @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
         User user = currentUser();
@@ -295,4 +299,42 @@ public class RideController extends BaseController {
         return User.find.all();
     }
 
+    public Result rideList(){
+        return ok(views.html.rideList.render(rideTableHeaders));
+    }
+
+    public Result rideLocationList(){
+        return ok(views.html.rideLocationList.render(rideLocationTableHeaders));
+    }
+
+    public Result performSearch(String name) {
+        String offsetParam = request().getQueryString("offset");
+        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
+        List<Ride> rideList = null;
+        if(name!=null && !name.isEmpty()){
+            rideList= Ride.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
+        }else {
+            rideList = Ride.find.where().findList();
+        }
+        ObjectNode objectNode = Json.newObject();
+        setJson(objectNode, "OffSet", offSet);
+        setResult(objectNode, rideList);
+        return ok(Json.toJson(objectNode));
+    }
+
+
+    public Result performSearch1(String name) {
+        String offsetParam = request().getQueryString("offset");
+        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
+        List<RideLocation> rideLocationList = null;
+        if(name!=null && !name.isEmpty()){
+            rideLocationList= RideLocation.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
+        }else {
+            rideLocationList = RideLocation.find.where().findList();
+        }
+        ObjectNode objectNode = Json.newObject();
+        setJson(objectNode, "OffSet", offSet);
+        setResult(objectNode, rideLocationList);
+        return ok(Json.toJson(objectNode));
+    }
 }

@@ -29,7 +29,7 @@ public class SystemSettingsController extends BaseController {
     FormFactory formFactory;
     public LinkedHashMap<String, String> tableHeaders=getTableHeadersList(new String[]{"Edit","Delete", "#", "Settings Key", "Settings Value"}, new String[]{"", "", "id", "key",  "value"});
 
-    public Result newSystemSetting() {
+    public Result newSystemSettings() {
         Form<SystemSettings> systemSettingsForm = formFactory.form(SystemSettings.class).bindFromRequest();
         String pageType ="New";
         return ok(views.html.newSystemSettings.render(systemSettingsForm, pageType));
@@ -68,18 +68,13 @@ public class SystemSettingsController extends BaseController {
     }
 
     public Result performSearch(String name) {
-        String offsetParam = request().getQueryString("offset");
-        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
         List<SystemSettings> systemSettings = null;
         if(name!=null && !name.isEmpty()){
-            systemSettings= SystemSettings.find.where().like("upper(key)", "%" + name.toUpperCase() + "%").like("upper(value)", "%" +name.toUpperCase()+"%").findList();
+            systemSettings= SystemSettings.find.where().like("upper(key)", "%" + name.toUpperCase() + "%").findList();
         }else {
             systemSettings = SystemSettings.find.where().findList();
         }
-        ObjectNode objectNode = Json.newObject();
-        setJson(objectNode, "OffSet", offSet);
-        setResult(objectNode, systemSettings);
-        return ok(Json.toJson(objectNode));
+        return ok(Json.toJson(systemSettings));
     }
 
     public Result editSystemSetting(Long id){

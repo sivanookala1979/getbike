@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
+@(title: String, header: String)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,9 +25,32 @@
     </head>
     <body>
     <div class="container" data-ng-app="myApp">
-        @* And here's where we render the `Html` object containing
+     <div class="row">
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+              <li class="active"><a href="/">Home</a></li>
+              <li><a href="/users/usersList">Users</a></li>
+              <li><a href="/ride/rideList">Ride</a></li>
+              <li><a href="/rideLocation/rideLocationList">Ride Location</a></li>
+              <li><a href="/users/loginOtpList">Login OTP</a></li>
+              <li><a href="/systemSettings/systemSettingList">System Settings</a></li>
+        </ul>
+     </div>
+
+    <div class="navbar navbar-inverse" role="navigation">
+        <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <!--  Display three horizontal lines when navbar collapsed. -->
+          <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+        </button>
+        <span class="navbar-brand" style="color:white">@header</span>
+      </div>
+    </div>
+    </div>
+       @* And here's where we render the `Html` object containing
          * the page content. *@
         @content
-       </div>
+    </div>
+
     </body>
 </html>

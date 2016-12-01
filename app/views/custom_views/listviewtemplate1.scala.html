@@ -1,5 +1,5 @@
-@(header: String = "", colClass: String ="", tableHeaders: LinkedHashMap[String, String], searchUrl: String, editUrl: String = "", deleteUrl: String ="")
-@main("Get Bike"){
+@(header: String = "", colClass: String ="", tableHeaders: LinkedHashMap[String, String], isRequired: String ="", newUrl: String ="", searchUrl: String, editUrl: String = "", deleteUrl: String ="")
+@main("Get Bike", ""){
 <style>
 .dialog_table{
 		margin-top: 100px;
@@ -32,7 +32,11 @@ th {
                     <div class="col-sm-6 text-left" style="padding-bottom:10px;">
                         <input data-ng-model="input" placeholder="Search" data-ng-change="doSearch(input)" style="margin-top: 15px; border-radius: 10px;" autofocus>
                     </div>
-
+                    @if(isRequired.equalsIgnoreCase("Yes")){
+                        <div class="col-sm-6 text-right" style="padding-top:10px;">
+                            <a href='@{newUrl}'><img src="@routes.Assets.versioned("images/plus.png")" width="25"></a>
+                        </div>
+                    }
                 </div>
                 <table class="table table-striped" style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%">
                     <thead style="border-bottom: 1px solid grey;">
@@ -86,25 +90,21 @@ th {
             $scope.products = [];
             $scope.editingData = {};
             $scope.input = "";
-            $scope.offset = 0;
-            $scope.loadDataOnScroll = true;
             $scope.doSearch = function() {
                 var httpRequest = $http({
                     method : 'GET',
-                    url : "@{searchUrl}" + $scope.input+"?offset="+$scope.offset,
+                    url : "@{searchUrl}" + $scope.input,
                 }).success(function(data, status) {
                     console.log(data);
-                    if(data["result"]!=null && data["result"].length>0){
+                    if(data!=null && data.length>0){
                         $scope.products = [];
-                        $scope.products = $scope.products.concat(data["result"]);
+                        $scope.products = data;
                         $scope.editingData = {};
 
                         for (var i = 0, length = $scope.products.length; i < length; i++) {
                             $scope.editingData[$scope.products[i].id] = false;
                         }
 
-                    }else{
-                        $scope.loadDataOnScroll=false;
                     }
                 }).error(function(arg) {
                     console.log(arg);
@@ -120,7 +120,6 @@ th {
                     }).success(function(data, status) {
                         console.log(data);
                         if(data.success = "success"){
-                            $scope.offset = 0;
                             $scope.products = [];
                             $scope.loadDataOnScroll = true;
                             $scope.doSearch();
@@ -153,7 +152,6 @@ th {
                              success : function(data, status) {
                              console.log(data);
                                 if(data.success = "success"){
-                                    $scope.offset = 0;
                                     $scope.products = [];
                                     $scope.loadDataOnScroll = true;
                                     $scope.doSearch();
@@ -170,14 +168,6 @@ th {
                              }
                  });
         };
-
-        $scope.loadMore = function() {
-            $scope.offset = $scope.offset+20;
-            if($scope.loadDataOnScroll){
-                $scope.doSearch();
-            }
-        }
-
         }); //end of angular Js
 
     </script>

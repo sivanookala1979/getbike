@@ -3,38 +3,57 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-GET     /index                           controllers.HomeController.index
-GET     /users                           controllers.UserController.index
-POST     /signup                     controllers.UserController.signup
-POST     /login                     controllers.UserController.login
-POST     /loginWithOtp                     controllers.UserController.loginWithOtp
-GET     /storeGcmCode                     controllers.UserController.storeGcmCode
-POST     /getBike                    controllers.RideController.getBike
-GET     /acceptRide                    controllers.RideController.acceptRide
-GET     /closeRide                    controllers.RideController.closeRide
-GET     /ridePath                    controllers.RideController.ridePath
-GET     /openRides                  controllers.RideController.openRides
-GET     /currentRide                  controllers.RideController.currentRide
-GET     /getRideById                  controllers.RideController.getRideById
-GET     /getMyCompletedRides                  controllers.RideController.getMyCompletedRides
-GET     /getRidesGivenByMe                  controllers.RideController.getRidesGivenByMe
-GET     /getCompleteRideById                  controllers.RideController.getCompleteRideById
-GET     /getPublicProfile/:userId                  controllers.UserController.getPublicProfile(userId:Long)
-POST    /storeLocations             controllers.RideController.storeLocations
-POST    /estimateRide             controllers.RideController.estimateRide
-POST    /storeDrivingLicense      controllers.UserController.storeDrivingLicense
-POST    /storeVehiclePlate      controllers.UserController.storeVehiclePlate
-GET     /uploads/:name                   controllers.HomeController.imageAt(name:String)
+GET     /                                       controllers.HomeController.index
+GET     /index                                  controllers.HomeController.index
+GET     /users                                  controllers.UserController.index
+POST    /signup                                 controllers.UserController.signup
+POST    /login                                  controllers.UserController.login
+POST    /loginWithOtp                           controllers.UserController.loginWithOtp
+GET     /storeGcmCode                           controllers.UserController.storeGcmCode
+GET     /users/usersList                        controllers.UserController.usersList
+GET     /users/loginOtpList                     controllers.UserController.loginOtpList
+GET     /users/performSearch                    controllers.UserController.performSearch(label: String="")
+GET     /users/performSearch/                   controllers.UserController.performSearch(label: String="")
+GET     /users/performSearch/:label             controllers.UserController.performSearch(label: String)
+GET     /loginOtp/performSearch                 controllers.UserController.performSearch1(label: String="")
+GET     /loginOtp/performSearch/                controllers.UserController.performSearch1(label: String="")
+GET     /loginOtp/performSearch/:label          controllers.UserController.performSearch1(label: String)
 
-GET     /systemSettings/newSystemSetting   controllers.SystemSettingsController.newSystemSetting
-POST    /systemSettings/saveData   controllers.SystemSettingsController.saveData
-GET     /systemSettings/systemSettingList   controllers.SystemSettingsController.systemSettingList
-POST     /systemSettings/editSystemSetting/:id   controllers.SystemSettingsController.editSystemSetting(id: Long)
-GET     /systemSettings/deleteSystemSetting/:id   controllers.SystemSettingsController.deleteSystemSetting(id: Long)
-GET     /systemSettings/performSearch                      controllers.SystemSettingsController.performSearch(label: String="")
-GET     /systemSettings/performSearch/                     controllers.SystemSettingsController.performSearch(label: String="")
-GET     /systemSettings/performSearch/:label               controllers.SystemSettingsController.performSearch(label: String)
+POST    /getBike                                controllers.RideController.getBike
+GET     /acceptRide                             controllers.RideController.acceptRide
+GET     /closeRide                              controllers.RideController.closeRide
+GET     /ridePath                               controllers.RideController.ridePath
+GET     /ridePath                               controllers.RideController.ridePath
+GET     /openRides                              controllers.RideController.openRides
+GET     /currentRide                            controllers.RideController.currentRide
+GET     /getRideById                            controllers.RideController.getRideById
+GET     /getMyCompletedRides                    controllers.RideController.getMyCompletedRides
+GET     /getRidesGivenByMe                      controllers.RideController.getRidesGivenByMe
+GET     /getCompleteRideById                    controllers.RideController.getCompleteRideById
+GET     /ride/rideList                          controllers.RideController.rideList
+GET     /rideLocation/rideLocationList          controllers.RideController.rideLocationList
+GET     /ride/performSearch                     controllers.RideController.performSearch(label: String="")
+GET     /ride/performSearch/                    controllers.RideController.performSearch(label: String="")
+GET     /ride/performSearch/:label              controllers.RideController.performSearch(label: String)
+GET     /rideLocation/performSearch             controllers.RideController.performSearch1(label: String="")
+GET     /rideLocation/performSearch/            controllers.RideController.performSearch1(label: String="")
+GET     /rideLocation/performSearch/:label      controllers.RideController.performSearch1(label: String)
+
+GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
+POST    /storeLocations                         controllers.RideController.storeLocations
+POST    /estimateRide                           controllers.RideController.estimateRide
+POST    /storeDrivingLicense                    controllers.UserController.storeDrivingLicense
+POST    /storeVehiclePlate                      controllers.UserController.storeVehiclePlate
+GET     /uploads/:name                          controllers.HomeController.imageAt(name:String)
+
+GET     /systemSettings/newSystemSettings        controllers.SystemSettingsController.newSystemSettings
+POST    /systemSettings/saveData                controllers.SystemSettingsController.saveData
+GET     /systemSettings/systemSettingList       controllers.SystemSettingsController.systemSettingList
+POST    /systemSettings/editSystemSetting/:id   controllers.SystemSettingsController.editSystemSetting(id: Long)
+GET     /systemSettings/deleteSystemSetting/:id controllers.SystemSettingsController.deleteSystemSetting(id: Long)
+GET     /systemSettings/performSearch           controllers.SystemSettingsController.performSearch(label: String="")
+GET     /systemSettings/performSearch/          controllers.SystemSettingsController.performSearch(label: String="")
+GET     /systemSettings/performSearch/:label    controllers.SystemSettingsController.performSearch(label: String)
 
 
 # Map static resources from the /public folder to the /assets URL path

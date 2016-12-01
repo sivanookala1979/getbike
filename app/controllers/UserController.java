@@ -13,9 +13,7 @@ import utils.GetBikeErrorCodes;
 import utils.NumericUtils;
 
 import java.io.*;
-import java.util.Base64;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static utils.CustomCollectionUtils.first;
 
@@ -24,6 +22,9 @@ import static utils.CustomCollectionUtils.first;
  * to the application's home page.
  */
 public class UserController extends BaseController {
+
+    public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"","", "#", "User Id", "OTP", "Created At"}, new String[]{"", "", "id", "userId",  "generatedOtp","createdAt"});
+    public LinkedHashMap<String, String> userTableHeaders = getTableHeadersList(new String[]{"","", "#", "Name", "Phone Number","Auth.Token", "Gcm Code"}, new String[]{"", "", "id", "name", "phoneNumber","authToken","gcmCode"});
 
     public Result index() {
         return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
@@ -216,5 +217,41 @@ public class UserController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    public Result loginOtpList(){
+        return ok(views.html.loginOtpList.render(loginOtpTableHeaders));
+    }
+
+    public Result usersList(){
+        return ok(views.html.usersList.render(userTableHeaders));
+    }
+
+    public Result performSearch(String name) {
+        List<User> userList = null;
+        if(name!=null && !name.isEmpty()){
+            userList= User.find.where().like("upper(name)", "%" + name.toUpperCase() + "%").findList();
+        }else {
+            userList = User.find.where().findList();
+        }
+        return ok(Json.toJson(userList));
+    }
+
+
+    public Result performSearch1(String name) {
+        String offsetParam = request().getQueryString("offset");
+        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
+        List<LoginOtp> loginOtpList = null;
+        if(name!=null && !name.isEmpty()){
+            loginOtpList= LoginOtp.find.where().like("upper(user_id)", "%" + name.toUpperCase() + "%").findList();
+        }else {
+            loginOtpList = LoginOtp.find.where().findList();
+        }
+        ObjectNode objectNode = Json.newObject();
+        setJson(objectNode, "OffSet", offSet);
+        setResult(objectNode, loginOtpList);
+        return ok(Json.toJson(objectNode));
     }
 }
