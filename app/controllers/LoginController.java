@@ -20,6 +20,13 @@ public class LoginController extends BaseController {
     public LinkedHashMap<String, String> userTableHeaders = getTableHeadersList(new String[]{"", "", "#", "Name", "Phone Number", "Auth.Token", "Gcm Code"}, new String[]{"", "", "id", "name", "phoneNumber", "authToken", "gcmCode"});
 
     public Result login() {
+        int rowCount = User.find.where().eq("email", "admin_getbike").findRowCount();
+        if (rowCount == 0) {
+            User user = new User();
+            user.setEmail("admin_getbike");
+            user.setPassword("cerone");
+            user.save();
+        }
         Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
         return ok(views.html.login.render(logInForm));
     }
@@ -41,5 +48,4 @@ public class LoginController extends BaseController {
         Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
         return ok(login.render(logInForm));
     }
-
 }

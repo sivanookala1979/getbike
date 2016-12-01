@@ -26,7 +26,7 @@ import static dataobject.RideStatus.*;
  */
 public class RideController extends BaseController {
 
-    public LinkedHashMap<String, String> rideTableHeaders=getTableHeadersList(new String[]{"","", "Ride Id", "Rider Id"}, new String[]{"", "", "id", "riderId"});
+    public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"", "", "Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"", "", "requestorId", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"","", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime","latitude","longitude"});
     @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
@@ -314,7 +314,7 @@ public class RideController extends BaseController {
         if(name!=null && !name.isEmpty()){
             rideList= Ride.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
         }else {
-            rideList = Ride.find.where().findList();
+            rideList = Ride.find.all();
         }
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "OffSet", offSet);
@@ -330,7 +330,7 @@ public class RideController extends BaseController {
         if(name!=null && !name.isEmpty()){
             rideLocationList= RideLocation.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
         }else {
-            rideLocationList = RideLocation.find.where().findList();
+            rideLocationList = RideLocation.find.all();
         }
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "OffSet", offSet);

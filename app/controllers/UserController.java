@@ -234,7 +234,7 @@ public class UserController extends BaseController {
         if(name!=null && !name.isEmpty()){
             userList= User.find.where().like("upper(name)", "%" + name.toUpperCase() + "%").findList();
         }else {
-            userList = User.find.where().findList();
+            userList = User.find.all();
         }
         return ok(Json.toJson(userList));
     }
@@ -247,7 +247,7 @@ public class UserController extends BaseController {
         if(name!=null && !name.isEmpty()){
             loginOtpList= LoginOtp.find.where().like("upper(user_id)", "%" + name.toUpperCase() + "%").findList();
         }else {
-            loginOtpList = LoginOtp.find.where().findList();
+            loginOtpList = LoginOtp.find.all();
         }
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "OffSet", offSet);

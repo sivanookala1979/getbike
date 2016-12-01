@@ -72,7 +72,7 @@ public class SystemSettingsController extends BaseController {
         if(name!=null && !name.isEmpty()){
             systemSettings= SystemSettings.find.where().like("upper(key)", "%" + name.toUpperCase() + "%").findList();
         }else {
-            systemSettings = SystemSettings.find.where().findList();
+            systemSettings = SystemSettings.find.all();
         }
         return ok(Json.toJson(systemSettings));
     }
