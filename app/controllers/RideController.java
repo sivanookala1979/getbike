@@ -126,6 +126,10 @@ public class RideController extends BaseController {
                 List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
                 ride.setOrderDistance(DistanceUtils.distanceMeters(locations));
                 ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
+                if (locations.size() >= 2) {
+                    ride.setRideStartedAt(locations.get(0).getLocationTime());
+                    ride.setRideEndedAt(locations.get(locations.size() - 1).getLocationTime());
+                }
                 ride.save();
                 User requestor = User.find.byId(ride.getRequestorId());
                 IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
