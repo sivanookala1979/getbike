@@ -27,6 +27,11 @@ create table ride (
   start_longitude               double,
   source_address                varchar(255),
   destination_address           varchar(255),
+  total_fare                    double,
+  taxes_and_fees                double,
+  sub_total                     double,
+  rounding_off                  double,
+  total_bill                    double,
   constraint ck_ride_ride_status check (ride_status in ('RideRequested','RideAccepted','RideClosed')),
   constraint pk_ride primary key (id)
 );

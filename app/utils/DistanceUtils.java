@@ -59,7 +59,7 @@ public class DistanceUtils {
 
 
     public static int timeInMinutes(List<RideLocation> locationList) {
-        return (int)((locationList.get(locationList.size() - 1).getLocationTime().getTime() - locationList.get(0).getLocationTime().getTime()) / (1000.0 * 60.0));
+        return (int) ((locationList.get(locationList.size() - 1).getLocationTime().getTime() - locationList.get(0).getLocationTime().getTime()) / (1000.0 * 60.0));
     }
 
     public static double estimateBasePrice(double distanceInKilometers) {
@@ -88,6 +88,14 @@ public class DistanceUtils {
         if (timeInMinutes > freeTimeInMinutes) {
             result += (timeInMinutes - freeTimeInMinutes) * pricePerMinute;
         }
-        return result;
+        return round1(result);
+    }
+
+    public static double round1(double result) {
+        return (Math.round(result * 10.0)) / 10.0;
+    }
+
+    public static double round2(double result) {
+        return (Math.round(result * 100.0)) / 100.0;
     }
 }
