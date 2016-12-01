@@ -1,9 +1,16 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import models.User;
+import models.UserLogin;
+import play.Logger;
+import play.data.Form;
+import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Result;
+import sun.rmi.runtime.Log;
 
 import java.util.LinkedHashMap;
 
@@ -14,6 +21,9 @@ public class BaseController extends Controller {
     public static final String FAILURE = "failure";
     public static final String SUCCESS = "success";
     public static final String RESULT = "result";
+
+    @Inject
+    FormFactory formFactory;
 
     protected User currentUser() {
         String authToken = request().getHeader("Authorization");
@@ -42,7 +52,6 @@ public class BaseController extends Controller {
     protected void setResult(ObjectNode jsonObject, Object data) {
         jsonObject.set(RESULT, Json.toJson(data));
     }
-
     protected LinkedHashMap<String, String> getTableHeadersList(String[] keys, String[] values)
     {
         LinkedHashMap<String, String> result=new LinkedHashMap<String, String>();
@@ -51,4 +60,10 @@ public class BaseController extends Controller {
         }
         return result;
     }
+
+    protected boolean isValidateSession() {
+        return session("User") != null;
+
+    }
+
 }

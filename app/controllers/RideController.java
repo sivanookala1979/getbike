@@ -300,10 +300,16 @@ public class RideController extends BaseController {
     }
 
     public Result rideList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
         return ok(views.html.rideList.render(rideTableHeaders));
     }
 
     public Result rideLocationList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
         return ok(views.html.rideLocationList.render(rideLocationTableHeaders));
     }
 

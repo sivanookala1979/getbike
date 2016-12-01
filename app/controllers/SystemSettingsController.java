@@ -64,6 +64,9 @@ public class SystemSettingsController extends BaseController {
     }
 
     public Result systemSettingList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
         return  ok(views.html.systemSettingsList.render(tableHeaders));
     }
 

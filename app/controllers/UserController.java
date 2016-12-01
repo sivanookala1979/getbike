@@ -2,10 +2,9 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.LoginOtp;
-import models.Ride;
-import models.RideLocation;
-import models.User;
+import models.*;
+import play.Logger;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -222,10 +221,16 @@ public class UserController extends BaseController {
 
 
     public Result loginOtpList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
         return ok(views.html.loginOtpList.render(loginOtpTableHeaders));
     }
 
     public Result usersList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
         return ok(views.html.usersList.render(userTableHeaders));
     }
 

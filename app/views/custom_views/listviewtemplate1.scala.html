@@ -23,10 +23,15 @@
 th {
     cursor:pointer;
 }
+#test{
+    width: 100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+}
 </style>
 <div class="container" id="list-view-app-id">
     <div class="row">
-        <div class="@colClass text-center" style="width: 100%; overflow: auto;">
+        <div class="@colClass text-center" style="">
             <div data-ng-controller="ProductController">
                 <div class="row">
                     <div class="col-sm-6 text-left" style="padding-bottom:10px;">
@@ -38,7 +43,9 @@ th {
                         </div>
                     }
                 </div>
-                <table class="table table-striped" style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%">
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;overflow: auto;">
                     <thead style="border-bottom: 1px solid grey;">
                     @for((header, searchItem) <- tableHeaders){
                     <th ng-click="sort('@{searchItem}')">@header
@@ -76,6 +83,7 @@ th {
                     </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
