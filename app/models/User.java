@@ -18,6 +18,7 @@ public class User extends Model {
 
     public String name;
     public String email;
+    public String password;
     public String phoneNumber;
     public char gender;
     public String authToken;
@@ -124,5 +125,13 @@ public class User extends Model {
 
     public void setValidProofsUploaded(boolean validProofsUploaded) {
         this.validProofsUploaded = validProofsUploaded;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
