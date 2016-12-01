@@ -148,6 +148,7 @@ public class RideControllerTest extends BaseControllerTest {
                 "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
 
         Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        when(gcmUtilsMock.sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
         List<RideLocation> rideLocations = new ArrayList<>();
 
 
@@ -169,6 +170,7 @@ public class RideControllerTest extends BaseControllerTest {
         double expectedDistance = DistanceUtils.distanceMeters(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
         assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
         assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations)), rideJsonObject.get("orderAmount").doubleValue());
+        verify(gcmUtilsMock).sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
     }
 
 

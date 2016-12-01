@@ -127,6 +127,9 @@ public class RideController extends BaseController {
                 ride.setOrderDistance(DistanceUtils.distanceMeters(locations));
                 ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
                 ride.save();
+                User requestor = User.find.byId(ride.getRequestorId());
+                IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                gcmUtils.sendMessage(requestor, "Your ride is now closed.", "rideClosed", ride.getId());
                 objectNode.set("ride", Json.toJson(ride));
                 result = SUCCESS;
             }
