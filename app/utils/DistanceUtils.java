@@ -57,9 +57,12 @@ public class DistanceUtils {
         return ((int) (distanceMeters(locationList) / 10)) / 100.0;
     }
 
-
     public static int timeInMinutes(List<RideLocation> locationList) {
-        return (int) ((locationList.get(locationList.size() - 1).getLocationTime().getTime() - locationList.get(0).getLocationTime().getTime()) / (1000.0 * 60.0));
+        int result = 0;
+        if (locationList.size() >= 2) {
+            result = (int) ((locationList.get(locationList.size() - 1).getLocationTime().getTime() - locationList.get(0).getLocationTime().getTime()) / (1000.0 * 60.0));
+        }
+        return result;
     }
 
     public static double estimateBasePrice(double distanceInKilometers) {

@@ -34,6 +34,23 @@ public class DistanceUtilsTest {
     }
 
     @Test
+    public void distanceInMinutesTESTHappyFlow() {
+        List<RideLocation> locationList = new ArrayList<>();
+        double latlongs[] = {14.9026234, 79.9940092,
+                14.9026312, 79.9940611};
+        for (int i = 0; i < latlongs.length; i += 2) {
+            locationList.add(RideLocationMother.createRideLocation(23l, latlongs[i], latlongs[i + 1], i));
+        }
+        assertEquals(2, DistanceUtils.timeInMinutes(locationList));
+    }
+
+    @Test
+    public void distanceInMinutesTESTWithNoLocations() {
+        List<RideLocation> locationList = new ArrayList<>();
+        assertEquals(0, DistanceUtils.timeInMinutes(locationList));
+    }
+
+    @Test
     public void estimateBasePriceTESTHappyFlow() {
         assertEquals(353.0, DistanceUtils.estimateBasePrice(50));
         assertEquals(73.0, DistanceUtils.estimateBasePrice(10));

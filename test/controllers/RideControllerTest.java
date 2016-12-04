@@ -167,7 +167,7 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode rideJsonObject = closeRideJsonNode.get("ride");
         assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
         assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
-        double expectedDistance = DistanceUtils.distanceMeters(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
+        double expectedDistance = DistanceUtils.distanceKilometers(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
         assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
         assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations)), rideJsonObject.get("orderAmount").doubleValue());
         verify(gcmUtilsMock).sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());

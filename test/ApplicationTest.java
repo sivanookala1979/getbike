@@ -19,7 +19,6 @@ public class ApplicationTest extends WithApplication {
                 .build();
     }
 
-    @Test
     public void testIndex() {
         Result result = new HomeController().index();
         assertEquals(OK, result.status());
