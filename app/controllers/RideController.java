@@ -349,23 +349,13 @@ public class RideController extends BaseController {
     }
 
     public Result performSearch(String name) {
-        String offsetParam = request().getQueryString("offset");
-        Integer offSet = (offsetParam == null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
         List<Ride> rideList = Ride.find.all();
-        ObjectNode objectNode = Json.newObject();
-        setJson(objectNode, "OffSet", offSet);
-        setResult(objectNode, rideList);
-        return ok(Json.toJson(objectNode));
+        return ok(Json.toJson(rideList));
     }
 
 
     public Result performSearch1(String name) {
-        String offsetParam = request().getQueryString("offset");
-        Integer offSet = (offsetParam == null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
         List<RideLocation> rideLocationList = RideLocation.find.all();
-        ObjectNode objectNode = Json.newObject();
-        setJson(objectNode, "OffSet", offSet);
-        setResult(objectNode, rideLocationList);
-        return ok(Json.toJson(objectNode));
+        return ok(Json.toJson(rideLocationList));
     }
 }
