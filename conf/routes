@@ -23,6 +23,7 @@ GET     /loginOtp/performSearch/                controllers.UserController.perfo
 GET     /loginOtp/performSearch/:label          controllers.UserController.performSearch1(label: String)
 
 POST    /getBike                                controllers.RideController.getBike
+POST    /hailCustomer                           controllers.RideController.hailCustomer
 GET     /acceptRide                             controllers.RideController.acceptRide
 GET     /closeRide                              controllers.RideController.closeRide
 GET     /ridePath                               controllers.RideController.ridePath

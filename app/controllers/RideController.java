@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ride;
 import models.RideLocation;
-import models.SystemSettings;
 import models.User;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -27,7 +26,8 @@ import static dataobject.RideStatus.*;
 public class RideController extends BaseController {
 
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"", "", "Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"", "", "requestorId", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
-    public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"","", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime","latitude","longitude"});
+    public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
+
     @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
         User user = currentUser();
@@ -75,6 +75,41 @@ public class RideController extends BaseController {
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
     }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result hailCustomer() {
+        User user = currentUser();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        if (user != null) {
+            JsonNode locationsJson = request().body().asJson();
+            Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
+            Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
+            Ride ride = new Ride();
+            ride.setStartLatitude(startLatitude);
+            ride.setStartLongitude(startLongitude);
+            ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
+            ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+            ride.setRiderId(user.getId());
+            String phoneNumber = locationsJson.get("phoneNumber").textValue();
+            User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
+            if (requestor == null) {
+                requestor = new User();
+                requestor.setPhoneNumber(phoneNumber);
+                requestor.save();
+            }
+            ride.setRequestorId(requestor.getId());
+            ride.setRideStatus(RideAccepted);
+            ride.setRequestedAt(new Date());
+            ride.setAcceptedAt(ride.getRequestedAt());
+            ride.save();
+            result = SUCCESS;
+            setJson(objectNode, Ride.RIDE_ID, ride.getId());
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result storeLocations() {
@@ -299,14 +334,14 @@ public class RideController extends BaseController {
         return User.find.all();
     }
 
-    public Result rideList(){
+    public Result rideList() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.rideList.render(rideTableHeaders));
     }
 
-    public Result rideLocationList(){
+    public Result rideLocationList() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
@@ -315,13 +350,8 @@ public class RideController extends BaseController {
 
     public Result performSearch(String name) {
         String offsetParam = request().getQueryString("offset");
-        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
-        List<Ride> rideList = null;
-        if(name!=null && !name.isEmpty()){
-            rideList= Ride.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
-        }else {
-            rideList = Ride.find.all();
-        }
+        Integer offSet = (offsetParam == null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
+        List<Ride> rideList = Ride.find.all();
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "OffSet", offSet);
         setResult(objectNode, rideList);
@@ -331,13 +361,8 @@ public class RideController extends BaseController {
 
     public Result performSearch1(String name) {
         String offsetParam = request().getQueryString("offset");
-        Integer offSet= (offsetParam==null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
-        List<RideLocation> rideLocationList = null;
-        if(name!=null && !name.isEmpty()){
-            rideLocationList= RideLocation.find.where().like("upper(requestor_id)", "%" + name.toUpperCase() + "%").findList();
-        }else {
-            rideLocationList = RideLocation.find.all();
-        }
+        Integer offSet = (offsetParam == null || offsetParam.isEmpty()) ? 0 : Integer.parseInt(offsetParam);
+        List<RideLocation> rideLocationList = RideLocation.find.all();
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "OffSet", offSet);
         setResult(objectNode, rideLocationList);

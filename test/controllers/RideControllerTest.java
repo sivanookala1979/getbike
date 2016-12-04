@@ -58,6 +58,61 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void hailCustomerTESTWithNoPreviousUser() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
+        JsonNode jsonNode = jsonFromResult(result);
+        User requestor = User.find.where().eq("phoneNumber", "7776663334").findUnique();
+        assertNotNull(requestor);
+        assertNotNull(ride);
+        assertEquals(user.getId(), ride.getRiderId());
+        assertEquals(requestor.getId(), ride.getRequestorId());
+        assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
+        assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
+        assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
+        assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
+        assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideAccepted, ride.getRideStatus());
+    }
+
+    @Test
+    public void hailCustomerTESTWithExistingUser() {
+        User user = loggedInUser();
+        User requestor = new User();
+        requestor.setPhoneNumber("7776663334");
+        requestor.save();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
+        JsonNode jsonNode = jsonFromResult(result);
+        assertNotNull(ride);
+        assertEquals(user.getId(), ride.getRiderId());
+        assertEquals(requestor.getId(), ride.getRequestorId());
+        assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
+        assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
+        assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
+        assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
+        assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideAccepted, ride.getRideStatus());
+    }
+
+    @Test
     public void getBikeTESTWithAccessToken() {
         User user = loggedInUser();
         User otherUser = new User();
