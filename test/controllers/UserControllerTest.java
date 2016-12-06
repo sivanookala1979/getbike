@@ -14,6 +14,7 @@ import utils.GetBikeErrorCodes;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -167,6 +168,18 @@ public class UserControllerTest extends BaseControllerTest {
                 "gcmCode" + "=" + gcmCode));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void storeLastKnownLocationTESTHappyFlow() {
+        User user = loggedInUser();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("lastKnownLatitude", 54.67);
+        objectNode.put("lastKnownLongitude", 21.34);
+        objectNode.set("lastLocationTime", Json.toJson(new Date()));
+        Result result = route(fakeRequest(POST, "/storeLastKnownLocation").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
     }
 
     @Test

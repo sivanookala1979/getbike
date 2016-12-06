@@ -12,6 +12,7 @@ GET     /users                                  controllers.UserController.index
 POST    /signup                                 controllers.UserController.signup
 POST    /login                                  controllers.UserController.login
 POST    /loginWithOtp                           controllers.UserController.loginWithOtp
+POST    /storeLastKnownLocation                 controllers.UserController.storeLastKnownLocation
 GET     /storeGcmCode                           controllers.UserController.storeGcmCode
 GET     /users/usersList                        controllers.UserController.usersList
 GET     /users/loginOtpList                     controllers.UserController.loginOtpList

@@ -107,6 +107,26 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result storeLastKnownLocation() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            JsonNode userJson = request().body().asJson();
+            User userLocation = Json.fromJson(userJson, User.class);
+            if (userLocation.getLastKnownLatitude() != null && userLocation.getLastKnownLongitude() != null) {
+                user.setLastKnownLatitude(userLocation.getLastKnownLatitude());
+                user.setLastKnownLongitude(userLocation.getLastKnownLongitude());
+                user.setLastLocationTime(userLocation.getLastLocationTime());
+                user.save();
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     public Result getPublicProfile(Long userId) {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;

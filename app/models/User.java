@@ -4,6 +4,7 @@ import com.avaje.ebean.Model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Date;
 
 /**
  * Created by Siva Sudarsi on 19/10/16.
@@ -29,6 +30,11 @@ public class User extends Model {
     String drivingLicenseImageName;
     String drivingLicenseNumber;
     boolean validProofsUploaded;
+    Long currentRideId;
+    boolean isRideInProgress;
+    Double lastKnownLatitude;
+    Double lastKnownLongitude;
+    Date lastLocationTime;
 
 
     public String getName() {
@@ -133,5 +139,45 @@ public class User extends Model {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Long getCurrentRideId() {
+        return currentRideId;
+    }
+
+    public void setCurrentRideId(Long currentRideId) {
+        this.currentRideId = currentRideId;
+    }
+
+    public boolean isRideInProgress() {
+        return isRideInProgress;
+    }
+
+    public void setRideInProgress(boolean rideInProgress) {
+        isRideInProgress = rideInProgress;
+    }
+
+    public Double getLastKnownLatitude() {
+        return lastKnownLatitude;
+    }
+
+    public void setLastKnownLatitude(Double lastKnownLatitude) {
+        this.lastKnownLatitude = lastKnownLatitude;
+    }
+
+    public Double getLastKnownLongitude() {
+        return lastKnownLongitude;
+    }
+
+    public void setLastKnownLongitude(Double lastKnownLongitude) {
+        this.lastKnownLongitude = lastKnownLongitude;
+    }
+
+    public Date getLastLocationTime() {
+        return lastLocationTime;
+    }
+
+    public void setLastLocationTime(Date lastLocationTime) {
+        this.lastLocationTime = lastLocationTime;
     }
 }
