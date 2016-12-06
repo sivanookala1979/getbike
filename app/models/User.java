@@ -35,7 +35,13 @@ public class User extends Model {
     Double lastKnownLatitude;
     Double lastKnownLongitude;
     Date lastLocationTime;
-
+    String occupation;
+    String city;
+    String yearOfBirth;
+    String homeLocation;
+    String officeLocation;
+    String profileImage;
+    boolean mobileVerified;
 
     public String getName() {
         return name;
@@ -179,5 +185,61 @@ public class User extends Model {
 
     public void setLastLocationTime(Date lastLocationTime) {
         this.lastLocationTime = lastLocationTime;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getYearOfBirth() {
+        return yearOfBirth;
+    }
+
+    public void setYearOfBirth(String yearOfBirth) {
+        this.yearOfBirth = yearOfBirth;
+    }
+
+    public String getHomeLocation() {
+        return homeLocation;
+    }
+
+    public void setHomeLocation(String homeLocation) {
+        this.homeLocation = homeLocation;
+    }
+
+    public String getOfficeLocation() {
+        return officeLocation;
+    }
+
+    public void setOfficeLocation(String officeLocation) {
+        this.officeLocation = officeLocation;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public boolean isMobileVerified() {
+        return mobileVerified;
+    }
+
+    public void setMobileVerified(boolean mobileVerified) {
+        this.mobileVerified = mobileVerified;
     }
 }

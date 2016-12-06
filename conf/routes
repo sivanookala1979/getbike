@@ -13,6 +13,7 @@ POST    /signup                                 controllers.UserController.signu
 POST    /login                                  controllers.UserController.login
 POST    /loginWithOtp                           controllers.UserController.loginWithOtp
 POST    /storeLastKnownLocation                 controllers.UserController.storeLastKnownLocation
+POST    /updatePrivateProfile                   controllers.UserController.updatePrivateProfile
 GET     /storeGcmCode                           controllers.UserController.storeGcmCode
 GET     /users/usersList                        controllers.UserController.usersList
 GET     /users/loginOtpList                     controllers.UserController.loginOtpList
@@ -45,6 +46,7 @@ GET     /rideLocation/performSearch/            controllers.RideController.perfo
 GET     /rideLocation/performSearch/:label      controllers.RideController.performSearch1(label: String)
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
+GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile
 POST    /storeLocations                         controllers.RideController.storeLocations
 POST    /estimateRide                           controllers.RideController.estimateRide
 POST    /storeDrivingLicense                    controllers.UserController.storeDrivingLicense

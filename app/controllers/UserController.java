@@ -152,6 +152,51 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result getPrivateProfile() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            objectNode.set("privateProfile", Json.toJson(user));
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result updatePrivateProfile() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            JsonNode userJson = request().body().asJson();
+            User privateProfileUser = Json.fromJson(userJson.get("user"), User.class);
+            user.setName(privateProfileUser.getName());
+            user.setCity(privateProfileUser.getCity());
+            user.setOccupation(privateProfileUser.getOccupation());
+            user.setEmail(privateProfileUser.getEmail());
+            user.setYearOfBirth(privateProfileUser.getYearOfBirth());
+            user.setHomeLocation(privateProfileUser.getHomeLocation());
+            user.setOfficeLocation(privateProfileUser.getOfficeLocation());
+            String encodedImageData = userJson.get("imageData").textValue();
+            byte[] decoded = Base64.getDecoder().decode(encodedImageData);
+            try {
+                String imagePath = "uploads/" + user.getId() + "-profile-" + UUID.randomUUID() + ".png";
+                FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
+                fileOutputStream.write(decoded);
+                fileOutputStream.close();
+                user.setProfileImage(imagePath);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            user.save();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 
     public Result storeDrivingLicense() {
         JsonNode userJson = request().body().asJson();
@@ -164,7 +209,7 @@ public class UserController extends BaseController {
             String encodedImageData = userJson.get("imageData").textValue();
             byte[] decoded = Base64.getDecoder().decode(encodedImageData);
             try {
-                String imagePath = "uploads/" + user.getId() + "-dl.png";
+                String imagePath = "uploads/" + user.getId() + "-dl-" + UUID.randomUUID() + ".png";
                 FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
                 fileOutputStream.write(decoded);
                 fileOutputStream.close();
@@ -191,7 +236,7 @@ public class UserController extends BaseController {
             String encodedImageData = userJson.get("imageData").textValue();
             byte[] decoded = Base64.getDecoder().decode(encodedImageData);
             try {
-                String imagePath = "uploads/" + user.getId() + "-vp.png";
+                String imagePath = "uploads/" + user.getId() + "-vp-" + UUID.randomUUID() + ".png";
                 FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
                 fileOutputStream.write(decoded);
                 fileOutputStream.close();
@@ -204,7 +249,6 @@ public class UserController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
-
     }
 
     private void sendSms(String generatedOtp, String phoneNumber) {

@@ -11,13 +11,16 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.GetBikeErrorCodes;
+import utils.NumericConstants;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.*;
 
 
@@ -176,10 +179,15 @@ public class UserControllerTest extends BaseControllerTest {
         ObjectNode objectNode = Json.newObject();
         objectNode.put("lastKnownLatitude", 54.67);
         objectNode.put("lastKnownLongitude", 21.34);
-        objectNode.set("lastLocationTime", Json.toJson(new Date()));
+        Date locationDate = new Date();
+        objectNode.set("lastLocationTime", Json.toJson(locationDate));
         Result result = route(fakeRequest(POST, "/storeLastKnownLocation").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.id);
+        assertEquals(54.67, actual.getLastKnownLatitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(21.34, actual.getLastKnownLongitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(locationDate, actual.getLastLocationTime());
     }
 
     @Test
@@ -195,10 +203,10 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("HYD/55522/3333", actual.getDrivingLicenseNumber());
         assertNotNull(actual.getDrivingLicenseImageName());
         assertTrue(actual.getDrivingLicenseImageName().endsWith(".png"));
-        assertTrue(new File("public/"+actual.getDrivingLicenseImageName()).exists());
+        assertTrue(new File("public/" + actual.getDrivingLicenseImageName()).exists());
         Result imageCheckResult = route(fakeRequest(GET, "/" + actual.getDrivingLicenseImageName()));
         assertEquals(200, imageCheckResult.status());
-        new File("public/"+actual.getDrivingLicenseImageName()).deleteOnExit();
+        new File("public/" + actual.getDrivingLicenseImageName()).deleteOnExit();
     }
 
     @Test
@@ -240,6 +248,49 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(otherUser.getVehicleNumber(), jsonNode.get("profile").get("vehicleNumber").textValue());
         assertEquals(otherUser.getVehiclePlateImageName(), jsonNode.get("profile").get("vehiclePlateImageName").textValue());
         assertEquals(otherUser.getDrivingLicenseImageName(), jsonNode.get("profile").get("drivingLicenseImageName").textValue());
+    }
+
+    @Test
+    public void getPrivateProfileTESTWithLoggedInUser() {
+        User user = loggedInUser();
+        user.setOccupation("Software Engineer");
+        user.setCity("Delhi");
+        user.save();
+        Result result = route(fakeRequest(GET, "/getPrivateProfile").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getName(), jsonNode.get("privateProfile").get("name").textValue());
+        assertEquals(user.getPhoneNumber(), jsonNode.get("privateProfile").get("phoneNumber").textValue());
+        assertEquals(user.getOccupation(), jsonNode.get("privateProfile").get("occupation").textValue());
+        assertEquals(user.getCity(), jsonNode.get("privateProfile").get("city").textValue());
+
+    }
+
+    @Test
+    public void updatePrivateProfileTESTWithLoggedInUser() {
+        User user = loggedInUser();
+        user.setOccupation("Software Engineer");
+        user.setCity("Delhi");
+        user.setHomeLocation("Kandukur");
+        user.setOfficeLocation("Pullareddy Nagar");
+        ObjectNode objectNode = Json.newObject();
+        objectNode.set("user", Json.toJson(user));
+        objectNode.set("imageData", Json.toJson("aGVsbG8gaGVsbG8gaGVsbG8="));
+        Result result = route(fakeRequest(POST, "/updatePrivateProfile").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertEquals("Delhi", actual.getCity());
+        assertEquals("Kandukur", actual.getHomeLocation());
+        assertEquals("Pullareddy Nagar", actual.getOfficeLocation());
+        assertEquals("Software Engineer", actual.getOccupation());
+        assertNotNull(actual.getProfileImage());
+        assertTrue(actual.getProfileImage().endsWith(".png"));
+        assertTrue(new File("public/" + actual.getProfileImage()).exists());
+        Result imageCheckResult = route(fakeRequest(GET, "/" + actual.getProfileImage()));
+        assertEquals(200, imageCheckResult.status());
+        new File("public/" + actual.getProfileImage()).deleteOnExit();
+
     }
 
     @Test
