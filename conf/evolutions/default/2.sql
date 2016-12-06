@@ -2,7 +2,7 @@
 # --- !Ups
 
 alter table user add column current_ride_id bigint;
-alter table user add column  is_ride_in_progress boolean;
+alter table user add column  is_ride_in_progress boolean default 'false';
 alter table user add column  last_known_latitude double;
 alter table user add column  last_known_longitude double;
 alter table user add column  last_location_time timestamp;

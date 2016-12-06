@@ -1,3 +1,180 @@
-@(tableHeaders: LinkedHashMap[String, String])
+@(tableHeaders: LinkedHashMap[String, String] , colClass: String ="col-sm-12", isRequired: String ="", header: String="Ride" ,newUrl: String ="", editUrl: String = "", deleteUrl: String ="")
 @import views.html.custom_views._
-@listviewtemplate1(header="Ride", colClass="col-sm-12 column", tableHeaders=tableHeaders, searchUrl="/ride/performSearch/", editUrl ="#", deleteUrl="#")
+@main("Get Bike", "Ride"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
+
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+#test{
+    width: 100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+}
+
+
+
+</style>
+<div class="container" id="list-view-app-id">
+    <div class="row">
+        <div class="col-sm-12" style="">
+            <div data-ng-controller="ProductController">
+                <div class="row">
+                    <div class="col-sm-2 text-left" style="padding-bottom:10px;">
+                        <select name="manualrecfilter" data-ng-change="doRiderStatusFilter(this)"
+                                ng-options="choice for choice in manualrecfilter" ng-model="filterOptions.filterText"
+                                class="form-control" style="width:100% !important"></select>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="startDate" type="date" placeholder=""/>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="endDate" type="date" placeholder=""/>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input type="button" class="btn btn-primary" value="Filter" ng-click="doDateFilter()"/>
+                    </div>
+
+                    @if(isRequired.equalsIgnoreCase("Yes")){
+                    <div class="col-sm-6 text-right" style="padding-top:10px;">
+                        <a href='@{newUrl}'><img src="@routes.Assets.versioned(" images/plus.png")" width="25"></a>
+                    </div>
+                    }
+                </div>
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;overflow: auto;">
+                        <thead style="border-bottom: 1px solid grey;">
+                        <tr>
+                            <th ng-click="sort('requestorId')" style="width:180px;">Requester <br/> Rider
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='requestorId'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('rideStatus')">Rider Status
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='rideStatus'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('orderDistance')">Order Distance
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='orderDistance'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('requestedAt')" style="width:180px;">Requested At
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='requestedAt'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('startLatitude')">Address</span>
+                            </th>
+                            <th ng-click="sort('totalBill')">Total Bill
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='totalBill'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(index, product) in products|orderBy:sortKey:reverse" class="text-left">
+                            <td>{{product.requestorId}}<br/>
+                                {{product.riderId}}
+                            </td>
+                            <td>{{product.rideStatus}}</td>
+                            <td>{{product.orderDistance}}</td>
+                            <td>{{product.requestedAt | date:'medium'}}<br/>
+                                {{product.acceptedAt | date:'medium'}}<br/>
+                                {{product.rideStartedAt | date:'medium'}}<br/>
+                                {{product.rideEndedAt | date:'medium'}}
+                            </td>
+                            <td>{{product.startLatitude}}, {{product.startLongitude}}<br/>
+                                {{product.sourceAddress}}<br/>
+                                {{product.destinationAddress}}
+                            </td>
+                            <td><a href="/ridePath?rideId={{product.id}}">View</a><br/>
+                                {{product.totalBill}}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+<script>
+
+    var listViewApp = angular.module("myApp", []);
+    listViewApp.controller("ProductController", function ($scope, $http) {
+            $scope.products = [];
+            $scope.editingData = {};
+            $scope.input = "";
+            $scope.doSearch = function() {
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : "/ride/performSearch/" + $scope.input,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null && data.length>0){
+                        $scope.products = [];
+                        $scope.products = data;
+                        $scope.editingData = {};
+
+                        for (var i = 0, length = $scope.products.length; i < length; i++) {
+                            $scope.editingData[$scope.products[i].id] = false;
+                        }
+
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+            };
+            $scope.doSearch();
+
+        $scope.sort = function(keyname){
+            $scope.sortKey = keyname;
+            $scope.reverse = !$scope.reverse;
+        };
+
+        $scope.doDateFilter = function() {
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : "/rideFilter?startDate="+$scope.startDate+"&endDate="+$scope.endDate+"&status="+$scope.filterOptions.filterText,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null){
+                        $scope.products = [];
+                       $scope.products = data["result"];
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+
+          $scope.manualrecfilter = [
+                'RideRequested',
+                'RideAccepted',
+                'RideClosed'
+          ];
+  }); //end of angular Js
+
+
+
+
+</script>
+}
