@@ -324,14 +324,11 @@ public class RideController extends BaseController {
 
     private void publishRideDetails(User user, Ride ride) {
         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
-        for (User otherUser : getRelevantRiders()) {
-            if (user.getId().equals(otherUser.getId())) continue;
-            gcmUtils.sendMessage(otherUser, "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
-        }
+        gcmUtils.sendMessage(getRelevantRiders(user.getId()), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
     }
 
-    private List<User> getRelevantRiders() {
-        return User.find.all();
+    private List<User> getRelevantRiders(Long currentId) {
+        return User.find.where().not().eq("id", currentId).findList();
     }
 
     public Result rideList() {

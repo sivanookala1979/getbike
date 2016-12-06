@@ -17,10 +17,7 @@ import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static dataobject.RideStatus.*;
 import static junit.framework.TestCase.assertEquals;
@@ -121,7 +118,7 @@ public class RideControllerTest extends BaseControllerTest {
         otherUser.save();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
-        when(gcmUtilsMock.sendMessage(eq(otherUser), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
+        when(gcmUtilsMock.sendMessage(eq(Collections.singletonList(otherUser)), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
         Result result = requestGetBike(user, startLatitude, startLongitude);
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -131,7 +128,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideRequested, ride.getRideStatus());
-        verify(gcmUtilsMock).sendMessage(eq(otherUser), contains("A new ride request with ride Id "), eq("newRide"), anyLong());
+        verify(gcmUtilsMock).sendMessage(eq(Collections.singletonList(otherUser)), contains("A new ride request with ride Id "), eq("newRide"), anyLong());
     }
 
     @Test
