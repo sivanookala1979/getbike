@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Ride;
 import models.RideLocation;
 import models.User;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -25,7 +26,7 @@ import static dataobject.RideStatus.*;
  */
 public class RideController extends BaseController {
 
-    public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"", "", "Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"", "", "requestorId", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
+    public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId","requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -338,7 +339,7 @@ public class RideController extends BaseController {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        return ok(views.html.rideList.render(rideTableHeaders));
+        return ok(views.html.rideList.render(rideTableHeaders,"col-sm-12","","Ride","","",""));
     }
 
     public Result rideLocationList() {
@@ -358,4 +359,21 @@ public class RideController extends BaseController {
         List<RideLocation> rideLocationList = RideLocation.find.all();
         return ok(Json.toJson(rideLocationList));
     }
+
+    public Result dateWiseFilter(){
+        Logger.info("Date wise method call");
+        Logger.info("All ride object size "+Ride.find.all().size());
+        String startDate = request().getQueryString("startDate");
+        String endDate = request().getQueryString("endDate");
+        String status = request().getQueryString("status");
+        Logger.info("status "+status);
+        Logger.info("Start date "+startDate);
+        Logger.info("Start date "+endDate);
+        List<Ride> listOfRides = Ride.find.where().between("requested_at", startDate, endDate).eq("ride_status" , status).findList();
+        System.out.print("*************"+listOfRides.size());
+        ObjectNode objectNode = Json.newObject();
+        setResult(objectNode, listOfRides);
+        return ok(Json.toJson(objectNode));
+    }
+
 }

@@ -7,6 +7,7 @@ GET     /                                           controllers.LoginController.
 POST    /user/loginUserDetails                      controllers.LoginController.loginUserDetails
 GET     /user/logout                                controllers.LoginController.logout
 
+
 GET     /index                                  controllers.HomeController.index
 GET     /users                                  controllers.UserController.index
 POST    /signup                                 controllers.UserController.signup
@@ -44,6 +45,8 @@ GET     /ride/performSearch/:label              controllers.RideController.perfo
 GET     /rideLocation/performSearch             controllers.RideController.performSearch1(label: String="")
 GET     /rideLocation/performSearch/            controllers.RideController.performSearch1(label: String="")
 GET     /rideLocation/performSearch/:label      controllers.RideController.performSearch1(label: String)
+GET     /rideFilter                             controllers.RideController.dateWiseFilter
+
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
 GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile
