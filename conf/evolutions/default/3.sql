@@ -7,7 +7,7 @@ alter table user add column year_of_birth varchar(255);
 alter table user add column home_location varchar(255);
 alter table user add column office_location varchar(255);
 alter table user add column profile_image varchar(255);
-alter table user add column mobile_verified boolean default 'false';
+alter table user add column mobile_verified boolean;
 
 # --- !Downs
 alter table user drop column occupation;
