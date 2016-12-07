@@ -60,6 +60,10 @@ th {
                            style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;overflow: auto;">
                         <thead style="border-bottom: 1px solid grey;">
                         <tr>
+                            <th ng-click="sort('id')">Trip ID
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
                             <th ng-click="sort('requestorId')" style="width:180px;">Requester <br/> Rider
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='requestorId'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
@@ -86,6 +90,7 @@ th {
                         </thead>
                         <tbody>
                         <tr ng-repeat="(index, product) in products| orderBy:sortKey:reverse" class="text-left">
+                            <td>{{product.id}}</td>
                             <td>{{product.requestorName}}<br/>
                                 {{product.riderName}}
                             </td>
