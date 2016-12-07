@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.*;
@@ -263,7 +264,27 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(user.getPhoneNumber(), jsonNode.get("privateProfile").get("phoneNumber").textValue());
         assertEquals(user.getOccupation(), jsonNode.get("privateProfile").get("occupation").textValue());
         assertEquals(user.getCity(), jsonNode.get("privateProfile").get("city").textValue());
+    }
 
+    @Test
+    public void getCurrentRideTESTNoRide() {
+        User user = loggedInUser();
+        Result result = route(fakeRequest(GET, "/getCurrentRide").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+        assertFalse(jsonNode.has("rideId"));
+    }
+
+    @Test
+    public void getCurrentRideTESTHappyFlow() {
+        User user = loggedInUser();
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        Result result = route(fakeRequest(GET, "/getCurrentRide").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getCurrentRideId().longValue(), jsonNode.get("rideId").longValue());
     }
 
     @Test

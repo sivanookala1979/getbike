@@ -164,6 +164,20 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result getCurrentRide() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            if (user.isRideInProgress() && user.getCurrentRideId() != null && user.getCurrentRideId() > 0) {
+                objectNode.set("rideId", Json.toJson(user.getCurrentRideId()));
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
     public Result updatePrivateProfile() {
         ObjectNode objectNode = Json.newObject();

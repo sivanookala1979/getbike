@@ -20,7 +20,7 @@ import utils.*;
 import java.util.*;
 
 import static dataobject.RideStatus.*;
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -150,6 +150,53 @@ public class RideControllerTest extends BaseControllerTest {
         assertNotNull(ride.getAcceptedAt());
         assertEquals("success", acceptRideJsonNode.get("result").textValue());
         verify(gcmUtilsMock).sendMessage(user, "Your ride is accepted by Siva Nookala ( 8282828282 ) and the rider will be contacting you shortly.", "rideAccepted", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(ride.getId(), actual.getCurrentRideId());
+    }
+
+    @Test
+    public void acceptRideTESTWithRideInProgress() {
+        User user = loggedInUser();
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideRequested, ride.getRideStatus());
+        assertEquals(GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS, acceptRideJsonNode.get("errorCode").intValue());
+        assertEquals("failure", acceptRideJsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(24l, actual.getCurrentRideId().longValue());
+    }
+
+    @Test
+    public void acceptRideTESTAfterAllocatedToSomeoneElse() {
+        User user = loggedInUser();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        ride.setRideStatus(RideAccepted);
+        ride.save();
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        assertEquals(GetBikeErrorCodes.RIDE_ALLOCATED_TO_OTHERS, acceptRideJsonNode.get("errorCode").intValue());
+        assertEquals("failure", acceptRideJsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertFalse(actual.isRideInProgress());
+        assertNull(actual.getCurrentRideId());
     }
 
     @Test
@@ -191,6 +238,9 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void closeRideTESTHappyFlow() {
         User user = loggedInUser();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.save();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
         Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
@@ -223,6 +273,9 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
         assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations)), rideJsonObject.get("orderAmount").doubleValue());
         verify(gcmUtilsMock).sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        User actual = User.find.byId(user.getId());
+        assertNull(actual.getCurrentRideId());
+        assertFalse(actual.isRideInProgress());
     }
 
 
