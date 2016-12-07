@@ -94,32 +94,41 @@ public class RideController extends BaseController {
         User user = currentUser();
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
+        int errorCode = GENERAL_FAILURE;
         if (user != null) {
-            JsonNode locationsJson = request().body().asJson();
-            Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
-            Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
-            Ride ride = new Ride();
-            ride.setStartLatitude(startLatitude);
-            ride.setStartLongitude(startLongitude);
-            ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
-            ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
-            ride.setRiderId(user.getId());
-            String phoneNumber = locationsJson.get("phoneNumber").textValue();
-            User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
-            if (requestor == null) {
-                requestor = new User();
-                requestor.setPhoneNumber(phoneNumber);
-                requestor.save();
+            if (user.isRideInProgress()) {
+                errorCode = RIDE_ALREADY_IN_PROGRESS;
+            } else {
+                JsonNode locationsJson = request().body().asJson();
+                Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
+                Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
+                Ride ride = new Ride();
+                ride.setStartLatitude(startLatitude);
+                ride.setStartLongitude(startLongitude);
+                ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
+                ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+                ride.setRiderId(user.getId());
+                String phoneNumber = locationsJson.get("phoneNumber").textValue();
+                User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
+                if (requestor == null) {
+                    requestor = new User();
+                    requestor.setPhoneNumber(phoneNumber);
+                    requestor.save();
+                }
+                ride.setRequestorId(requestor.getId());
+                ride.setRideStatus(RideAccepted);
+                ride.setRequestedAt(new Date());
+                ride.setAcceptedAt(ride.getRequestedAt());
+                ride.save();
+                user.setRideInProgress(true);
+                user.setCurrentRideId(ride.getId());
+                user.save();
+                result = SUCCESS;
+                setJson(objectNode, Ride.RIDE_ID, ride.getId());
             }
-            ride.setRequestorId(requestor.getId());
-            ride.setRideStatus(RideAccepted);
-            ride.setRequestedAt(new Date());
-            ride.setAcceptedAt(ride.getRequestedAt());
-            ride.save();
-            result = SUCCESS;
-            setJson(objectNode, Ride.RIDE_ID, ride.getId());
         }
         setResult(objectNode, result);
+        objectNode.set("errorCode", Json.toJson(errorCode));
         return ok(Json.toJson(objectNode));
     }
 

@@ -79,6 +79,9 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideAccepted, ride.getRideStatus());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(ride.getId(), actual.getCurrentRideId());
     }
 
     @Test
@@ -107,6 +110,32 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideAccepted, ride.getRideStatus());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(ride.getId(), actual.getCurrentRideId());
+    }
+
+    @Test
+    public void hailCustomerTESTWithRideInProgress() {
+        User user = loggedInUser();
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode hailCustomerJsonNode = jsonFromResult(result);
+        assertEquals(GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS, hailCustomerJsonNode.get("errorCode").intValue());
+        assertEquals("failure", hailCustomerJsonNode.get("result").textValue());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(24l, actual.getCurrentRideId().longValue());
     }
 
     @Test
