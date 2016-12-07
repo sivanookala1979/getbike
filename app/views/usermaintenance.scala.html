@@ -1,0 +1,64 @@
+@(logInForm: Form[models.UserLogin])
+@main("Get Bike" , "User Maintenance"){
+<style>
+    body {
+    background-color: #eee;
+}
+
+*[role="form"] {
+    max-width: 530px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 0.3em;
+}
+
+*[role="form"] h2 {
+    margin-left: 5em;
+    margin-bottom: 1em;
+}
+
+</style>
+<div class="container">
+    <div class="col-md-6 col-md-offset-3">
+        @if(flash.containsKey("error")) {
+        <div class="well">
+            <div id="error-message" class="text-danger">
+                @flash.get("error")
+            </div>
+        </div>
+        }
+    </div>
+    <form class="form-horizontal" action="@routes.LoginController.createNewLoginDetails()" method="GET" role="form">
+        <h2>User Creation</h2>
+        <div class="form-group">
+            <label for="username" class="col-sm-3 control-label">User Name</label>
+            <div class="col-sm-6">
+                <input type="text" id="username" name="username" placeholder="Full Name" class="form-control" autofocus>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-6">
+                <input type="password" id="password" name="password" placeholder="Password" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="role" class="col-sm-3 control-label" aria-label="left">Role</label>
+            <div class="col-sm-6">
+                <select id="role" name="role" class="form-control">
+                    <option value="" disabled selected>Select Role</option>
+                    <option>User</option>
+                    <option>Rider</option>
+                    <option>Admin</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-6 col-sm-offset-3">
+                <button type="submit" class="btn btn-primary btn-block">Create New User</button>
+            </div>
+        </div>
+    </form>
+</div>
+}

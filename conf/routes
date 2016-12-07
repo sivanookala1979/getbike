@@ -6,7 +6,8 @@
 GET     /                                           controllers.LoginController.login
 POST    /user/loginUserDetails                      controllers.LoginController.loginUserDetails
 GET     /user/logout                                controllers.LoginController.logout
-
+GET     /user/userMaintenance                       controllers.LoginController.createNewUser
+GET     /user/saveNewUser                           controllers.LoginController.createNewLoginDetails
 
 GET     /index                                  controllers.HomeController.index
 GET     /users                                  controllers.UserController.index

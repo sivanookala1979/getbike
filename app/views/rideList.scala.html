@@ -24,12 +24,6 @@
 th {
     cursor:pointer;
 }
-#test{
-    width: 100%;
-    overflow-x:auto;
-    overflow-y:hidden;
-}
-
 
 
 </style>
@@ -39,8 +33,10 @@ th {
             <div data-ng-controller="ProductController">
                 <div class="row">
                     <div class="col-sm-2 text-left" style="padding-bottom:10px;">
-                        <select name="manualrecfilter" data-ng-change="doRiderStatusFilter(this)"
-                                ng-options="choice for choice in manualrecfilter" ng-model="filterOptions.filterText"
+                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search Name">
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter" ng-model="filterText"
                                 class="form-control" style="width:100% !important"></select>
                     </div>
                     <div class="col-sm-2 text-left">
@@ -89,9 +85,9 @@ th {
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="(index, product) in products|orderBy:sortKey:reverse" class="text-left">
-                            <td>{{product.requestorId}}<br/>
-                                {{product.riderId}}
+                        <tr ng-repeat="(index, product) in products| orderBy:sortKey:reverse" class="text-left">
+                            <td>{{product.requestorName}}<br/>
+                                {{product.riderName}}
                             </td>
                             <td>{{product.rideStatus}}</td>
                             <td>{{product.orderDistance}}</td>
@@ -120,41 +116,32 @@ th {
 <script>
 
     var listViewApp = angular.module("myApp", []);
-    listViewApp.controller("ProductController", function ($scope, $http) {
+    listViewApp.controller("ProductController", function ($scope, $http, $filter) {
             $scope.products = [];
-            $scope.editingData = {};
-            $scope.input = "";
-            $scope.doSearch = function() {
-                var httpRequest = $http({
-                    method : 'GET',
-                    url : "/ride/performSearch/" + $scope.input,
-                }).success(function(data, status) {
-                    console.log(data);
-                    if(data!=null && data.length>0){
-                        $scope.products = [];
-                        $scope.products = data;
-                        $scope.editingData = {};
-
-                        for (var i = 0, length = $scope.products.length; i < length; i++) {
-                            $scope.editingData[$scope.products[i].id] = false;
-                        }
-
-                    }
-                }).error(function(arg) {
-                    console.log(arg);
-                });
-            };
-            $scope.doSearch();
-
+            $scope.startDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
+            $scope.endDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
         $scope.sort = function(keyname){
             $scope.sortKey = keyname;
             $scope.reverse = !$scope.reverse;
         };
 
         $scope.doDateFilter = function() {
+        var url = "/rideFilter?"
+                if(!angular.isUndefined($scope.startDate)){
+                    url+="startDate="+$scope.startDate;
+                }
+                if(!angular.isUndefined($scope.endDate)){
+                    url+="&endDate="+$scope.endDate;
+                }
+                if(!angular.isUndefined($scope.filterText)){
+                    url+="&status="+$scope.filterText;
+                }
+                if(!angular.isUndefined($scope.searchText)){
+                     url+="&srcName="+$scope.searchText;
+                }
                 var httpRequest = $http({
                     method : 'GET',
-                    url : "/rideFilter?startDate="+$scope.startDate+"&endDate="+$scope.endDate+"&status="+$scope.filterOptions.filterText,
+                    url : url,
                 }).success(function(data, status) {
                     console.log(data);
                     if(data!=null){
@@ -165,8 +152,10 @@ th {
                     console.log(arg);
                 });
         };
+        $scope.doDateFilter();
 
           $scope.manualrecfilter = [
+                '',
                 'RideRequested',
                 'RideAccepted',
                 'RideClosed'

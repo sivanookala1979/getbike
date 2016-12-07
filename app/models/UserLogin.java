@@ -18,7 +18,7 @@ public class UserLogin extends Model {
 
     private String username;
     private String password;
-
+    private String role;
 
     public static Finder<Long, User> find = new Finder<Long, User>(User.class);
 
@@ -38,4 +38,11 @@ public class UserLogin extends Model {
         this.password = password;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

@@ -215,13 +215,22 @@ public class RideController extends BaseController {
         Long rideId = getLong(Ride.RIDE_ID);
         List<String> rideLocationStrings = new ArrayList<>();
         List<RideLocation> rideLocations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
-        RideLocation firstLocation = rideLocations.get(0);
-        for (RideLocation rideLocation : rideLocations) {
-            rideLocationStrings.add("{lat: " + rideLocation.getLatitude() +
-                    ", lng: " + rideLocation.getLongitude() +
-                    "}");
-        }
-        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation.getLatitude(), firstLocation.getLongitude()));
+        Logger.info("Ride Locations  "+rideLocationStrings);
+        if(!rideLocations.isEmpty()) {
+            RideLocation firstLocation = rideLocations.get(0);
+            for (RideLocation rideLocation : rideLocations) {
+                rideLocationStrings.add("{lat: " + rideLocation.getLatitude() +
+                        ", lng: " + rideLocation.getLongitude() +
+                        "}");
+            }
+            Ride ride = Ride.find.where().eq("id", rideId).findUnique();
+            if (ride.getRiderId() != null) {
+                ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
+            }
+            return ok(views.html.ridePath.render(rideLocationStrings, firstLocation.getLatitude(), firstLocation.getLongitude(), ride));
+        }else
+            return redirect("/users");
+
     }
 
     public Result openRides() {
@@ -381,17 +390,39 @@ public class RideController extends BaseController {
         return ok(Json.toJson(rideLocationList));
     }
 
-    public Result dateWiseFilter() {
-        Logger.info("Date wise method call");
-        Logger.info("All ride object size " + Ride.find.all().size());
+    public Result dateWiseFilter(){
         String startDate = request().getQueryString("startDate");
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
-        Logger.info("status " + status);
-        Logger.info("Start date " + startDate);
-        Logger.info("Start date " + endDate);
-        List<Ride> listOfRides = Ride.find.where().between("requested_at", startDate, endDate).eq("ride_status", status).findList();
-        System.out.print("*************" + listOfRides.size());
+        String srcName = request().getQueryString("srcName");
+        Logger.info("Search name  "+srcName);
+        List<Ride> listOfRides =new ArrayList<>();
+        List<User> listOfNames = new ArrayList<>();
+        List<User> listOfPhNumbers = new ArrayList<>();
+        if(isNotNullAndEmpty(srcName)){
+             listOfNames = User.find.where().contains("name", srcName).findList();
+             listOfPhNumbers = User.find.where().contains("phoneNumber", srcName).findList();
+        }
+        Logger.info("List of names  ************ "+listOfNames);
+        Logger.info("List of phone numbers ********* "+listOfPhNumbers);
+        if(isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+              listOfRides = Ride.find.where().between("requested_at", startDate, endDate).eq("ride_status", status).findList();
+         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+              listOfRides = Ride.find.where().eq("ride_status", status).findList();
+         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+              listOfRides = Ride.find.where().between("requested_at", startDate, endDate).findList();
+         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+              listOfRides = Ride.find.all();
+         }
+         for (Ride ride : listOfRides) {
+             if (ride.getRequestorId() != null) {
+                 ride.requestorName = User.find.where().eq("id", ride.getRequestorId()).findUnique().getName();
+             }
+             if (ride.getRiderId() != null) {
+                 ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
+             }
+         }
+        Logger.info("List of rides  "+listOfRides.size());
         ObjectNode objectNode = Json.newObject();
         setResult(objectNode, listOfRides);
         return ok(Json.toJson(objectNode));

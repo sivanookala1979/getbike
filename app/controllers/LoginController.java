@@ -2,6 +2,7 @@ package controllers;
 
 import models.User;
 import models.UserLogin;
+import play.Logger;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Result;
@@ -47,5 +48,28 @@ public class LoginController extends BaseController {
         session().clear();
         Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
         return ok(login.render(logInForm));
+    }
+
+    public Result createNewUser(){
+        Form<UserLogin> userForm = formFactory.form(UserLogin.class).bindFromRequest();
+        return  ok(views.html.usermaintenance.render(userForm));
+    }
+
+    public Result createNewLoginDetails(){
+        Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
+        UserLogin user = logInForm.get();
+        Logger.info("User Name  "+user.getUsername());
+        Logger.info("Password   "+user.getPassword());
+        Logger.info("Role       "+user.getRole());
+        int rowCount = User.find.where().eq("email", user.getUsername()).findRowCount();
+        Logger.info("Row count  "+rowCount);
+        if(rowCount == 0){
+            user.save();
+            flash("error", "User Details successfully saved!");
+            return ok(views.html.usermaintenance.render(logInForm));
+        }else {
+            flash("error", "User name already exist!");
+            return redirect("/user/userMaintenance");
+        }
     }
 }

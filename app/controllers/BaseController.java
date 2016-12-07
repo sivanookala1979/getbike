@@ -66,4 +66,9 @@ public class BaseController extends Controller {
 
     }
 
+    public boolean isNotNullAndEmpty(String value){
+
+        return value!=null && !value.isEmpty();
+    }
+
 }

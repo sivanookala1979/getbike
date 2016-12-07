@@ -42,6 +42,8 @@ public class Ride extends Model {
     Double subTotal;
     Double roundingOff;
     Double totalBill;
+    public transient String requestorName;
+    public transient String riderName;
 
     public Long getId() {
         return id;
