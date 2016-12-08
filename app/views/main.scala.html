@@ -9,6 +9,9 @@
 @(title: String, header: String)(content: Html)
 @userName = @{session.get("User")}
 @user = @{if (userName != null) userName else ""}
+@admin = @{session.get("admin")}
+@adminRole = @{if (admin != null) admin else ""}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -16,8 +19,6 @@
         <title>@title</title>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css">
-
-
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
@@ -37,10 +38,15 @@
               <li><a href="/rideLocation/rideLocationList">Ride Location</a></li>
               <li><a href="/users/loginOtpList">Login OTP</a></li>
               <li><a href="/systemSettings/systemSettingList">System Settings</a></li>
-              <li><a href="/user/userMaintenance">User Maintenance</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Maintenance<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/user/userMaintenance">Create NewUser</a></li>
+                <li><a href=" /user/changepassword">Change Password</a></li>
+              </ul>
+            </li>
         </ul>
-     </div>
-
+      </div>
     <div class="navbar navbar-inverse" role="navigation">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <!--  Display three horizontal lines when navbar collapsed. -->
@@ -54,6 +60,16 @@
          * the page content. *@
         @content
     </div>
-
+    <script type="text/javascript">
+    @if(adminRole.equalsIgnoreCase("Admin") ){
+     jQuery(function ($) {
+        $('li.dropdown').show()
+     });
+     }else{
+        jQuery(function ($) {
+          $('li.dropdown').hide()
+        });
+     }
+    </script>
     </body>
 </html>

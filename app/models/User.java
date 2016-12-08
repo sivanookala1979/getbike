@@ -20,6 +20,7 @@ public class User extends Model {
     public String name;
     public String email;
     public String password;
+    public String role;
     public String phoneNumber;
     public char gender;
     public String authToken;
@@ -241,5 +242,13 @@ public class User extends Model {
 
     public void setMobileVerified(boolean mobileVerified) {
         this.mobileVerified = mobileVerified;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

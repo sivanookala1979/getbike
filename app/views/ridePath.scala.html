@@ -1,4 +1,4 @@
-@(rideLocations: List[String], firstLatitude: Double, firstLongitude: Double, ride: models.Ride)
+@(rideLocations: List[String], firstLocation: models.RideLocation, ride: models.Ride)
 @import views.html.custom_views._
 <div class="container">
     <div class="row">
@@ -33,70 +33,73 @@
         <div id="scr">
             <table class="table table-bordered" style="border-left: 1px solid lightgrey; width:100%; ">
                     <tr>
-                        <th align="left">Rider Id:</th> <td>@ride.getRiderId()</td>
-                        <th align="left">Rider Name</th> <td>@ride.riderName</td>
+                        <th align="left">Rider Id:</th> <td>@ride.getRiderId() (@ride.riderName)</td>
+                        <th align="left">Requestor Id:</th> <td>@ride.getRequestorId() (@ride.requestorName)</td>
                      </tr>
                     <tr>
                         <th align="left">Rider Status</th> <td>@ride.getRideStatus()</td>&nbsp
                         <th align="left">Order Distance</th> <td>@ride.getOrderDistance()</td>
                     </tr>
                     <tr>
-                        <th align="left">Order Amount</th> <td>@ride.getOrderAmount()</td>
                         <th align="left">Requested At</th> <td>@ride.getRequestedAt()</td>
-                    </tr>
-                    <tr>
                         <th align="left">Accepted At</th> <td>@ride.getAcceptedAt()</td>
+                    </tr>
+                    <tr>
                         <th align="left">Ride Started At</th>  <td>@ride.getRideStartedAt()</td>
-                    </tr>
-                    <tr>
                         <th align="left">Ride Ended At</th> <td>@ride.getRideEndedAt()</td>
+                    </tr>
+                    <tr>
                         <th align="left">Start Latitude</th> <td>@ride.getStartLatitude()</td>
-                    </tr>
-                    <tr>
                         <th align="left">Start Longitude</th>  <td>@ride.getStartLongitude()</td>
+                    </tr>
+                    <tr>
                         <th align="left">Source Address</th> <td>@ride.getSourceAddress()</td>
-                    </tr>
-                    <tr>
                         <th align="left">Destination Address</th> <td>@ride.getDestinationAddress()</td>
-                        <th align="left">Total Fare</th>  <td>@ride.getTotalFare()</td>
-                    <tr>
-                        <th align="left">TaxesAndFees</th> <td>@ride.getTaxesAndFees()</td>
-                        <th align="left">Sub Total</th> <td>@ride.getSubTotal()</td>
                     </tr>
                     <tr>
+                        <th align="left">Total Fare</th>  <td>@ride.getTotalFare()</td>
+                        <th align="left">TaxesAndFees</th> <td>@ride.getTaxesAndFees()</td>
+                    <tr>
+                        <th align="left">Sub Total</th> <td>@ride.getSubTotal()</td>
                         <th align="left">Rouding Off</th>  <td>@ride.getRoundingOff()</td>
+                    </tr>
+                    <tr>
                         <th align="left">Total Bill</th>  <td>@ride.getTotalBill()</td>
                     </tr>
             </table>
         </div>
-        <div id="map"></div>
-        <script>
+        @firstLatitude =  @{firstLocation.getLatitude()}
+        @firstLongitude = @{firstLocation.getLongitude()}
+        @if(firstLatitude != null && firstLongitude != null){
+            <div id="map"></div>
+            <script>
 
-              // This example creates a 2-pixel-wide red polyline showing the path of William
-              // Kingsford Smith's first trans-Pacific flight between Oakland, CA, and
-              // Brisbane, Australia.
+                  // This example creates a 2-pixel-wide red polyline showing the path of William
+                  // Kingsford Smith's first trans-Pacific flight between Oakland, CA, and
+                  // Brisbane, Australia.
 
-              function initMap() {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                  zoom: 16,
-                  center: {lat: @firstLatitude, lng: @firstLongitude},
-                  mapTypeId: 'terrain'
-                });
+                  function initMap() {
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                      zoom: 16,
+                      center: {lat: @firstLatitude, lng: @firstLongitude},
+                      mapTypeId: 'terrain'
+                    });
 
-                var flightPlanCoordinates = [
-                @rideLocations.mkString(", ")
-                ];
-                var flightPath = new google.maps.Polyline({
-                  path: flightPlanCoordinates,
-                  geodesic: true,
-                  strokeColor: '#FF0000',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2
-                });
+                    var flightPlanCoordinates = [
+                    @rideLocations.mkString(", ")
+                    ];
+                    var flightPath = new google.maps.Polyline({
+                      path: flightPlanCoordinates,
+                      geodesic: true,
+                      strokeColor: '#FF0000',
+                      strokeOpacity: 1.0,
+                      strokeWeight: 2
+                    });
 
-                flightPath.setMap(map);
-              }
-        </script>
+                    flightPath.setMap(map);
+                  }
+            </script>
+        }
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs&callback=initMap">
         </script>

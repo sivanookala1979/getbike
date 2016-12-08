@@ -65,6 +65,10 @@ public class BaseController extends Controller {
         return session("User") != null;
 
     }
+    protected boolean isValidateAdmin(){
+        return session("admin") != null;
+    }
+
 
     public boolean isNotNullAndEmpty(String value){
 

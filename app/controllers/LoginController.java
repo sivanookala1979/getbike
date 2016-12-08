@@ -9,7 +9,9 @@ import play.mvc.Result;
 import views.html.login;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created by Siva Sudarsi on 1/12/16.
@@ -28,40 +30,67 @@ public class LoginController extends BaseController {
             user.setPassword("cerone");
             user.save();
         }
-        Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
+        Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
         return ok(views.html.login.render(logInForm));
     }
 
     public Result loginUserDetails() {
-        Form<UserLogin> userForm = formFactory.form(UserLogin.class).bindFromRequest();
-        UserLogin user = userForm.get();
-        int rowCount = User.find.where().eq("email", user.getUsername()).eq("password", user.getPassword()).findRowCount();
-        if (rowCount != 0) {
-            session("User", user.getUsername());
-            return ok(views.html.usersList.render(userTableHeaders));
-        }
-        flash("error", "Invalid Username/Password !");
-        return badRequest(views.html.login.render(userForm));
+        Form<User> userForm = formFactory.form(User.class).bindFromRequest();
+        User user = userForm.get();
+            int rowCount = User.find.where().eq("email", user.getEmail()).eq("password", user.getPassword()).findRowCount();
+            if (rowCount != 0) {
+                User uniqueUser = User.find.where().eq("email", user.getEmail()).eq("password", user.getPassword()).findUnique();
+                if (uniqueUser.getRole() != null) {
+                    session("admin", uniqueUser.getRole());
+                }
+                session("User", user.getEmail());
+                return ok(views.html.usersList.render(userTableHeaders));
+            } else {
+                flash("error", "Invalid Username/Password !");
+                return badRequest(views.html.login.render(userForm));
+            }
     }
-
     public Result logout() {
         session().clear();
-        Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
+        Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
         return ok(login.render(logInForm));
     }
-
     public Result createNewUser(){
-        Form<UserLogin> userForm = formFactory.form(UserLogin.class).bindFromRequest();
-        return  ok(views.html.usermaintenance.render(userForm));
+        if(isValidateAdmin()) {
+            Form<User> userForm = formFactory.form(User.class).bindFromRequest();
+            return ok(views.html.usermaintenance.render(userForm));
+        }
+        return redirect("/");
     }
-
+    public Result changePassword(){
+        if(isValidateAdmin()) {
+            Form<User> userForm = formFactory.form(User.class).bindFromRequest();
+            int count = 0;
+            List<User> allUsers = User.find.all();
+            List<User> listOfUsers = new ArrayList<>();
+            for (User user : allUsers) {
+                if ((user.getEmail() != null && user.getRole() != null)) {
+                    listOfUsers.add(user);
+                }
+            }
+            return ok(views.html.changepassword.render(userForm, listOfUsers));
+        }
+        return redirect("/");
+    }
+    public Result updateUserDetails(){
+        Form<User> userForm = formFactory.form(User.class).bindFromRequest();
+        User user = userForm.get();
+        User updateUser = User.find.where().eq("email", user.getEmail()).findUnique();
+        updateUser.setPassword(user.getPassword());
+        updateUser.setRole(user.getRole());
+        updateUser.update();
+        flash("error", "User Details updated successfully");
+        return redirect("/user/changepassword");
+    }
     public Result createNewLoginDetails(){
-        Form<UserLogin> logInForm = formFactory.form(UserLogin.class).bindFromRequest();
-        UserLogin user = logInForm.get();
-        Logger.info("User Name  "+user.getUsername());
-        Logger.info("Password   "+user.getPassword());
-        Logger.info("Role       "+user.getRole());
-        int rowCount = User.find.where().eq("email", user.getUsername()).findRowCount();
+        Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
+        User user = logInForm.get();
+        int rowCount = User.find.where().eq("email", user.getEmail()).findRowCount();
         Logger.info("Row count  "+rowCount);
         if(rowCount == 0){
             user.save();
