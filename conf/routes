@@ -10,6 +10,9 @@ GET     /user/userMaintenance                       controllers.LoginController.
 GET     /user/saveNewUser                           controllers.LoginController.createNewLoginDetails
 GET     /user/changepassword                        controllers.LoginController.changePassword
 POST     /user/updateUser                           controllers.LoginController.updateUserDetails
+POST    /profile/saveAccountDetails                 controllers.ProfileController.saveAccountDetails
+GET     /profile/getAccountDetails                  controllers.ProfileController.getAccountDetails
+
 
 GET     /index                                  controllers.HomeController.index
 GET     /users                                  controllers.UserController.index

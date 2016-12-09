@@ -43,6 +43,12 @@ public class User extends Model {
     String officeLocation;
     String profileImage;
     boolean mobileVerified;
+    String accountHolderName;
+    String accountNumber;
+    String ifscCode;
+    String bankName;
+    String branchName;
+
 
     public String getName() {
         return name;
@@ -242,6 +248,46 @@ public class User extends Model {
 
     public void setMobileVerified(boolean mobileVerified) {
         this.mobileVerified = mobileVerified;
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getIfscCode() {
+        return ifscCode;
+    }
+
+    public void setIfscCode(String ifscCode) {
+        this.ifscCode = ifscCode;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
     }
 
     public String getRole() {
