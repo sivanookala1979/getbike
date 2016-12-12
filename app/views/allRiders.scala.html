@@ -1,0 +1,91 @@
+@(riderLocations: String)
+@import views.html.custom_views._
+<div class="container">
+    <div class="row">
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+            <meta charset="utf-8">
+            <title>All Riders Locations</title>
+            <style>
+              /* Always set the map height explicitly to define the size of the div
+               * element that contains the map. */
+              #map {
+                height: 80%;
+              }
+              /* Optional: Makes the sample page fill the window. */
+              html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+              }
+             table, th, td {
+                    border: 1px solid lightgray;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    padding: 5px;
+                }
+
+            </style>
+            <script type="text/javascript"
+                    src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+            <script type="text/javascript"
+                    src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs">
+            </script>
+
+        </head>
+        <body style="margin-top:3%; margin-left:5%; margin-right:5%; margin-bottom:3%;">
+        <h1>All Riders Locations</h1>
+        <div id="map"></div>
+        <script>
+         var infowindow = new google.maps.InfoWindow();
+                    var markers_json = @Html(riderLocations);
+                    var myLatlng2 = new google.maps.LatLng(markers_json[0].lat, markers_json[0].lng);
+                    var mapOptions = {
+                        zoom: 4,
+                        center: myLatlng2
+                    };
+                    var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+                    var bounds = new google.maps.LatLngBounds();
+                    function initialize() {
+                        $(markers_json).each(function (e) {
+                            var myLatlng = new google.maps.LatLng(markers_json[e].lat, markers_json[e].lng);
+
+                            var marker = new google.maps.Marker({
+                                position: myLatlng,
+                                map: map,
+                                icon: markers_json[e].picture.url
+                            });
+                            bounds.extend(marker.getPosition());
+                            google.maps.event.addListener(marker, 'mouseover', overInfoCallback(markers_json[e].infowindow, marker));
+                            google.maps.event.addListener(marker, 'mouseout', outInfoCallback(markers_json[e].infowindow, marker));
+                        });
+                        map.fitBounds(bounds);
+                    }
+                    google.maps.event.addDomListener(window, 'load', initialize);
+
+                    function overInfoCallback(infowindowHtml, marker) {
+                        return function () {
+                            infowindow.setContent(infowindowHtml)
+                            infowindow.open(map, marker);
+
+                        };
+                    }
+
+                    function outInfoCallback(infowindowHtml, marker) {
+                        return function () {
+                            infowindow.close();
+                        };
+                    }
+
+
+        </script>
+
+        </body>
+        </html>
+    </div>
+</div>
