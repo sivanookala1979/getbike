@@ -366,7 +366,7 @@ public class RideController extends BaseController {
     }
 
     private List<User> getRelevantRiders(Long currentId) {
-        return User.find.where().not().eq("id", currentId).findList();
+        return User.find.where().eq("isRideInProgress", false).not().eq("id", currentId).findList();
     }
 
     public Result rideList() {

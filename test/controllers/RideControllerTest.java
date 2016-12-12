@@ -426,12 +426,15 @@ public class RideControllerTest extends BaseControllerTest {
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
+        RideLocation firstRideLocation = new RideLocation();
+        firstRideLocation.setLatitude(23.45);
+        firstRideLocation.setLongitude(57.68);
         List<String> latLongs = new ArrayList<>();
         latLongs.add("hello");
         latLongs.add("hi");
         Ride ride = new Ride();
         ride.save();
-        Content html = views.html.ridePath.render(latLongs, 23.45, 57.68, ride);
+        Content html = views.html.ridePath.render(latLongs, firstRideLocation, ride);
         Assert.assertEquals("text/html", html.contentType());
         String body = html.body();
         assertTrue(body.contains("hello"));
