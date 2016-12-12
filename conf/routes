@@ -12,6 +12,12 @@ GET     /user/changepassword                        controllers.LoginController.
 POST     /user/updateUser                           controllers.LoginController.updateUserDetails
 POST    /profile/saveAccountDetails                 controllers.ProfileController.saveAccountDetails
 GET     /profile/getAccountDetails                  controllers.ProfileController.getAccountDetails
+POST    /wallet/addMoney                            controllers.WalletController.addMoney
+GET    /wallet/getBalanceAmount                     controllers.WalletController.getBalanceAmount
+POST    /wallet/rechargeMobile                      controllers.WalletController.rechargeMobile
+
+
+
 
 
 GET     /index                                  controllers.HomeController.index
