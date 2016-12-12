@@ -42,6 +42,7 @@ public class Ride extends Model {
     Double subTotal;
     Double roundingOff;
     Double totalBill;
+    Integer rating;
     public transient String requestorName;
     public transient String riderName;
 
@@ -195,5 +196,13 @@ public class Ride extends Model {
 
     public void setTotalBill(Double totalBill) {
         this.totalBill = totalBill;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 }

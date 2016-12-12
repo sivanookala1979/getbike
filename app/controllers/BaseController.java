@@ -40,6 +40,9 @@ public class BaseController extends Controller {
     protected Long getLong(String param) {
         return Long.parseLong(request().getQueryString(param));
     }
+    protected Integer getInt(String param) {
+        return Integer.parseInt(request().getQueryString(param));
+    }
 
     protected String getString(String param) {
         return request().getQueryString(param);

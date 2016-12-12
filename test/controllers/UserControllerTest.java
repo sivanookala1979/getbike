@@ -325,6 +325,11 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(GET, "/getPublicProfile/0").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
+        assertTrue(jsonNode.get("profile").get("promoCode").textValue().length() > 0);
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.getPromoCode().startsWith("siva"));
+        assertFalse(actual.getPromoCode().contains(" "));
+        assertEquals(actual.getPromoCode(), jsonNode.get("profile").get("promoCode").textValue());
         assertEquals(user.getName(), jsonNode.get("profile").get("name").textValue());
         assertEquals(user.getPhoneNumber(), jsonNode.get("profile").get("phoneNumber").textValue());
         assertEquals(user.getDrivingLicenseNumber(), jsonNode.get("profile").get("drivingLicenseNumber").textValue());
@@ -333,6 +338,26 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(user.getDrivingLicenseImageName(), jsonNode.get("profile").get("drivingLicenseImageName").textValue());
     }
 
+
+    @Test
+    public void ensurePromoCodeTESTHappyFlow() {
+        User user = loggedInUser();
+        UserController.ensurePromoCode(user);
+        assertTrue(user.getPromoCode().startsWith("siva"));
+        assertFalse(user.getPromoCode().contains(" "));
+        assertEquals("siva".length() + 6, user.getPromoCode().length());
+    }
+
+    @Test
+    public void ensurePromoCodeTESTWithNoName() {
+        User user = loggedInUser();
+        user.setName(null);
+        user.save();
+        UserController.ensurePromoCode(user);
+        assertTrue(user.getPromoCode().startsWith("getbike"));
+        assertFalse(user.getPromoCode().contains(" "));
+        assertEquals("getbike".length() + 6, user.getPromoCode().length());
+    }
 
     //--------------------------------------------
     //       Setup

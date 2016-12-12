@@ -48,6 +48,7 @@ public class User extends Model {
     String ifscCode;
     String bankName;
     String branchName;
+    String promoCode;
 
 
     public String getName() {
@@ -296,5 +297,13 @@ public class User extends Model {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(String promoCode) {
+        this.promoCode = promoCode;
     }
 }

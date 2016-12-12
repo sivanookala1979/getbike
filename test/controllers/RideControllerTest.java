@@ -185,6 +185,23 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void rateRideTESTHappyFlow() {
+        User user = loggedInUser();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        when(gcmUtilsMock.sendMessage(user, "Your ride is accepted by Siva Nookala ( 8282828282 ) and the rider will be contacting you shortly.", "rideAccepted", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
+        Result acceptRideResult = route(fakeRequest(GET, "/rateRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID) + "&rating=3").header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        assertNotNull(ride);
+        assertEquals(3, ride.getRating().intValue());
+    }
+
+    @Test
     public void acceptRideTESTWithRideInProgress() {
         User user = loggedInUser();
         user.setRideInProgress(true);
@@ -538,6 +555,7 @@ public class RideControllerTest extends BaseControllerTest {
         firstRide.setStartLatitude(97.654);
         firstRide.setRequestorId(rideRequestorId);
         firstRide.save();
+        GetBikeUtils.sleep(200);
         return firstRide;
     }
 

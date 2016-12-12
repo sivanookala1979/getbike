@@ -190,7 +190,7 @@ public class RideController extends BaseController {
                 ride.setOrderDistance(DistanceUtils.distanceKilometers(locations));
                 ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
                 ride.setTotalFare(DistanceUtils.round2(ride.getOrderAmount()));
-                ride.setTaxesAndFees(DistanceUtils.round2(ride.getTotalFare() * 0.061));
+                ride.setTaxesAndFees(DistanceUtils.round2(ride.getTotalFare() * 0.40 * 0.066));
                 ride.setSubTotal(DistanceUtils.round2(ride.getTotalFare() + ride.getTaxesAndFees()));
                 ride.setRoundingOff(DistanceUtils.round2((ride.getSubTotal() - ride.getSubTotal().intValue())));
                 ride.setTotalBill(DistanceUtils.round2((double) ride.getSubTotal().intValue()));
@@ -219,8 +219,7 @@ public class RideController extends BaseController {
         List<RideLocation> rideLocations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
         Logger.info("Ride Locations  " + rideLocationStrings);
         RideLocation firstLocation = new RideLocation();
-        if(rideLocations.size() > 0 )
-        {
+        if (rideLocations.size() > 0) {
             firstLocation = rideLocations.get(0);
         }
         for (RideLocation rideLocation : rideLocations) {
@@ -231,7 +230,7 @@ public class RideController extends BaseController {
         Ride ride = Ride.find.where().eq("id", rideId).findUnique();
         if (ride.getRiderId() != null) {
             ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
-            ride.requestorName = User.find.where().eq("id" , ride.getRiderId()).findUnique().getName();
+            ride.requestorName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
         }
         return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride));
 
@@ -321,6 +320,24 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result rateRide() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Long rideId = getLong(Ride.RIDE_ID);
+            Ride ride = Ride.find.byId(rideId);
+            if (ride != null && ride.getRequestorId().equals(user.getId())) {
+                ride.setRating(getInt("rating"));
+                ride.save();
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+
     public Result getRideById() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
@@ -394,7 +411,7 @@ public class RideController extends BaseController {
         return ok(Json.toJson(rideLocationList));
     }
 
-    public Result dateWiseFilter(){
+    public Result dateWiseFilter() {
         int numberOfRides = 0;
         double totalDistance = 0.0;
         double totalAmount = 0.0;
@@ -405,15 +422,15 @@ public class RideController extends BaseController {
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
         String srcName = request().getQueryString("srcName");
-        Logger.info("Search name  "+srcName);
-        List<Ride> listOfRides =new ArrayList<>();
+        Logger.info("Search name  " + srcName);
+        List<Ride> listOfRides = new ArrayList<>();
         List<User> listOfNames = new ArrayList<>();
         List<User> listOfPhNumbers = new ArrayList<>();
-        if(isNotNullAndEmpty(srcName)){
+        if (isNotNullAndEmpty(srcName)) {
             listOfNames = User.find.where().contains("name", srcName).findList();
             listOfPhNumbers = User.find.where().contains("phoneNumber", srcName).findList();
         }
-        if(isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+        if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
             listOfRides = Ride.find.where().between("requested_at", startDate, endDate).eq("ride_status", status).findList();
         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
             listOfRides = Ride.find.where().eq("ride_status", status).findList();
@@ -425,19 +442,25 @@ public class RideController extends BaseController {
         for (Ride ride : listOfRides) {
             if (ride.getRequestorId() != null) {
                 ride.requestorName = User.find.where().eq("id", ride.getRequestorId()).findUnique().getName();
-            }if (ride.getRiderId() != null) {
+            }
+            if (ride.getRiderId() != null) {
                 ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
-            }if(ride.getOrderDistance() != null){
+            }
+            if (ride.getOrderDistance() != null) {
                 totalDistance = totalDistance + ride.getOrderDistance();
-            }if (ride.getTotalBill() != null){
+            }
+            if (ride.getTotalBill() != null) {
                 totalAmount = totalAmount + ride.getTotalBill();
-            }if(ride.getRideStatus().equals(RideStatus.RideRequested)){
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideRequested)) {
                 Logger.info("Inside Ride req");
                 noOfPending++;
-            }if(ride.getRideStatus().equals(RideStatus.RideAccepted)){
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideAccepted)) {
                 Logger.info("Inside Ride acc");
                 noOfaccepted++;
-            }if(ride.getRideStatus().equals(RideStatus.RideClosed)){
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideClosed)) {
                 Logger.info("Inside Ride clo");
                 noOfCompleted++;
             }
@@ -451,7 +474,7 @@ public class RideController extends BaseController {
         obj.put("accepted", noOfaccepted);
         obj.put("closed", noOfCompleted);
         ObjectNode objectNode = Json.newObject();
-        setJson(objectNode , "rideSummary",obj);
+        setJson(objectNode, "rideSummary", obj);
         setResult(objectNode, listOfRides);
         return ok(Json.toJson(objectNode));
     }
