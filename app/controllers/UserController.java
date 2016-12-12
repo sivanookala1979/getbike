@@ -137,6 +137,7 @@ public class UserController extends BaseController {
                 requestedUser = User.find.byId(userId);
             }
             if (requestedUser != null) {
+                ensurePromoCode(requestedUser);
                 User publicUser = new User();
                 publicUser.setName(requestedUser.getName());
                 publicUser.setPhoneNumber(requestedUser.getPhoneNumber());
@@ -144,12 +145,24 @@ public class UserController extends BaseController {
                 publicUser.setVehicleNumber(requestedUser.getVehicleNumber());
                 publicUser.setDrivingLicenseImageName(requestedUser.getDrivingLicenseImageName());
                 publicUser.setDrivingLicenseNumber(requestedUser.getDrivingLicenseNumber());
+                publicUser.setPromoCode(requestedUser.getPromoCode());
                 objectNode.set("profile", Json.toJson(publicUser));
             }
             result = SUCCESS;
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public static void ensurePromoCode(User requestedUser) {
+        if (requestedUser.getPromoCode() == null) {
+            if (requestedUser.getName() != null && !requestedUser.getName().trim().isEmpty()) {
+                requestedUser.setPromoCode(requestedUser.getName().split(" ")[0].toLowerCase() + NumericUtils.generateOtp());
+            } else {
+                requestedUser.setPromoCode("getbike" + NumericUtils.generateOtp());
+            }
+            requestedUser.save();
+        }
     }
 
     public Result getPrivateProfile() {
