@@ -28,6 +28,7 @@ public class BaseControllerTest extends WithApplication {
         user.setName("Siva Nookala");
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
+        user.setGender('M');
         user.save();
         return user;
     }

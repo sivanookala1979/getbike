@@ -51,6 +51,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
         assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals('M', ride.getRideGender());
         assertEquals(RideRequested, ride.getRideStatus());
     }
 
@@ -78,6 +79,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
         assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals('M', ride.getRideGender());
         assertEquals(RideAccepted, ride.getRideStatus());
         User actual = User.find.byId(user.getId());
         assertTrue(actual.isRideInProgress());
@@ -108,6 +110,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
         assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
         assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
+        assertEquals('M', ride.getRideGender());
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
         assertEquals(RideAccepted, ride.getRideStatus());
         User actual = User.find.byId(user.getId());
@@ -158,6 +161,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
         assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
         assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals('M', ride.getRideGender());
         assertEquals(RideRequested, ride.getRideStatus());
         verify(gcmUtilsMock).sendMessage(eq(Collections.singletonList(otherUser)), contains("A new ride request with ride Id "), eq("newRide"), anyLong());
     }
@@ -383,6 +387,27 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
         assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
+    @Test
+    public void openRidesTESTWithMaleAndFemaleRides() {
+        User user = loggedInUser();
+        Ride maleRide1 = createRide(user.getId());
+        Ride maleRide2 = createRide(user.getId());
+        Ride femaleRide = createRide(user.getId());
+        femaleRide.setRideGender('F');
+        femaleRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(maleRide2.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(maleRide1.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
+        assertEquals(user.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(user.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+    }
 
     @Test
     public void getMyCompletedRidesTESTHappyFlow() {
@@ -586,6 +611,7 @@ public class RideControllerTest extends BaseControllerTest {
         firstRide.setStartLongitude(22.27);
         firstRide.setStartLatitude(97.654);
         firstRide.setRequestorId(rideRequestorId);
+        firstRide.setRideGender('M');
         firstRide.save();
         GetBikeUtils.sleep(200);
         return firstRide;

@@ -43,6 +43,7 @@ public class Ride extends Model {
     Double roundingOff;
     Double totalBill;
     Integer rating;
+    char rideGender;
     public transient String requestorName;
     public transient String riderName;
 
@@ -204,5 +205,13 @@ public class Ride extends Model {
 
     public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    public char getRideGender() {
+        return rideGender;
+    }
+
+    public void setRideGender(char rideGender) {
+        this.rideGender = rideGender;
     }
 }

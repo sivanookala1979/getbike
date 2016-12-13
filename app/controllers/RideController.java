@@ -49,6 +49,7 @@ public class RideController extends BaseController {
             ride.setRequestorId(user.getId());
             ride.setRideStatus(RideRequested);
             ride.setRequestedAt(new Date());
+            ride.setRideGender(user.getGender());
             ride.save();
             result = SUCCESS;
             setJson(objectNode, Ride.RIDE_ID, ride.getId());
@@ -110,6 +111,7 @@ public class RideController extends BaseController {
                 ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
                 ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
                 ride.setRiderId(user.getId());
+                ride.setRideGender(user.getGender());
                 String phoneNumber = locationsJson.get("phoneNumber").textValue();
                 User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
                 if (requestor == null) {
@@ -242,7 +244,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).setMaxRows(5).order("requestedAt desc").findList();
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_gender = '" + user.getGender() +"'").setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));
