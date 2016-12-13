@@ -24,7 +24,7 @@ import static utils.CustomCollectionUtils.first;
 public class UserController extends BaseController {
 
     public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"", "", "#", "User Id", "OTP", "Created At"}, new String[]{"", "", "id", "userId", "generatedOtp", "createdAt"});
-    public LinkedHashMap<String, String> userTableHeaders = getTableHeadersList(new String[]{"", "", "#", "Name", "Phone Number", "Auth.Token", "Gcm Code"}, new String[]{"", "", "id", "name", "phoneNumber", "authToken", "gcmCode"});
+    public LinkedHashMap<String, String> userTableHeaders = getTableHeadersList(new String[]{"", "", "#", "Name", "Phone Number", "Gender", "Auth.Token"}, new String[]{"", "", "id", "name", "phoneNumber", "gender", "authToken"});
 
     public Result index() {
         return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
