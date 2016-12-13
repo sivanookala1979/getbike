@@ -151,6 +151,7 @@ public class RideControllerTest extends BaseControllerTest {
         otherUser.setGcmCode("fQGK9w6iePY:APA91bEKA_u9AVswVGU0D84RSvH-DZowv33G4Mayp0gjOwljN-TMLUitP37zpPLMi4WcJSzlMccXrTdhyTCBYxn7OBAxlR_BRCAZmZ7BCccSmXkLCPFRzB4j723sUT5Ksfmm0mgQQE4e");
         otherUser.setLastKnownLatitude(startLatitude);
         otherUser.setLastKnownLongitude(startLongitude);
+        otherUser.setGender('M');
         otherUser.save();
         when(gcmUtilsMock.sendMessage(eq(Collections.singletonList(otherUser)), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
         Result result = requestGetBike(user, startLatitude, startLongitude);
@@ -563,7 +564,7 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         User rider1 = createRider(23.45, 56.78);
         User rider2 = createRider(23.45, 56.78);
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78);
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
         assertEquals(2, actual.size());
         cAssertHasUser(actual, rider1);
         cAssertHasUser(actual, rider2);
@@ -574,7 +575,7 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         User rider1 = createRider(23.45, 56.78);
         User rider2 = createRider(23.45, 56.78);
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 53.45, 66.78);
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 53.45, 66.78, user.getGender());
         assertEquals(0, actual.size());
     }
 
@@ -583,7 +584,7 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         User rider1 = createRider(23.47, 56.79);
         User rider2 = createRider(53.45, 66.78);
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78);
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider1);
     }
@@ -631,6 +632,7 @@ public class RideControllerTest extends BaseControllerTest {
         user.setLastKnownLatitude(latitude);
         user.setLastKnownLongitude(longitude);
         user.setLastLocationTime(new Date());
+        user.setGender('M');
         user.save();
         return user;
     }

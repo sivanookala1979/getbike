@@ -381,17 +381,17 @@ public class RideController extends BaseController {
 
     private void publishRideDetails(User user, Ride ride) {
         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
-        gcmUtils.sendMessage(getRelevantRiders(user.getId(), ride.getStartLatitude(), ride.getStartLongitude()), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
+        gcmUtils.sendMessage(getRelevantRiders(user.getId(), ride.getStartLatitude(), ride.getStartLongitude(), user.getGender()), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
     }
 
-    public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude) {
+    public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude, char gender) {
         double distanceInKilometers = 10.0;
         return User.find.where().eq("isRideInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
                 ") ) * cos( radians( last_known_latitude ) ) " +
                 "   * cos( radians(last_known_longitude) - radians(" + longitude +
                 ")) + sin(radians(" + latitude + ")) " +
                 "   * sin( radians(last_known_latitude)))) < " +
-                distanceInKilometers + " ").gt("lastKnownLatitude", 0.0).gt("lastKnownLongitude", 0.0).not().eq("id", currentId).findList();
+                distanceInKilometers + " ").raw("gender = '" + gender + "'").gt("lastKnownLatitude", 0.0).gt("lastKnownLongitude", 0.0).not().eq("id", currentId).findList();
     }
 
     public Result rideList() {
