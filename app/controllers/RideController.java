@@ -431,9 +431,11 @@ public class RideController extends BaseController {
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
         String srcName = request().getQueryString("srcName");
+        if ("ALL".equals(status) || "null".equals(status)) {
+            status = null;
+        }
         List<Ride> listOfRides = new ArrayList<>();
         List<Object> listOfIds = new ArrayList<>();
-        List<User> listOfPhNumbers = new ArrayList<>();
         ExpressionList<Ride> rideQuery = null;
         if (isNotNullAndEmpty(srcName)) {
             listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findIds();
@@ -442,7 +444,7 @@ public class RideController extends BaseController {
             rideQuery = Ride.find.where();
         }
         if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.between("requested_at", startDate, endDate).eq("ride_status", status).findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).findList();
         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
             listOfRides = rideQuery.eq("ride_status", status).findList();
         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {

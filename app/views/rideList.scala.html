@@ -24,30 +24,32 @@
 th {
     cursor:pointer;
 }
+
 </style>
 <div class="container" id="list-view-app-id">
     <div class="row">
         <div class="col-sm-12">
             <div data-ng-controller="ProductController">
                 <div class="row">
-                    <div class="col-sm-2 text-left" style="padding-bottom:10px;">
-                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search by Name / Mobile">
+                    <div class="col-sm-4 text-left" style="padding-bottom:10px;">
+                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search by Name / Mobile" class="form-control">
                     </div>
                     <div class="col-sm-2 text-left">
-                        <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter" ng-model="filterText"
+                        <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter"
+                                ng-model="filterText"
                                 class="form-control" style="width:100% !important">
                             <option value="">ALL</option>
 
                         </select>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <input ng-model="startDate" type="date" placeholder="" required/>
+                        <input ng-model="startDate" type="date" placeholder="" required class="form-control"/>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <input ng-model="endDate" type="date" placeholder="" required/>
+                        <input ng-model="endDate" type="date" placeholder="" required class="form-control"/>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <input type="button" class="btn btn-primary" value="Filter" ng-click="doDateFilter()"/>
+                        <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
                     </div>
 
                     @if(isRequired.equalsIgnoreCase("Yes")){
@@ -56,25 +58,27 @@ th {
                     </div>
                     }
                 </div>
-                <div class="row col-sm-12" style="margin-top:1%">
+                <div class="row" style="margin-top:1%">
                     <div class="col-sm-2 text-left">
-                        <label class="col-sm-2">Rides Count:{{rideSummary.numberOfRides}}</label>
+                        <label>Rides Count: {{rideSummary.numberOfRides}}</label>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <label class="col-sm-2">Total Distance:{{rideSummary.totalDistance}}</label>
+                        <label>Total Distance: {{rideSummary.totalDistance}}</label>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <label class="col-sm-2">Total Amount:{{rideSummary.totalAmount}}</label>
+                        <label>Total Amount: {{rideSummary.totalAmount}}</label>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <label class="col-sm-2">Rides Completed:{{rideSummary.closed}}</label>
-                    </div><div class="col-sm-2 text-left">
-                    <label class="col-sm-2">Rides Pending:{{rideSummary.pending}}</label>
-                </div><div class="col-sm-2 text-left">
-                    <label class="col-sm-2">Rides Accepted:{{rideSummary.accepted}}</label>
-                </div>
+                        <label>Rides Completed: {{rideSummary.closed}}</label>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <label>Rides Pending: {{rideSummary.pending}}</label>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <label>Rides Accepted: {{rideSummary.accepted}}</label>
+                    </div>
 
-            </div>
+                </div>
                 <div id="test">
                     <table class="table table-striped"
                            style="border: 1px solid lightgrey; width: 100%;overflow: auto;">
@@ -96,7 +100,7 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderDistance'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('requestedAt')" style="width:180px;">Requested At
+                            <th ng-click="sort('requestedAt')" style="width:190px;">Requested At
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='requestedAt'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -187,6 +191,7 @@ th {
                 'RideClosed'
           ];
   }); //end of angular Js
+
 
 
 

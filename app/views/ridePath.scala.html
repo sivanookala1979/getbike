@@ -12,7 +12,7 @@
               /* Always set the map height explicitly to define the size of the div
                * element that contains the map. */
               #map {
-                height: 100%;
+                height: 60%;
               }
               /* Optional: Makes the sample page fill the window. */
               html, body {
@@ -27,52 +27,71 @@
                 th, td {
                     padding: 5px;
                 }
+
             </style>
         </head>
-        <body style="margin-top:3%; margin-left:5%; margin-right:5%; margin-bottom:20%;" >
-        <div id="scr">
+        <body style="margin:20px;">
+        <div id="scr" style="margin:20px 0px;">
             <table class="table table-bordered" style="border-left: 1px solid lightgrey; width:100%; ">
-                    <tr>
-                        <th align="left">Rider Id:</th> <td>@ride.getRiderId() (@ride.getRiderName())</td>
-                        <th align="left">Requestor Id:</th> <td>@ride.getRequestorId() (@ride.getRequestorName())</td>
-                     </tr>
-                    <tr>
-                        <th align="left">Rider Status</th> <td>@ride.getRideStatus()</td>&nbsp
-                        <th align="left">Order Distance</th> <td>@ride.getOrderDistance()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Requested At</th> <td>@ride.getRequestedAt()</td>
-                        <th align="left">Accepted At</th> <td>@ride.getAcceptedAt()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Ride Started At</th>  <td>@ride.getRideStartedAt()</td>
-                        <th align="left">Ride Ended At</th> <td>@ride.getRideEndedAt()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Start Latitude</th> <td>@ride.getStartLatitude()</td>
-                        <th align="left">Start Longitude</th>  <td>@ride.getStartLongitude()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Source Address</th> <td>@ride.getSourceAddress()</td>
-                        <th align="left">Destination Address</th> <td>@ride.getDestinationAddress()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Total Fare</th>  <td>@ride.getTotalFare()</td>
-                        <th align="left">TaxesAndFees</th> <td>@ride.getTaxesAndFees()</td>
-                    <tr>
-                        <th align="left">Sub Total</th> <td>@ride.getSubTotal()</td>
-                        <th align="left">Rouding Off</th>  <td>@ride.getRoundingOff()</td>
-                    </tr>
-                    <tr>
-                        <th align="left">Total Bill</th>  <td>@ride.getTotalBill()</td>
-                    </tr>
+                <tr>
+                    <th align="left">Rider Id:</th>
+                    <td>@ride.getRiderId() (@ride.getRiderName())</td>
+                    <th align="left">Requestor Id:</th>
+                    <td>@ride.getRequestorId() (@ride.getRequestorName())</td>
+                </tr>
+                <tr>
+                    <th align="left">Rider Status</th>
+                    <td>@ride.getRideStatus()</td>
+                    &nbsp
+                    <th align="left">Order Distance</th>
+                    <td>@ride.getOrderDistance()</td>
+                </tr>
+                <tr>
+                    <th align="left">Requested At</th>
+                    <td>@ride.getRequestedAt()</td>
+                    <th align="left">Accepted At</th>
+                    <td>@ride.getAcceptedAt()</td>
+                </tr>
+                <tr>
+                    <th align="left">Ride Started At</th>
+                    <td>@ride.getRideStartedAt()</td>
+                    <th align="left">Ride Ended At</th>
+                    <td>@ride.getRideEndedAt()</td>
+                </tr>
+                <tr>
+                    <th align="left">Start Latitude</th>
+                    <td>@ride.getStartLatitude()</td>
+                    <th align="left">Start Longitude</th>
+                    <td>@ride.getStartLongitude()</td>
+                </tr>
+                <tr>
+                    <th align="left">Source Address</th>
+                    <td>@ride.getSourceAddress()</td>
+                    <th align="left">Destination Address</th>
+                    <td>@ride.getDestinationAddress()</td>
+                </tr>
+                <tr>
+                    <th align="left">Total Fare</th>
+                    <td>@ride.getTotalFare()</td>
+                    <th align="left">TaxesAndFees</th>
+                    <td>@ride.getTaxesAndFees()</td>
+                <tr>
+                    <th align="left">Sub Total</th>
+                    <td>@ride.getSubTotal()</td>
+                    <th align="left">Rouding Off</th>
+                    <td>@ride.getRoundingOff()</td>
+                </tr>
+                <tr>
+                    <th align="left">Total Bill</th>
+                    <td>@ride.getTotalBill()</td>
+                </tr>
             </table>
         </div>
-        @firstLatitude =  @{firstLocation.getLatitude()}
+        @firstLatitude = @{firstLocation.getLatitude()}
         @firstLongitude = @{firstLocation.getLongitude()}
         @if(firstLatitude != null && firstLongitude != null){
-            <div id="map"></div>
-            <script>
+        <div id="map"></div>
+        <script>
 
                   // This example creates a 2-pixel-wide red polyline showing the path of William
                   // Kingsford Smith's first trans-Pacific flight between Oakland, CA, and
@@ -98,7 +117,8 @@
 
                     flightPath.setMap(map);
                   }
-            </script>
+
+        </script>
         }
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs&callback=initMap">
