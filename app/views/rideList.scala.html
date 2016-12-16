@@ -31,17 +31,20 @@ th {
             <div data-ng-controller="ProductController">
                 <div class="row">
                     <div class="col-sm-2 text-left" style="padding-bottom:10px;">
-                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search Name">
+                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search by Name / Mobile">
                     </div>
                     <div class="col-sm-2 text-left">
                         <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter" ng-model="filterText"
-                                class="form-control" style="width:100% !important"></select>
+                                class="form-control" style="width:100% !important">
+                            <option value="">ALL</option>
+
+                        </select>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <input ng-model="startDate" type="date" placeholder=""/>
+                        <input ng-model="startDate" type="date" placeholder="" required/>
                     </div>
                     <div class="col-sm-2 text-left">
-                        <input ng-model="endDate" type="date" placeholder=""/>
+                        <input ng-model="endDate" type="date" placeholder="" required/>
                     </div>
                     <div class="col-sm-2 text-left">
                         <input type="button" class="btn btn-primary" value="Filter" ng-click="doDateFilter()"/>
@@ -122,7 +125,6 @@ th {
                                 {{product.sourceAddress}}<br/>
                                 {{product.destinationAddress}}
                             </td>
-                            <
                             <td><a target="_blank" href="/ridePath?rideId={{product.id}}">View</a><br/>
                                 {{product.totalBill}}
                             </td>
@@ -180,7 +182,6 @@ th {
         $scope.doDateFilter();
 
           $scope.manualrecfilter = [
-                '',
                 'RideRequested',
                 'RideAccepted',
                 'RideClosed'

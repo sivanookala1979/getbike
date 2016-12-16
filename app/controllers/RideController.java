@@ -1,5 +1,7 @@
 package controllers;
 
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,6 +15,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.ApplicationContext;
+import utils.DateUtils;
 import utils.DistanceUtils;
 import utils.IGcmUtils;
 
@@ -22,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static dataobject.RideStatus.*;
+import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.*;
 
 /**
@@ -191,11 +195,11 @@ public class RideController extends BaseController {
                 List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
                 ride.setOrderDistance(DistanceUtils.distanceKilometers(locations));
                 ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
-                ride.setTotalFare(DistanceUtils.round2(ride.getOrderAmount()));
-                ride.setTaxesAndFees(DistanceUtils.round2(ride.getTotalFare() * 0.40 * 0.066));
-                ride.setSubTotal(DistanceUtils.round2(ride.getTotalFare() + ride.getTaxesAndFees()));
-                ride.setRoundingOff(DistanceUtils.round2((ride.getSubTotal() - ride.getSubTotal().intValue())));
-                ride.setTotalBill(DistanceUtils.round2((double) ride.getSubTotal().intValue()));
+                ride.setTotalFare(round2(ride.getOrderAmount()));
+                ride.setTaxesAndFees(round2(ride.getTotalFare() * 0.40 * 0.066));
+                ride.setSubTotal(round2(ride.getTotalFare() + ride.getTaxesAndFees()));
+                ride.setRoundingOff(round2((ride.getSubTotal() - ride.getSubTotal().intValue())));
+                ride.setTotalBill(round2((double) ride.getSubTotal().intValue()));
                 if (locations.size() >= 2) {
                     ride.setRideStartedAt(locations.get(0).getLocationTime());
                     ride.setRideEndedAt(locations.get(locations.size() - 1).getLocationTime());
@@ -244,7 +248,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_gender = '" + user.getGender() +"'").setMaxRows(5).order("requestedAt desc").findList();
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_gender = '" + user.getGender() + "'").setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));
@@ -430,22 +434,24 @@ public class RideController extends BaseController {
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
         String srcName = request().getQueryString("srcName");
-        Logger.info("Search name  " + srcName);
         List<Ride> listOfRides = new ArrayList<>();
-        List<User> listOfNames = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
         List<User> listOfPhNumbers = new ArrayList<>();
+        ExpressionList<Ride> rideQuery = null;
         if (isNotNullAndEmpty(srcName)) {
-            listOfNames = User.find.where().contains("name", srcName).findList();
-            listOfPhNumbers = User.find.where().contains("phoneNumber", srcName).findList();
+            listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findIds();
+            rideQuery = Ride.find.where().or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds));
+        } else {
+            rideQuery = Ride.find.where();
         }
         if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = Ride.find.where().between("requested_at", startDate, endDate).eq("ride_status", status).findList();
+            listOfRides = rideQuery.between("requested_at", startDate, endDate).eq("ride_status", status).findList();
         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            listOfRides = Ride.find.where().eq("ride_status", status).findList();
+            listOfRides = rideQuery.eq("ride_status", status).findList();
         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = Ride.find.where().between("requested_at", startDate, endDate).findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).findList();
         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            listOfRides = Ride.find.all();
+            listOfRides = rideQuery.findList();
         }
         for (Ride ride : listOfRides) {
             if (ride.getRequestorId() != null) {
@@ -476,8 +482,8 @@ public class RideController extends BaseController {
         numberOfRides = listOfRides.size();
         JSONObject obj = new JSONObject();
         obj.put("numberOfRides", numberOfRides);
-        obj.put("totalDistance", totalDistance);
-        obj.put("totalAmount", totalAmount);
+        obj.put("totalDistance", round2(totalDistance));
+        obj.put("totalAmount", round2(totalAmount));
         obj.put("pending", noOfPending);
         obj.put("accepted", noOfaccepted);
         obj.put("closed", noOfCompleted);
@@ -486,4 +492,5 @@ public class RideController extends BaseController {
         setResult(objectNode, listOfRides);
         return ok(Json.toJson(objectNode));
     }
+
 }

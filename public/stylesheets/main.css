@@ -108,3 +108,8 @@
     margin-left: 2px;
     vertical-align: middle;
 }
+
+input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
+}
