@@ -234,10 +234,7 @@ public class RideController extends BaseController {
                     "}");
         }
         Ride ride = Ride.find.where().eq("id", rideId).findUnique();
-        if (ride.getRiderId() != null) {
-            ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
-            ride.requestorName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
-        }
+        loadNames(ride);
         return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride));
 
     }
@@ -454,12 +451,7 @@ public class RideController extends BaseController {
             listOfRides = rideQuery.findList();
         }
         for (Ride ride : listOfRides) {
-            if (ride.getRequestorId() != null) {
-                ride.requestorName = User.find.where().eq("id", ride.getRequestorId()).findUnique().getName();
-            }
-            if (ride.getRiderId() != null) {
-                ride.riderName = User.find.where().eq("id", ride.getRiderId()).findUnique().getName();
-            }
+            loadNames(ride);
             if (ride.getOrderDistance() != null) {
                 totalDistance = totalDistance + ride.getOrderDistance();
             }
@@ -491,6 +483,19 @@ public class RideController extends BaseController {
         setJson(objectNode, "rideSummary", obj);
         setResult(objectNode, listOfRides);
         return ok(Json.toJson(objectNode));
+    }
+
+    private void loadNames(Ride ride) {
+        if (ride.getRequestorId() != null) {
+            ride.setRequestorName(User.find.where().eq("id", ride.getRequestorId()).findUnique().getDisplayName());
+        } else {
+            ride.setRequestorName("Not Provided");
+        }
+        if (ride.getRiderId() != null) {
+            ride.setRiderName(User.find.where().eq("id", ride.getRiderId()).findUnique().getDisplayName());
+        } else {
+            ride.setRiderName("Not Provided");
+        }
     }
 
 }

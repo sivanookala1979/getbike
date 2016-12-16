@@ -1,6 +1,7 @@
 package models;
 
 import com.avaje.ebean.Model;
+import utils.StringUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -305,5 +306,9 @@ public class User extends Model {
 
     public void setPromoCode(String promoCode) {
         this.promoCode = promoCode;
+    }
+
+    public String getDisplayName() {
+        return StringUtils.isNotNullAndEmpty(name) ? name : phoneNumber;
     }
 }

@@ -44,8 +44,8 @@ public class Ride extends Model {
     Double totalBill;
     Integer rating;
     char rideGender;
-    public transient String requestorName;
-    public transient String riderName;
+    private transient String requestorName;
+    private transient String riderName;
 
     public Long getId() {
         return id;
@@ -213,5 +213,21 @@ public class Ride extends Model {
 
     public void setRideGender(char rideGender) {
         this.rideGender = rideGender;
+    }
+
+    public String getRequestorName() {
+        return requestorName;
+    }
+
+    public void setRequestorName(String requestorName) {
+        this.requestorName = requestorName;
+    }
+
+    public String getRiderName() {
+        return riderName;
+    }
+
+    public void setRiderName(String riderName) {
+        this.riderName = riderName;
     }
 }
