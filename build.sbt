@@ -12,3 +12,6 @@ libraryDependencies ++= Seq(
   javaWs,
   "org.mockito" % "mockito-core" % "2.2.22"
 )
+
+jacoco.settings
+parallelExecution in jacoco.Config := false
