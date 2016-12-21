@@ -377,7 +377,7 @@ public class RideControllerTest extends BaseControllerTest {
         Ride afterCloseRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
         assertNull(afterCloseRide.getActualSourceAddress());
         assertNull(afterCloseRide.getActualDestinationAddress());
-        GetBikeUtils.sleep(5000);
+        GetBikeUtils.sleep(8000);
         Ride afterSleepRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
         assertNotNull(afterSleepRide.getActualSourceAddress());
         assertNotNull(afterSleepRide.getActualDestinationAddress());

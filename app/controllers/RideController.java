@@ -525,7 +525,7 @@ public class RideController extends BaseController {
             ride.save();
         };
         Consumer<WSResponse> destinationAddressConsumer = response -> {
-            ride.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
+            ride.setActualDestinationAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
             ride.save();
         };
 
@@ -534,10 +534,10 @@ public class RideController extends BaseController {
 
     }
 
-    private void updateAddressByLatitudeAndLogitude(RideLocation firstLocation, ActorSystem system, WSClient client, Consumer<WSResponse> sourceAddressConsumer) {
-        client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng="+firstLocation.getLatitude()+","+firstLocation.getLongitude()+"&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
+    private void updateAddressByLatitudeAndLogitude(RideLocation location, ActorSystem system, WSClient client, Consumer<WSResponse> addressConsumer) {
+        client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng="+location.getLatitude()+","+location.getLongitude()+"&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
 
-            Optional.ofNullable(r).ifPresent(sourceAddressConsumer);
+            Optional.ofNullable(r).ifPresent(addressConsumer);
         }).thenRun(() -> {
 
             try {
