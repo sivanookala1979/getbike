@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class WalletController extends BaseController {
 
+    public static final double AMOUNT_MULTIPLIER = 10.0;
+
     @BodyParser.Of(BodyParser.Json.class)
     public Result addMoney() {
         String result = FAILURE;
@@ -26,9 +28,10 @@ public class WalletController extends BaseController {
             Wallet wallet = new Wallet();
             wallet.setUserId(user.getId());
             double amount = userJson.get("amount").doubleValue();
-            wallet.setAmount(amount * 10);
+            wallet.setAmount(convertToWalletAmount(amount));
             wallet.setTransactionDateTime(new Date());
             wallet.setDescription("Added " + wallet.getAmount() + " points for a recharge of Rs " + amount);
+            wallet.setType("AddMoney");
             wallet.save();
             result = SUCCESS;
         }
@@ -42,16 +45,71 @@ public class WalletController extends BaseController {
         JsonNode userJson = request().body().asJson();
         User user = currentUser();
         if (user != null) {
-            Wallet wallet = new Wallet();
-            wallet.setUserId(user.getId());
-            wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
-            wallet.setCircle(userJson.get("circle").textValue());
-            wallet.setOperator(userJson.get("operator").textValue());
             double amount = userJson.get("amount").doubleValue();
             double walletAmount = getWalletAmount(user);
-            if(amount<walletAmount) {
-                wallet.setAmount(amount * 10);
+            if(hasValidAmountInWallet(amount, walletAmount)) {
+                Wallet wallet = new Wallet();
+                wallet.setUserId(user.getId());
+                wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
+                wallet.setCircle(userJson.get("circle").textValue());
+                wallet.setOperator(userJson.get("operator").textValue());
+                wallet.setType("MobileRecharge");
+                wallet.setAmount(-convertToWalletAmount(amount));
+                wallet.setDescription("Recharged amount of Rs. " + amount + " for your mobile number " + wallet.getMobileNumber());
                 wallet.setTransactionDateTime(new Date());
+                wallet.save();
+                result = SUCCESS;
+            }
+
+        }
+        ObjectNode objectNode = Json.newObject();
+        objectNode.set("result", Json.toJson(result));
+        return ok(Json.toJson(objectNode));
+    }
+
+
+
+    public Result redeemToWallet() {
+        String result = FAILURE;
+        JsonNode userJson = request().body().asJson();
+        User user = currentUser();
+        if (user != null) {
+            double amount = userJson.get("amount").doubleValue();
+            double walletAmount = getWalletAmount(user);
+            if(hasValidAmountInWallet(amount, walletAmount)) {
+                Wallet wallet = new Wallet();
+                wallet.setUserId(user.getId());
+                wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
+                wallet.setWalletName(userJson.get("walletName").textValue());
+                wallet.setAmount(-convertToWalletAmount(amount));
+                wallet.setDescription("Transfer Rs." + amount + " To your" + wallet.getWalletName()+" Wallet");
+                wallet.setTransactionDateTime(new Date());
+                wallet.setType("RedeemToWallet");
+                wallet.save();
+                result = SUCCESS;
+            }
+
+        }
+        ObjectNode objectNode = Json.newObject();
+        objectNode.set("result", Json.toJson(result));
+        return ok(Json.toJson(objectNode));
+    }
+
+
+    public Result redeemToBank() {
+        String result = FAILURE;
+        JsonNode userJson = request().body().asJson();
+        User user = currentUser();
+        if (user != null) {
+            Wallet wallet = new Wallet();
+            wallet.setUserId(user.getId());
+            double amount = userJson.get("amount").doubleValue();
+            double walletAmount = getWalletAmount(user);
+            if(hasValidAmountInWallet(amount, walletAmount)) {
+                wallet.setAmount(-convertToWalletAmount(amount));
+                wallet.setDescription("Transfer Rs." + amount + " To your Given Bank Account");
+                wallet.setTransactionDateTime(new Date());
+                wallet.setType("RedeemToBank");
                 wallet.save();
                 result = SUCCESS;
             }
@@ -76,7 +134,7 @@ public class WalletController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    private double getWalletAmount(User user) {
+    public double getWalletAmount(User user) {
         List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).findList();
         double amount = 0;
         for (Wallet wallet : wallets) {
@@ -84,4 +142,16 @@ public class WalletController extends BaseController {
         }
         return amount;
     }
+
+    private double convertToWalletAmount(double amount) {
+        return amount* AMOUNT_MULTIPLIER;
+    }
+    private boolean hasValidAmountInWallet(double amount, double walletAmount) {
+        return amount>=0 && amount <= convertToCash(walletAmount);
+    }
+
+    private double convertToCash(double walletAmount) {
+        return walletAmount/ AMOUNT_MULTIPLIER;
+    }
+
 }
