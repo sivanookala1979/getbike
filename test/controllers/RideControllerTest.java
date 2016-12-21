@@ -22,6 +22,7 @@ import java.util.*;
 import static dataobject.RideStatus.*;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
@@ -329,6 +330,57 @@ public class RideControllerTest extends BaseControllerTest {
         User actual = User.find.byId(user.getId());
         assertNull(actual.getCurrentRideId());
         assertFalse(actual.isRideInProgress());
+
+    }
+
+    @Test
+    public void closeRideTESTWIthUpdatingActualSourceAddressAndActualDestinationAddress() {
+        User user = loggedInUser();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.save();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        when(gcmUtilsMock.sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
+        List<RideLocation> rideLocations = new ArrayList<>();
+
+
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1], i);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        Result closeRideResult = route(fakeRequest(GET, "/closeRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode closeRideJsonNode = jsonFromResult(closeRideResult);
+        System.out.println(closeRideJsonNode.toString());
+        assertEquals("success", closeRideJsonNode.get("result").textValue());
+        JsonNode rideJsonObject = closeRideJsonNode.get("ride");
+        assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
+        assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
+        double expectedDistance = DistanceUtils.distanceKilometers(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
+        assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations)), rideJsonObject.get("orderAmount").doubleValue());
+        verify(gcmUtilsMock).sendMessage(user, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        User actual = User.find.byId(user.getId());
+        assertNull(actual.getCurrentRideId());
+        assertFalse(actual.isRideInProgress());
+        Ride afterCloseRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        assertNull(afterCloseRide.getActualSourceAddress());
+        assertNull(afterCloseRide.getActualDestinationAddress());
+        GetBikeUtils.sleep(5000);
+        Ride afterSleepRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        assertNotNull(afterSleepRide.getActualSourceAddress());
+        assertNotNull(afterSleepRide.getActualDestinationAddress());
     }
 
 

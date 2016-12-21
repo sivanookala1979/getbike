@@ -1,17 +1,25 @@
 package controllers;
 
+import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
+import akka.stream.ActorMaterializerSettings;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
 import models.User;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.json.simple.JSONObject;
 import play.Logger;
 import play.libs.Json;
+import play.libs.ws.*;
+import play.libs.ws.ahc.AhcWSClient;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.ApplicationContext;
@@ -19,10 +27,8 @@ import utils.DateUtils;
 import utils.DistanceUtils;
 import utils.IGcmUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static dataobject.RideStatus.*;
 import static utils.DistanceUtils.round2;
@@ -201,8 +207,11 @@ public class RideController extends BaseController {
                 ride.setRoundingOff(round2((ride.getSubTotal() - ride.getSubTotal().intValue())));
                 ride.setTotalBill(round2((double) ride.getSubTotal().intValue()));
                 if (locations.size() >= 2) {
-                    ride.setRideStartedAt(locations.get(0).getLocationTime());
-                    ride.setRideEndedAt(locations.get(locations.size() - 1).getLocationTime());
+                    RideLocation firstLocation = locations.get(0);
+                    RideLocation lastLocation = locations.get(locations.size() - 1);
+                    ride.setRideStartedAt(firstLocation.getLocationTime());
+                    ride.setRideEndedAt(lastLocation.getLocationTime());
+                    updateAddresses(firstLocation, lastLocation, ride);
                 }
                 ride.save();
                 user.setRideInProgress(false);
@@ -498,6 +507,45 @@ public class RideController extends BaseController {
         } else {
             ride.setRiderName("Not Provided");
         }
+    }
+
+    private void updateAddresses(RideLocation firstLocation, RideLocation lastLocation, Ride ride) {
+        AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
+                .setMaxRequestRetry(0)
+                .setShutdownQuietPeriod(0)
+                .setShutdownTimeout(0).build();
+
+        String name = "wsclient";
+        ActorSystem system = ActorSystem.create(name);
+        ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
+        ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
+        WSClient client = new AhcWSClient(config, materializer);
+        Consumer<WSResponse> sourceAddressConsumer = response -> {
+            ride.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
+            ride.save();
+        };
+        Consumer<WSResponse> destinationAddressConsumer = response -> {
+            ride.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
+            ride.save();
+        };
+
+        updateAddressByLatitudeAndLogitude(firstLocation, system, client, sourceAddressConsumer);
+        updateAddressByLatitudeAndLogitude(lastLocation, system, client, destinationAddressConsumer);
+
+    }
+
+    private void updateAddressByLatitudeAndLogitude(RideLocation firstLocation, ActorSystem system, WSClient client, Consumer<WSResponse> sourceAddressConsumer) {
+        client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng="+firstLocation.getLatitude()+","+firstLocation.getLongitude()+"&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
+
+            Optional.ofNullable(r).ifPresent(sourceAddressConsumer);
+        }).thenRun(() -> {
+
+            try {
+                client.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).thenRun(system::terminate);
     }
 
 }

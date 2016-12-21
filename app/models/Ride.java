@@ -44,6 +44,8 @@ public class Ride extends Model {
     Double totalBill;
     Integer rating;
     char rideGender;
+    String actualSourceAddress;
+    String actualDestinationAddress;
     private transient String requestorName;
     private transient String riderName;
 
@@ -230,4 +232,21 @@ public class Ride extends Model {
     public void setRiderName(String riderName) {
         this.riderName = riderName;
     }
+
+    public String getActualSourceAddress() {
+        return actualSourceAddress;
+    }
+
+    public void setActualSourceAddress(String actualSourceAddress) {
+        this.actualSourceAddress = actualSourceAddress;
+    }
+
+    public String getActualDestinationAddress() {
+        return actualDestinationAddress;
+    }
+
+    public void setActualDestinationAddress(String actualDestinationAddress) {
+        this.actualDestinationAddress = actualDestinationAddress;
+    }
+
 }
