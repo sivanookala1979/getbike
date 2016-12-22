@@ -10,4 +10,5 @@ public class GetBikeErrorCodes {
     public static final int INVALID_USER = 9902;
     public static final int RIDE_ALREADY_IN_PROGRESS = 9903;
     public static final int RIDE_ALLOCATED_TO_OTHERS = 9904;
+    public static final int RIDE_VALID_PROOFS_UPLOAD = 9905;
 }

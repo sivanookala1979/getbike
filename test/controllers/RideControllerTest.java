@@ -20,12 +20,12 @@ import utils.*;
 import java.util.*;
 
 import static dataobject.RideStatus.*;
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
+import static utils.GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS;
 
 /**
  * Created by sivanookala on 21/10/16.
@@ -230,6 +230,41 @@ public class RideControllerTest extends BaseControllerTest {
         User actual = User.find.byId(user.getId());
         assertTrue(actual.isRideInProgress());
         assertEquals(24l, actual.getCurrentRideId().longValue());
+    }
+
+    @Test
+    public void acceptRideTESTWithInvalidProofsUploadIsFalse() {
+        User user = loggedInUser();
+        user.setValidProofsUploaded(false);
+        user.save();
+        double startLatitude = 20.4567;
+        double startLongitude = 42.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        assertEquals(GetBikeErrorCodes.RIDE_VALID_PROOFS_UPLOAD, acceptRideJsonNode.get("errorCode").intValue());
+
+    }
+
+    @Test
+    public void acceptRideTESTWithInvalidProofsUploadIsTrue() {
+        User user = loggedInUser();
+        user.setValidProofsUploaded(true);
+        user.setRideInProgress(true);
+        user.save();
+        double startLatitude = 20.4567;
+        double startLongitude = 42.17186;
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RIDE_ALREADY_IN_PROGRESS, acceptRideJsonNode.get("errorCode").intValue());
     }
 
     @Test
@@ -440,6 +475,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
         assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
+
     @Test
     public void openRidesTESTWithMaleAndFemaleRides() {
         User user = loggedInUser();

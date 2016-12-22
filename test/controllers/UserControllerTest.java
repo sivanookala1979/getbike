@@ -29,6 +29,73 @@ public class UserControllerTest extends BaseControllerTest {
 
 
     @Test
+    public void userApproveAcceptTESTWithHappyFlowWithUploadProofs() {
+        User user = new User();
+        user.setGender('M');
+        user.setName("Siva");
+        user.setEmail("siva@gmail.com");
+        user.setPhoneNumber("2233665599");
+        user.setDrivingLicenseImageName("testdriver.png");
+        user.setVehiclePlateImageName("testplate.png");
+        user.save();
+        Result result = route(fakeRequest(GET, "/user/accept/" + user.getId()));
+        User dbUser = User.find.where().eq("id", user.id).findUnique();
+        assertEquals("Siva", user.getName());
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void userApproveAcceptTESTWithHappyFlowWithOutUploadProofs() {
+        User user = new User();
+        user.setGender('M');
+        user.setName("Siva");
+        user.setEmail("siva@gmail.com");
+        user.setPhoneNumber("2233665599");
+        user.save();
+        Result result = route(fakeRequest(GET, "/user/accept/" + user.getId()));
+        User dbUser = User.find.where().eq("id", user.id).findUnique();
+        assertEquals("Siva", user.getName());
+        assertEquals(303, result.status());
+    }
+
+    @Test
+    public void updateUserProofValidationApproveTESTWithHappyFlowWithAccept() {
+        User user = new User();
+        user.id = 231l;
+        user.setGender('M');
+        user.setName("Siva");
+        user.setEmail("siva@gmail.com");
+        user.setPhoneNumber("2233665599");
+        user.setDrivingLicenseImageName("testdriver.png");
+        user.setVehiclePlateImageName("testplate.png");
+        user.save();
+        Result result = route(fakeRequest(GET, "/user/approve/" + user.getId() + "/" + user.isValidProofsUploaded()));
+        User dbUser = User.find.where().eq("id", user.getId()).findUnique();
+        assertEquals("Siva", dbUser.getName());
+        assertEquals(true, dbUser.isValidProofsUploaded());
+        assertEquals(303, result.status());
+    }
+
+    @Test
+    public void updateUserProofValidationApproveTESTWithHappyFlowWithReject() {
+        User user = new User();
+        user.id = 232l;
+        user.setGender('M');
+        user.setName("Siva");
+        user.setEmail("siva@gmail.com");
+        user.setPhoneNumber("2233665599");
+        user.setDrivingLicenseImageName("testdriver.png");
+        user.setVehiclePlateImageName("testplate.png");
+        user.setValidProofsUploaded(true);
+        user.save();
+        Result result = route(fakeRequest(GET, "/user/approve/" + user.getId() + "/" + user.isValidProofsUploaded()));
+        User dbUser = User.find.where().eq("id", user.getId()).findUnique();
+        assertEquals("Siva", dbUser.getName());
+        assertEquals(false, dbUser.isValidProofsUploaded());
+        assertEquals(303, result.status());
+    }
+
+    @Test
     public void signupTESTHappyFlow() {
         User user = new User();
         user.setGender('M');

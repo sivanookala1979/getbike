@@ -32,6 +32,8 @@ POST    /storeLastKnownLocation                 controllers.UserController.store
 POST    /updatePrivateProfile                   controllers.UserController.updatePrivateProfile
 GET     /storeGcmCode                           controllers.UserController.storeGcmCode
 GET     /users/usersList                        controllers.UserController.usersList
+GET     /user/accept/:id                        controllers.UserController.userApproveAccept(id: Long)
+GET     /user/approve/:id/:isValid              controllers.UserController.updateUserProofValidationApprove(id: Long, isValid: Boolean)
 GET     /users/loginOtpList                     controllers.UserController.loginOtpList
 GET     /users/performSearch                    controllers.UserController.performSearch(label: String="")
 GET     /users/performSearch/                   controllers.UserController.performSearch(label: String="")

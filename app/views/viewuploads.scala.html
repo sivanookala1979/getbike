@@ -1,0 +1,37 @@
+@(drivingLicense: java.lang.String="" , vehiclePlate: String="" , isApprove: Boolean , id: Long)
+@import views.html.custom_views._
+@userApprove = @{if (isApprove == true) "Reject" else "Approve";}
+@main("Get Bike", "Users"){
+<style>
+    th {
+        text-align: center;
+    }
+
+</style>
+<div class="container">
+    <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
+        <div class="col-sm-3"></div>
+        <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
+            <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
+            <img src="/@drivingLicense" height="300" width="300"/>
+        </div>
+        <div style="float:left;margin-right:5px; border: 1px solid lightblue">
+            <font color="green"><B><p style="text-align:center;">Vehicle Plate</p></B></font>
+            <img src="/@vehiclePlate" height="300" width="300"/>
+        </div>
+    </div>
+    <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
+        <button type="button" onclick="window.location.href='/users/usersList'" id="cancelButton"
+                style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+            Cancel
+        </button>
+        &nbsp;&nbsp;&nbsp;
+        <button type="button" onclick="window.location.href='/user/approve/@id/@isApprove'" id="approveButton"
+                style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+            @userApprove
+        </button>
+    </div>
+</div>
+</div>
+</div>
+}

@@ -75,25 +75,29 @@ public class RideController extends BaseController {
         int errorCode = GENERAL_FAILURE;
         User user = currentUser();
         if (user != null) {
-            if (user.isRideInProgress()) {
-                errorCode = RIDE_ALREADY_IN_PROGRESS;
+            if (!user.isValidProofsUploaded()) {
+                errorCode = RIDE_VALID_PROOFS_UPLOAD;
             } else {
-                Long rideId = getLong(Ride.RIDE_ID);
-                Ride ride = Ride.find.byId(rideId);
-                if (ride != null && RideRequested.equals(ride.getRideStatus())) {
-                    ride.setRideStatus(RideAccepted);
-                    ride.setRiderId(user.getId());
-                    ride.setAcceptedAt(new Date());
-                    ride.save();
-                    user.setRideInProgress(true);
-                    user.setCurrentRideId(ride.getId());
-                    user.save();
-                    User requestor = User.find.byId(ride.getRequestorId());
-                    IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
-                    gcmUtils.sendMessage(requestor, "Your ride is accepted by " + user.getName() + " ( " + user.getPhoneNumber() + " ) and the rider will be contacting you shortly.", "rideAccepted", ride.getId());
-                    result = SUCCESS;
+                if (user.isRideInProgress()) {
+                    errorCode = RIDE_ALREADY_IN_PROGRESS;
                 } else {
-                    errorCode = RIDE_ALLOCATED_TO_OTHERS;
+                    Long rideId = getLong(Ride.RIDE_ID);
+                    Ride ride = Ride.find.byId(rideId);
+                    if (ride != null && RideRequested.equals(ride.getRideStatus())) {
+                        ride.setRideStatus(RideAccepted);
+                        ride.setRiderId(user.getId());
+                        ride.setAcceptedAt(new Date());
+                        ride.save();
+                        user.setRideInProgress(true);
+                        user.setCurrentRideId(ride.getId());
+                        user.save();
+                        User requestor = User.find.byId(ride.getRequestorId());
+                        IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                        gcmUtils.sendMessage(requestor, "Your ride is accepted by " + user.getName() + " ( " + user.getPhoneNumber() + " ) and the rider will be contacting you shortly.", "rideAccepted", ride.getId());
+                        result = SUCCESS;
+                    } else {
+                        errorCode = RIDE_ALLOCATED_TO_OTHERS;
+                    }
                 }
             }
         }
@@ -535,7 +539,7 @@ public class RideController extends BaseController {
     }
 
     private void updateAddressByLatitudeAndLogitude(RideLocation location, ActorSystem system, WSClient client, Consumer<WSResponse> addressConsumer) {
-        client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng="+location.getLatitude()+","+location.getLongitude()+"&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
+        client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + location.getLatitude() + "," + location.getLongitude() + "&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
 
             Optional.ofNullable(r).ifPresent(addressConsumer);
         }).thenRun(() -> {

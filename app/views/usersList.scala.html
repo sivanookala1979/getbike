@@ -1,3 +1,81 @@
-@(tableHeaders: LinkedHashMap[String, String])
+@(headers: List[String] , allUsers: List[User])
 @import views.html.custom_views._
-@listviewtemplate1(header="User", colClass="col-sm-10 column", tableHeaders=tableHeaders, searchUrl="/users/performSearch/", editUrl ="#", deleteUrl="#")
+@main("Get Bike", "Users"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
+
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+
+
+</style>
+<div class="container">
+    @if(flash.containsKey("error")) {
+    <div class="well">
+        <div id="error-message" class="text-danger">
+            <center>@flash.get("error")</center>
+        </div>
+    </div>
+    }
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="test">
+                <table class="table table-striped"
+                       style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;">
+                    <thead style="border-bottom: 1px solid grey;">
+                    <tr>
+                        @for(header <- headers){
+                        <th>@header</th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    @for(user <- allUsers){
+                    <tr>
+                        <td>@user.id</td>
+                        <td>@user.name</td>
+                        <td>@user.phoneNumber</td>
+                        <td>@user.gender</td>
+                        <td>@user.authToken</td>
+                        @if(user.isValidProofsUploaded()){
+                        <td>
+                            <center><img style="float:center" src="@routes.Assets.versioned(" images/accept.png")"
+                                width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
+                        </td>
+                        }else{
+                        <td>
+                            <center><img style="float:center" src="@routes.Assets.versioned(" images/reject.png")"
+                                width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
+                        </td>
+                        }
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+</script>
+}

@@ -2,10 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.LoginOtp;
-import models.Ride;
-import models.RideLocation;
-import models.User;
+import models.*;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -24,7 +22,6 @@ import static utils.CustomCollectionUtils.first;
 public class UserController extends BaseController {
 
     public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"", "", "#", "User Id", "OTP", "Created At"}, new String[]{"", "", "id", "userId", "generatedOtp", "createdAt"});
-    public LinkedHashMap<String, String> userTableHeaders = getTableHeadersList(new String[]{"", "", "#", "Name", "Phone Number", "Gender", "Auth.Token"}, new String[]{"", "", "id", "name", "phoneNumber", "gender", "authToken"});
 
     public Result index() {
         return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
@@ -318,11 +315,32 @@ public class UserController extends BaseController {
         return ok(views.html.loginOtpList.render(loginOtpTableHeaders));
     }
 
+    public Result userApproveAccept(Long id) {
+        User user = User.find.where().eq("id", id).findUnique();
+        String drivingLicenseImageName = user.getDrivingLicenseImageName();
+        String vehiclePlateImageName = user.getVehiclePlateImageName();
+        if (drivingLicenseImageName == null || vehiclePlateImageName == null) {
+            flash("error", "No images are upload");
+            return redirect("/users/usersList");
+        }
+        return ok(views.html.viewuploads.render(drivingLicenseImageName, vehiclePlateImageName, user.isValidProofsUploaded(), user.id));
+    }
+
+    public Result updateUserProofValidationApprove(Long id, Boolean isValidProofs) {
+        Logger.info("Boolean is " + isValidProofs);
+        User user = User.find.where().eq("id", id).findUnique();
+        user.setValidProofsUploaded(!isValidProofs);
+        user.update();
+        return redirect("/users/usersList");
+    }
+
     public Result usersList() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        return ok(views.html.usersList.render(userTableHeaders));
+        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "Auth.Token", "Validate Uploaded Profile");
+        List<User> allUsers = User.find.all();
+        return ok(views.html.usersList.render(headers, allUsers));
     }
 
     public Result performSearch(String name) {
