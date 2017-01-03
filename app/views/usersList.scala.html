@@ -58,12 +58,12 @@ th {
                         <td>@user.authToken</td>
                         @if(user.isValidProofsUploaded()){
                         <td>
-                            <center><img style="float:center" src="@routes.Assets.versioned(" images/accept.png")"
+                            <center><img style="float:center" src="@routes.Assets.versioned("images/accept.png")"
                                 width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
                         </td>
                         }else{
                         <td>
-                            <center><img style="float:center" src="@routes.Assets.versioned(" images/reject.png")"
+                            <center><img style="float:center" src="@routes.Assets.versioned("images/reject.png")"
                                 width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
                         </td>
                         }
