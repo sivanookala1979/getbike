@@ -17,6 +17,7 @@ GET     /wallet/getBalanceAmount                    controllers.WalletController
 POST    /wallet/rechargeMobile                      controllers.WalletController.rechargeMobile
 POST    /wallet/redeemToWallet                      controllers.WalletController.redeemToWallet
 POST    /wallet/redeemToBank                        controllers.WalletController.redeemToBank
+GET     /wallet/entries/:id                         controllers.WalletController.walletEntries(id: Long)
 
 
 GET    /allRiders                                   controllers.DashboardController.allRiders

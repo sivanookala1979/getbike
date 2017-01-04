@@ -47,7 +47,7 @@ public class WalletController extends BaseController {
         if (user != null) {
             double amount = userJson.get("amount").doubleValue();
             double walletAmount = getWalletAmount(user);
-            if(hasValidAmountInWallet(amount, walletAmount)) {
+            if (hasValidAmountInWallet(amount, walletAmount)) {
                 Wallet wallet = new Wallet();
                 wallet.setUserId(user.getId());
                 wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
@@ -68,7 +68,6 @@ public class WalletController extends BaseController {
     }
 
 
-
     public Result redeemToWallet() {
         String result = FAILURE;
         JsonNode userJson = request().body().asJson();
@@ -76,13 +75,13 @@ public class WalletController extends BaseController {
         if (user != null) {
             double amount = userJson.get("amount").doubleValue();
             double walletAmount = getWalletAmount(user);
-            if(hasValidAmountInWallet(amount, walletAmount)) {
+            if (hasValidAmountInWallet(amount, walletAmount)) {
                 Wallet wallet = new Wallet();
                 wallet.setUserId(user.getId());
                 wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
                 wallet.setWalletName(userJson.get("walletName").textValue());
                 wallet.setAmount(-convertToWalletAmount(amount));
-                wallet.setDescription("Transfer Rs." + amount + " To your" + wallet.getWalletName()+" Wallet");
+                wallet.setDescription("Transfer Rs." + amount + " To your" + wallet.getWalletName() + " Wallet");
                 wallet.setTransactionDateTime(new Date());
                 wallet.setType("RedeemToWallet");
                 wallet.save();
@@ -105,7 +104,7 @@ public class WalletController extends BaseController {
             wallet.setUserId(user.getId());
             double amount = userJson.get("amount").doubleValue();
             double walletAmount = getWalletAmount(user);
-            if(hasValidAmountInWallet(amount, walletAmount)) {
+            if (hasValidAmountInWallet(amount, walletAmount)) {
                 wallet.setAmount(-convertToWalletAmount(amount));
                 wallet.setDescription("Transfer Rs." + amount + " To your Given Bank Account");
                 wallet.setTransactionDateTime(new Date());
@@ -143,15 +142,29 @@ public class WalletController extends BaseController {
         return amount;
     }
 
-    private double convertToWalletAmount(double amount) {
-        return amount* AMOUNT_MULTIPLIER;
+    public static double convertToWalletAmount(double amount) {
+        return amount * AMOUNT_MULTIPLIER;
     }
+
     private boolean hasValidAmountInWallet(double amount, double walletAmount) {
-        return amount>=0 && amount <= convertToCash(walletAmount);
+        return amount >= 0 && amount <= convertToCash(walletAmount);
     }
 
     private double convertToCash(double walletAmount) {
-        return walletAmount/ AMOUNT_MULTIPLIER;
+        return walletAmount / AMOUNT_MULTIPLIER;
+    }
+
+    public Result walletEntries(Long id) {
+        if (isValidateSession()) {
+            User user = User.find.byId(id);
+            if (user != null) {
+                double amount = getWalletAmount(user);
+                List<Wallet> entries = Wallet.find.where().eq("userId", user.getId()).findList();
+                return ok(views.html.walletEntries.render(entries, amount, user));
+            }
+        }
+
+        return redirect("/users/usersList");
     }
 
 }

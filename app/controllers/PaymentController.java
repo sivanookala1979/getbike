@@ -1,50 +1,56 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import models.User;
+import models.Wallet;
 import org.jetbrains.annotations.NotNull;
-import play.mvc.BodyParser;
 import play.mvc.Result;
-import views.html.payUSuccess;
 import views.html.payUFailure;
+import views.html.payUSuccess;
 
+import java.util.Date;
 import java.util.Map;
-
-import static play.mvc.Controller.request;
 
 /**
  * Created by sivanookala on 04/01/17.
  */
-public class PaymentController extends BaseController{
+public class PaymentController extends BaseController {
     public Result payUSuccess() {
-        logRequest();
+        Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
+        if (formUrlEncoded.get("udf1") != null) {
+            User paymentUser = User.find.where().eq("authToken", formUrlEncoded.get("udf1")[0]).findUnique();
+            if (paymentUser != null) {
+                Wallet wallet = new Wallet();
+                Double walletAmount = Double.parseDouble(formUrlEncoded.get("amount")[0]);
+                wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
+                wallet.setUserId(paymentUser.getId());
+                wallet.setType("PayUPayment");
+                wallet.setDescription("Pay U Payment with Txn id :" + formUrlEncoded.get("txnid")[0] + " PayU ID : " + formUrlEncoded.get("id")[0]);
+                wallet.setTransactionDateTime(new Date());
+                wallet.save();
+            }
+        }
         return ok(payUSuccess.render(getFormAsString()));
+    }
+
+    public Result payUFailure() {
+        return ok(payUFailure.render(getFormAsString()));
     }
 
     @NotNull
     private String getFormAsString() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
         String response = "";
-        for(String key : formUrlEncoded.keySet())
-        {
+        for (String key : formUrlEncoded.keySet()) {
             String values[] = formUrlEncoded.get(key);
             response += key + " : ";
-            for(String value : values)
-            {
-                response += value +", ";
+            for (String value : values) {
+                response += value + ", ";
             }
             response += "\n";
         }
+        System.out.println(response);
         return response;
     }
 
-    public Result payUFailure() {
-        logRequest();
-        return ok(payUFailure.render(getFormAsString()));
-    }
 
-    private void logRequest() {
-        System.out.println(request().headers());
-        System.out.println(request().headers().get("Content-Type")[0]);
-        System.out.println(request().body().asText());
-    }
 }

@@ -1,0 +1,33 @@
+@(walletEntries: List[Wallet], amount: Double, user : User)
+
+<html>
+<body>
+<h2>Wallet Entries for @user.getName (@user.getPhoneNumber)</h2>
+<h3>Wallet Balance is @amount</h3>
+<table border="1">
+    <tr>
+        <th>Transaction Date Time</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Mobile Number</th>
+        <th>Operator</th>
+        <th>Circle</th>
+        <th>Wallet Name</th>
+    </tr>
+    @for(entry <- walletEntries) {
+    <tr style="overflow:auto;">
+        <td>@entry.getTransactionDateTime()</td>
+        <td>@entry.getAmount()</td>
+        <td>@entry.getDescription()</td>
+        <td>@entry.getType()</td>
+        <td>@entry.getMobileNumber()</td>
+        <td>@entry.getOperator()</td>
+        <td>@entry.getCircle()</td>
+        <td>@entry.getWalletName()</td>
+    </tr>
+    }
+</table>
+
+</body>
+</html>

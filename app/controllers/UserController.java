@@ -338,7 +338,7 @@ public class UserController extends BaseController {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "Auth.Token", "Validate Uploaded Profile");
+        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "Auth.Token", "Validate Uploaded Profile", "Wallet");
         List<User> allUsers = User.find.all();
         return ok(views.html.usersList.render(headers, allUsers));
     }
