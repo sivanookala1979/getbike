@@ -16,6 +16,7 @@ import java.util.Map;
 public class PaymentController extends BaseController {
     public Result payUSuccess() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
+        String formAsString = getFormAsString();
         if (formUrlEncoded.get("udf1") != null) {
             User paymentUser = User.find.where().eq("authToken", formUrlEncoded.get("udf1")[0]).findUnique();
             if (paymentUser != null) {
@@ -24,12 +25,12 @@ public class PaymentController extends BaseController {
                 wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
                 wallet.setUserId(paymentUser.getId());
                 wallet.setType("PayUPayment");
-                wallet.setDescription("Pay U Payment with Txn id :" + formUrlEncoded.get("txnid")[0] + " PayU ID : " + formUrlEncoded.get("id")[0]);
+                wallet.setDescription("Pay U Payment with details : " + formAsString);
                 wallet.setTransactionDateTime(new Date());
                 wallet.save();
             }
         }
-        return ok(payUSuccess.render(getFormAsString()));
+        return ok(payUSuccess.render(formAsString));
     }
 
     public Result payUFailure() {
