@@ -74,7 +74,10 @@ POST    /storeDrivingLicense                    controllers.UserController.store
 POST    /storeVehiclePlate                      controllers.UserController.storeVehiclePlate
 GET     /uploads/:name                          controllers.HomeController.imageAt(name:String)
 
-GET     /systemSettings/newSystemSettings        controllers.SystemSettingsController.newSystemSettings
+POST    /payUSuccess                            controllers.PaymentController.payUSuccess
+POST    /payUFailure                            controllers.PaymentController.payUFailure
+
+GET     /systemSettings/newSystemSettings       controllers.SystemSettingsController.newSystemSettings
 POST    /systemSettings/saveData                controllers.SystemSettingsController.saveData
 GET     /systemSettings/systemSettingList       controllers.SystemSettingsController.systemSettingList
 POST    /systemSettings/editSystemSetting/:id   controllers.SystemSettingsController.editSystemSetting(id: Long)
