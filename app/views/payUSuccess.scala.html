@@ -1,3 +1,3 @@
 @(response: String)
 <h2>Success Response received is : </h2>
-@response
+@Html(HtmlFormat.escape(response).toString.replace("\n", "<br />"))
