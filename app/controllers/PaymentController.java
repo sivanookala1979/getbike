@@ -12,15 +12,21 @@ import static play.mvc.Controller.request;
  * Created by sivanookala on 04/01/17.
  */
 public class PaymentController extends BaseController{
-    @BodyParser.Of(BodyParser.Json.class)
     public Result payUSuccess() {
+        logRequest();
         JsonNode locationsJson = request().body().asJson();
         return ok(payUSuccess.render(locationsJson.toString()));
     }
 
-    @BodyParser.Of(BodyParser.Json.class)
     public Result payUFailure() {
+        logRequest();
         JsonNode locationsJson = request().body().asJson();
         return ok(payUFailure.render(locationsJson.toString()));
+    }
+
+    private void logRequest() {
+        System.out.println(request().headers());
+        System.out.println(request().headers().get("Content-Type")[0]);
+        System.out.println(request().body().asText());
     }
 }
