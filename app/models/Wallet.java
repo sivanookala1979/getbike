@@ -2,9 +2,9 @@ package models;
 
 import com.avaje.ebean.Model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.xml.crypto.Data;
 import java.util.Date;
 
 /**
@@ -24,7 +24,10 @@ public class Wallet extends Model {
     String operator;
     String circle;
     String walletName;
-    public static Finder<Long,Wallet> find = new Finder<Long, Wallet>(Wallet.class);
+    @Column(length = 4096)
+    String pgDetails;
+    public static Finder<Long, Wallet> find = new Finder<Long, Wallet>(Wallet.class);
+
     public Long getId() {
         return id;
     }
@@ -103,5 +106,13 @@ public class Wallet extends Model {
 
     public void setWalletName(String walletName) {
         this.walletName = walletName;
+    }
+
+    public String getPgDetails() {
+        return pgDetails;
+    }
+
+    public void setPgDetails(String pgDetails) {
+        this.pgDetails = pgDetails;
     }
 }

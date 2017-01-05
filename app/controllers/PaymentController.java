@@ -21,11 +21,13 @@ public class PaymentController extends BaseController {
             User paymentUser = User.find.where().eq("authToken", formUrlEncoded.get("udf1")[0]).findUnique();
             if (paymentUser != null) {
                 Wallet wallet = new Wallet();
-                Double walletAmount = Double.parseDouble(formUrlEncoded.get("amount")[0]);
+                String stringAmount = formUrlEncoded.get("amount")[0];
+                Double walletAmount = Double.parseDouble(stringAmount);
                 wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
                 wallet.setUserId(paymentUser.getId());
                 wallet.setType("PayUPayment");
-                wallet.setDescription("Pay U Payment with details : " + formAsString);
+                wallet.setDescription("Pay U Payment with details Txn ID : " + formUrlEncoded.get("txnid")[0] + " for Rs. " + stringAmount);
+                wallet.setPgDetails(formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString);
                 wallet.setTransactionDateTime(new Date());
                 wallet.save();
             }
