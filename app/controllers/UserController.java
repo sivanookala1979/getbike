@@ -2,13 +2,17 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
+import models.LoginOtp;
+import models.Ride;
+import models.RideLocation;
+import models.User;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.GetBikeErrorCodes;
 import utils.NumericUtils;
+import utils.StringUtils;
 
 import java.io.*;
 import java.util.*;
@@ -37,6 +41,15 @@ public class UserController extends BaseController {
             user.save();
             return ok(Json.toJson(user));
         } else {
+            User previousUser = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findUnique();
+            if (previousUser != null) {
+                if (StringUtils.isNullOrEmpty(previousUser.getName())) {
+                    previousUser.setName(user.getName());
+                    previousUser.setEmail(user.getEmail());
+                    previousUser.setGender(user.getGender());
+                    previousUser.save();
+                }
+            }
             errorCode = GetBikeErrorCodes.USER_ALREADY_EXISTS;
         }
         ObjectNode objectNode = Json.newObject();
