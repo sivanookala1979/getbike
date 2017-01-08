@@ -34,6 +34,18 @@ public class BaseControllerTest extends WithApplication {
         return user;
     }
 
+    @NotNull
+    protected User otherUser() {
+        User user = new User();
+        user.setName("Adarsh T");
+        user.setPhoneNumber("9949257729");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.setGender('M');
+        user.setValidProofsUploaded(true);
+        user.save();
+        return user;
+    }
+
     @Before
     public void setUp() {
         Ebean.createSqlUpdate("delete from user").execute();

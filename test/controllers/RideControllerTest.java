@@ -25,6 +25,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
+import static utils.DateUtils.minutesOld;
 import static utils.GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS;
 
 /**
@@ -422,9 +423,9 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void openRidesTESTHappyFlow() {
         User user = loggedInUser();
-        Ride firstRide = createRide(user.getId());
-        GetBikeUtils.sleep(200);
-        Ride secondRide = createRide(user.getId());
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
+        Ride secondRide = createRide(otherUser.getId());
         Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
@@ -433,10 +434,10 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(knownNumberOfRides, ridesList.size());
         assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
         assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
-        assertEquals(user.getName(), ridesList.get(0).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
-        assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
 
     @Test
@@ -453,13 +454,13 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void openRidesTESTWithOpenAndClosedRides() {
         User user = loggedInUser();
-        Ride firstRide = createRide(user.getId());
-        GetBikeUtils.sleep(200);
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
         Ride closedRide = createRide(3736);
         closedRide.setRideStatus(RideClosed);
         closedRide.save();
-        Ride secondRide = createRide(user.getId());
-        Ride acceptedRide = createRide(user.getId());
+        Ride secondRide = createRide(otherUser.getId());
+        Ride acceptedRide = createRide(otherUser.getId());
         acceptedRide.setRideStatus(RideAccepted);
         acceptedRide.save();
         Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
@@ -470,18 +471,19 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(knownNumberOfRides, ridesList.size());
         assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
         assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
-        assertEquals(user.getName(), ridesList.get(0).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
-        assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
 
     @Test
     public void openRidesTESTWithMaleAndFemaleRides() {
         User user = loggedInUser();
-        Ride maleRide1 = createRide(user.getId());
-        Ride maleRide2 = createRide(user.getId());
-        Ride femaleRide = createRide(user.getId());
+        User otherUser = otherUser();
+        Ride maleRide1 = createRide(otherUser.getId());
+        Ride maleRide2 = createRide(otherUser.getId());
+        Ride femaleRide = createRide(otherUser.getId());
         femaleRide.setRideGender('F');
         femaleRide.save();
         Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
@@ -492,12 +494,48 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(knownNumberOfRides, ridesList.size());
         assertEquals(maleRide2.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
         assertEquals(maleRide1.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
-        assertEquals(user.getName(), ridesList.get(0).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
-        assertEquals(user.getName(), ridesList.get(1).get("requestorName").textValue());
-        assertEquals(user.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
 
+    @Test
+    public void openRidesTESTWithSelfRides() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride selfRide = createRide(user.getId());
+        Ride maleRide2 = createRide(otherUser.getId());
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 1;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(maleRide2.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+    }
+
+
+    @Test
+    public void openRidesTESTWithOldRides() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride oldRide = createRide(otherUser.getId());
+        oldRide.setRequestedAt(minutesOld(6));
+        oldRide.save();
+        Ride maleRide2 = createRide(otherUser.getId());
+        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 1;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(maleRide2.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+    }
     @Test
     public void getMyCompletedRidesTESTHappyFlow() {
         User user = loggedInUser();

@@ -31,4 +31,8 @@ public class DateUtils {
         newDate = sdf.format(cal.getTime());
         return newDate;
     }
+
+    public static Date minutesOld(int minutes) {
+        return new Date(new Date().getTime() - minutes * 60 * 1000);
+    }
 }

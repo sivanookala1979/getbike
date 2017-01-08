@@ -8,7 +8,6 @@ import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.Inject;
 import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
@@ -18,7 +17,8 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.json.simple.JSONObject;
 import play.Logger;
 import play.libs.Json;
-import play.libs.ws.*;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSResponse;
 import play.libs.ws.ahc.AhcWSClient;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static dataobject.RideStatus.*;
+import static utils.DateUtils.minutesOld;
 import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.*;
 
@@ -258,7 +259,8 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_gender = '" + user.getGender() + "'").setMaxRows(5).order("requestedAt desc").findList();
+            // TODO: 05/01/17 Show rides which are in seven km range
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(5)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId()).setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));
