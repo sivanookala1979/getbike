@@ -84,7 +84,9 @@ public class RideController extends BaseController {
                 } else {
                     Long rideId = getLong(Ride.RIDE_ID);
                     Ride ride = Ride.find.byId(rideId);
-                    if (ride != null && RideRequested.equals(ride.getRideStatus())) {
+                    if (ride != null && user.getId().equals(ride.getRequestorId())) {
+                        errorCode = CAN_NOT_ACCEPT_YOUR_OWN_RIDE;
+                    } else if (ride != null && RideRequested.equals(ride.getRideStatus())) {
                         ride.setRideStatus(RideAccepted);
                         ride.setRiderId(user.getId());
                         ride.setAcceptedAt(new Date());

@@ -11,4 +11,5 @@ public class GetBikeErrorCodes {
     public static final int RIDE_ALREADY_IN_PROGRESS = 9903;
     public static final int RIDE_ALLOCATED_TO_OTHERS = 9904;
     public static final int RIDE_VALID_PROOFS_UPLOAD = 9905;
+    public static final int CAN_NOT_ACCEPT_YOUR_OWN_RIDE = 9906;
 }
