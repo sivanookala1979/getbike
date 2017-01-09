@@ -47,6 +47,8 @@ POST    /getBike                                controllers.RideController.getBi
 POST    /hailCustomer                           controllers.RideController.hailCustomer
 GET     /acceptRide                             controllers.RideController.acceptRide
 GET     /closeRide                              controllers.RideController.closeRide
+GET     /cancelRide                             controllers.RideController.cancelRide
+GET     /startRide                              controllers.RideController.startRide
 GET     /rateRide                               controllers.RideController.rateRide
 GET     /ridePath                               controllers.RideController.ridePath
 GET     /openRides                              controllers.RideController.openRides

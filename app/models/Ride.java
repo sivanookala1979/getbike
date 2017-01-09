@@ -46,6 +46,7 @@ public class Ride extends Model {
     char rideGender;
     String actualSourceAddress;
     String actualDestinationAddress;
+    boolean rideStarted = false;
     private transient String requestorName;
     private transient String riderName;
 
@@ -249,4 +250,11 @@ public class Ride extends Model {
         this.actualDestinationAddress = actualDestinationAddress;
     }
 
+    public boolean isRideStarted() {
+        return rideStarted;
+    }
+
+    public void setRideStarted(boolean rideStarted) {
+        this.rideStarted = rideStarted;
+    }
 }

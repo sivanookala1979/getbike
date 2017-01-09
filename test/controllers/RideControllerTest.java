@@ -299,6 +299,75 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void startRideTESTHappyFlow() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRiderId(user.getId());
+        ride.setRideStatus(RideAccepted);
+        ride.save();
+        Result acceptRideResult = route(fakeRequest(GET, "/startRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode startRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride actualRide = Ride.find.byId(ride.getId());
+        assertNotNull(actualRide);
+        assertTrue(actualRide.isRideStarted());
+        assertNotNull(actualRide.getRideStartedAt());
+        assertEquals("success", startRideJsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void cancelRideTESTWithRideRequested() {
+        User user = loggedInUser();
+        Ride ride = createRide(user.getId());
+        Result acceptRideResult = route(fakeRequest(GET, "/cancelRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode startRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride actualRide = Ride.find.byId(ride.getId());
+        assertEquals(RideCancelled, actualRide.getRideStatus());
+        assertEquals("success", startRideJsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void cancelRideTESTWithRideAccepted() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRiderId(user.getId());
+        ride.setRideStatus(RideAccepted);
+        ride.save();
+        when(gcmUtilsMock.sendMessage(user, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId())).thenReturn(true);
+        Result acceptRideResult = route(fakeRequest(GET, "/cancelRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", otherUser.getAuthToken()));
+        JsonNode startRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride actualRide = Ride.find.byId(ride.getId());
+        assertEquals(RideCancelled, actualRide.getRideStatus());
+        assertEquals("success", startRideJsonNode.get("result").textValue());
+        verify(gcmUtilsMock).sendMessage(user, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
+    }
+
+    @Test
+    public void cancelRideTESTWithRideStarted() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRiderId(user.getId());
+        ride.setRideStatus(RideAccepted);
+        ride.setRideStarted(true);
+        ride.save();
+        Result acceptRideResult = route(fakeRequest(GET, "/cancelRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", otherUser.getAuthToken()));
+        JsonNode startRideJsonNode = jsonFromResult(acceptRideResult);
+        Ride actualRide = Ride.find.byId(ride.getId());
+        assertEquals(RideAccepted, actualRide.getRideStatus());
+        assertEquals("failure", startRideJsonNode.get("result").textValue());
+    }
+
+    @Test
     public void storeLocationsTESTHappyFlow() {
         User user = loggedInUser();
         Ride ride = new Ride();
