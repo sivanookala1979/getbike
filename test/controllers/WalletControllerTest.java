@@ -3,7 +3,6 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.Ride;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,9 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import utils.CustomCollectionUtils;
+import utils.GetBikeUtils;
+
+import java.util.Date;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -61,6 +63,41 @@ public class WalletControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
 
         assertEquals(1050.0, jsonNode.get("balanceAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void myEntriesTESTHappyFlow() {
+        User user = loggedInUser();
+        ObjectNode walletDetails = Json.newObject();
+        walletDetails.put("amount", 65.0);
+        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
+        GetBikeUtils.sleep(200);
+        walletDetails = Json.newObject();
+        walletDetails.put("amount", 50.0);
+        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
+        GetBikeUtils.sleep(200);
+        Wallet rideEntry1 = new Wallet();
+        rideEntry1.setUserId(user.getId());
+        rideEntry1.setAmount(-67.0);
+        rideEntry1.setType("RideGiven");
+        rideEntry1.setTransactionDateTime(new Date());
+        rideEntry1.save();
+        GetBikeUtils.sleep(200);
+        Wallet rideEntry2 = new Wallet();
+        rideEntry2.setUserId(user.getId());
+        rideEntry2.setAmount(-33.0);
+        rideEntry2.setType("RideGiven");
+        rideEntry2.setTransactionDateTime(new Date());
+        rideEntry2.save();
+        Result result = route(fakeRequest(GET, "/wallet/myEntries").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        System.out.println(jsonNode);
+        assertEquals(4, jsonNode.get("entries").size());
+        assertEquals("RideGiven", jsonNode.get("entries").get(0).get("type").textValue());
+        assertEquals(-33.0, jsonNode.get("entries").get(0).get("amount").doubleValue());
+        assertEquals("AddMoney", jsonNode.get("entries").get(2).get("type").textValue());
+        assertEquals(500.0, jsonNode.get("entries").get(2).get("amount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
 

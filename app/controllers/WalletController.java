@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.User;
 import models.Wallet;
@@ -132,6 +133,24 @@ public class WalletController extends BaseController {
         objectNode.set("result", Json.toJson(result));
         return ok(Json.toJson(objectNode));
     }
+
+    public Result myEntries() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            ArrayNode entriesNodes = Json.newArray();
+            List<Wallet> entriesList = Wallet.find.where().eq("userId", user.getId()).order("transactionDateTime desc").findList();
+            for (Wallet entry : entriesList) {
+                entriesNodes.add(Json.toJson(entry));
+            }
+            objectNode.set("entries", entriesNodes);
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 
     public double getWalletAmount(User user) {
         List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).findList();
