@@ -271,6 +271,9 @@ public class RideController extends BaseController {
                     ride.save();
                     if (ride.getRiderId() != null) {
                         User rider = User.find.byId(ride.getRiderId());
+                        rider.setRideInProgress(false);
+                        rider.setCurrentRideId(null);
+                        rider.save();
                         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                         gcmUtils.sendMessage(rider, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
                     }

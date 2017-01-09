@@ -338,6 +338,9 @@ public class RideControllerTest extends BaseControllerTest {
         ride.setRiderId(user.getId());
         ride.setRideStatus(RideAccepted);
         ride.save();
+        user.setCurrentRideId(ride.getId());
+        user.setRideInProgress(true);
+        user.save();
         when(gcmUtilsMock.sendMessage(user, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId())).thenReturn(true);
         Result acceptRideResult = route(fakeRequest(GET, "/cancelRide?" +
                 Ride.RIDE_ID +
@@ -347,6 +350,9 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(RideCancelled, actualRide.getRideStatus());
         assertEquals("success", startRideJsonNode.get("result").textValue());
         verify(gcmUtilsMock).sendMessage(user, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
+        User actualUser = User.find.byId(user.id);
+        assertFalse(actualUser.isRideInProgress());
+        assertNull(actualUser.getCurrentRideId());
     }
 
     @Test
