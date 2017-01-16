@@ -3,14 +3,9 @@ package controllers;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.User;
-import models.UserLogin;
-import play.Logger;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.Controller;
-import play.mvc.Result;
-import sun.rmi.runtime.Log;
 
 import java.util.LinkedHashMap;
 
@@ -18,6 +13,7 @@ import java.util.LinkedHashMap;
  * Created by sivanookala on 22/10/16.
  */
 public class BaseController extends Controller {
+    static boolean IS_TEST = false;
     public static final String FAILURE = "failure";
     public static final String SUCCESS = "success";
     public static final String RESULT = "result";
@@ -27,7 +23,7 @@ public class BaseController extends Controller {
 
     protected User currentUser() {
         String authToken = request().getHeader("Authorization");
-        if(authToken != null && !authToken.trim().isEmpty()) {
+        if (authToken != null && !authToken.trim().isEmpty()) {
             return User.find.where().eq("authToken", authToken).findUnique();
         }
         return null;
@@ -40,6 +36,7 @@ public class BaseController extends Controller {
     protected Long getLong(String param) {
         return Long.parseLong(request().getQueryString(param));
     }
+
     protected Integer getInt(String param) {
         return Integer.parseInt(request().getQueryString(param));
     }
@@ -55,27 +52,29 @@ public class BaseController extends Controller {
     protected void setResult(ObjectNode jsonObject, Object data) {
         jsonObject.set(RESULT, Json.toJson(data));
     }
-    protected LinkedHashMap<String, String> getTableHeadersList(String[] keys, String[] values)
-    {
-        LinkedHashMap<String, String> result=new LinkedHashMap<String, String>();
-        for(int index=0; index<keys.length;index++){
+
+    protected LinkedHashMap<String, String> getTableHeadersList(String[] keys, String[] values) {
+        LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
+        for (int index = 0; index < keys.length; index++) {
             result.put(keys[index], values[index]);
         }
         return result;
     }
 
     protected boolean isValidateSession() {
+        if (IS_TEST) return true;
         return session("User") != null;
 
     }
-    protected boolean isValidateAdmin(){
+
+    protected boolean isValidateAdmin() {
         return session("admin") != null;
     }
 
 
-    public boolean isNotNullAndEmpty(String value){
+    public boolean isNotNullAndEmpty(String value) {
 
-        return value!=null && !value.isEmpty();
+        return value != null && !value.isEmpty();
     }
 
 }

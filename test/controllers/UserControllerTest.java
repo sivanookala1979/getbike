@@ -8,20 +8,18 @@ import models.RideLocation;
 import models.User;
 import org.junit.Test;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.GetBikeErrorCodes;
 import utils.NumericConstants;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 
@@ -405,6 +403,20 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(user.getDrivingLicenseImageName(), jsonNode.get("profile").get("drivingLicenseImageName").textValue());
     }
 
+
+    @Test
+    public void clearCurrentRideTESTHappyFlow() {
+        User user = loggedInUser();
+        user.setCurrentRideId(23l);
+        user.setRideInProgress(true);
+        user.save();
+        BaseController.IS_TEST = true;
+        Result result = route(fakeRequest(GET, "/users/clearCurrentRide/" + user.getId()).header("Authorization", user.getAuthToken()));
+        System.out.println(result.redirectLocation());
+        User actual = User.find.byId(user.getId());
+        assertFalse(actual.isRideInProgress());
+        assertNull(actual.getCurrentRideId());
+    }
 
     @Test
     public void ensurePromoCodeTESTHappyFlow() {

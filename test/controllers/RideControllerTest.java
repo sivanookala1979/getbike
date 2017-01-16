@@ -608,7 +608,7 @@ public class RideControllerTest extends BaseControllerTest {
         User user = loggedInUser();
         User otherUser = otherUser();
         Ride oldRide = createRide(otherUser.getId());
-        oldRide.setRequestedAt(minutesOld(6));
+        oldRide.setRequestedAt(minutesOld(16));
         oldRide.save();
         Ride maleRide2 = createRide(otherUser.getId());
         Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));

@@ -351,9 +351,20 @@ public class UserController extends BaseController {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "Auth.Token", "Validate Uploaded Profile", "Wallet");
+        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "Auth.Token", "Validate Uploaded Profile", "Others");
         List<User> allUsers = User.find.all();
         return ok(views.html.usersList.render(headers, allUsers));
+    }
+
+    public Result clearCurrentRide(Long id) {
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        User user = User.find.where().eq("id", id).findUnique();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.update();
+        return redirect("/users/usersList");
     }
 
     public Result performSearch(String name) {

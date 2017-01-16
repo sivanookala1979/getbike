@@ -312,7 +312,7 @@ public class RideController extends BaseController {
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
             // TODO: 05/01/17 Show rides which are in seven km range
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(5)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId()).setMaxRows(5).order("requestedAt desc").findList();
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId()).setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));

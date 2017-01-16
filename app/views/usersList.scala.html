@@ -67,7 +67,11 @@ th {
                                 width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
                         </td>
                         }
-                        <td><a href="/wallet/entries/@user.id">W</a></td>
+                        <td><a href="/wallet/entries/@user.id">Wallet</a><br/>
+                            @if(user.isRideInProgress()){
+                                <a href="/users/clearCurrentRide/@user.id">Clear Current Ride</a><br/>
+                            }
+                        </td>
                     </tr>
                     }
                     </tbody>
