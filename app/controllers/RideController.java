@@ -579,12 +579,16 @@ public class RideController extends BaseController {
         ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
         WSClient client = new AhcWSClient(config, materializer);
         Consumer<WSResponse> sourceAddressConsumer = response -> {
-            ride.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
-            ride.save();
+            Ride currentRide = Ride.find.byId(ride.id);
+            currentRide.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").asText());
+            currentRide.update();
+            System.out.println("Updated actual source address");
         };
         Consumer<WSResponse> destinationAddressConsumer = response -> {
-            ride.setActualDestinationAddress(response.asJson().get("results").get(0).get("formatted_address").toString());
-            ride.save();
+            Ride currentRide = Ride.find.byId(ride.id);
+            currentRide.setActualDestinationAddress(response.asJson().get("results").get(0).get("formatted_address").asText());
+            currentRide.update();
+            System.out.println("Updated actual destination address");
         };
 
         updateAddressByLatitudeAndLogitude(firstLocation, system, client, sourceAddressConsumer);
