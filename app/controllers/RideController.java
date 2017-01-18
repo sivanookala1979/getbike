@@ -447,6 +447,38 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result loadNearByRiders() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Double latitude = getDouble("latitude");
+            Double longitude = getDouble("longitude");
+            List<RideLocation> riders = new ArrayList<>();
+            RideLocation north = new RideLocation();
+            north.setLatitude(latitude * 0.99995);
+            north.setLongitude(longitude);
+            riders.add(north);
+            RideLocation south = new RideLocation();
+            south.setLatitude(latitude * 1.00005);
+            south.setLongitude(longitude);
+            riders.add(south);
+            RideLocation east = new RideLocation();
+            east.setLatitude(latitude);
+            east.setLongitude(longitude * 1.00005);
+            riders.add(east);
+            RideLocation west = new RideLocation();
+            west.setLatitude(latitude);
+            west.setLongitude(longitude * 0.99995);
+            riders.add(west);
+            objectNode.set("riders", Json.toJson(riders));
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+
     private void publishRideDetails(User user, Ride ride) {
         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
         gcmUtils.sendMessage(getRelevantRiders(user.getId(), ride.getStartLatitude(), ride.getStartLongitude(), user.getGender()), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());

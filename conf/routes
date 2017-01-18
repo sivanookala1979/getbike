@@ -53,6 +53,7 @@ GET     /cancelRide                             controllers.RideController.cance
 GET     /startRide                              controllers.RideController.startRide
 GET     /rateRide                               controllers.RideController.rateRide
 GET     /ridePath                               controllers.RideController.ridePath
+GET     /loadNearByRiders                       controllers.RideController.loadNearByRiders
 GET     /openRides                              controllers.RideController.openRides
 GET     /currentRide                            controllers.RideController.currentRide
 GET     /getRideById                            controllers.RideController.getRideById
