@@ -771,7 +771,7 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         System.out.println(responseObject.get("riders").toString());
-        assertEquals(8, responseObject.get("riders").size());
+        assertEquals(5, responseObject.get("riders").size());
     }
 
     @Test

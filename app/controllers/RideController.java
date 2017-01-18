@@ -455,7 +455,7 @@ public class RideController extends BaseController {
             Double latitude = getDouble("latitude");
             Double longitude = getDouble("longitude");
             List<RideLocation> riders = new ArrayList<>();
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 5; i++) {
                 RideLocation randomLocation = new RideLocation();
                 randomLocation.setLatitude(noise(latitude));
                 randomLocation.setLongitude(noise(longitude));
@@ -469,7 +469,7 @@ public class RideController extends BaseController {
     }
 
     private double noise(Double latitude) {
-        return latitude * (0.99990 + (0.00020 * Math.random()));
+        return latitude * (0.9990 + (0.0020 * Math.random()));
     }
 
 
