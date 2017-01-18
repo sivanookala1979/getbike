@@ -469,7 +469,7 @@ public class RideController extends BaseController {
     }
 
     private double noise(Double latitude) {
-        return latitude * 0.99995 + (0.00010 * Math.random());
+        return latitude * (0.99990 + (0.00020 * Math.random()));
     }
 
 
