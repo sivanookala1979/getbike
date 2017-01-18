@@ -457,8 +457,8 @@ public class RideController extends BaseController {
             List<RideLocation> riders = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 RideLocation randomLocation = new RideLocation();
-                randomLocation.setLatitude(noise(latitude, 0.001));
-                randomLocation.setLongitude(noise(longitude, 0.003));
+                randomLocation.setLatitude(noise(latitude, 0.004));
+                randomLocation.setLongitude(noise(longitude, 0.001));
                 riders.add(randomLocation);
             }
             objectNode.set("riders", Json.toJson(riders));
