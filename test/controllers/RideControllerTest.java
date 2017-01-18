@@ -770,7 +770,8 @@ public class RideControllerTest extends BaseControllerTest {
         Result actual = route(fakeRequest(GET, "/loadNearByRiders?latitude=23.45&longitude=11.56").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
-        assertEquals(4, responseObject.get("riders").size());
+        System.out.println(responseObject.get("riders").toString());
+        assertEquals(8, responseObject.get("riders").size());
     }
 
     @Test
