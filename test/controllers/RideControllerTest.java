@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
 import static utils.DateUtils.minutesOld;
+import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.CAN_NOT_ACCEPT_YOUR_OWN_RIDE;
 import static utils.GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS;
 
@@ -405,8 +406,8 @@ public class RideControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/estimateRide").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(locationList))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
         System.out.println(jsonNode);
-        assertEquals(DistanceUtils.distanceKilometers(locationList), jsonNode.get("orderDistance").doubleValue());
-        assertEquals(DistanceUtils.estimateBasePrice(DistanceUtils.distanceKilometers(locationList)), jsonNode.get("orderAmount").doubleValue());
+        assertEquals(round2(DistanceUtils.distanceKilometers(locationList) * 1.2), jsonNode.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.estimateBasePrice(round2(DistanceUtils.distanceKilometers(locationList) * 1.2)), jsonNode.get("orderAmount").doubleValue());
     }
 
     @Test
@@ -499,7 +500,7 @@ public class RideControllerTest extends BaseControllerTest {
         Ride afterCloseRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
         assertNull(afterCloseRide.getActualSourceAddress());
         assertNull(afterCloseRide.getActualDestinationAddress());
-        GetBikeUtils.sleep(12000);
+        GetBikeUtils.sleep(4000);
         Ride afterSleepRide = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
         System.out.println(afterSleepRide.getActualSourceAddress() + " XXXXXXXXXXX " + afterSleepRide.getActualDestinationAddress());
         assertNotNull(afterSleepRide.getActualSourceAddress());

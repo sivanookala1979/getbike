@@ -190,7 +190,8 @@ public class RideController extends BaseController {
                 RideLocation rideLocation = Json.fromJson(location, RideLocation.class);
                 rideLocations.add(rideLocation);
             }
-            ride.setOrderDistance(DistanceUtils.distanceKilometers(rideLocations));
+            double estimationBuffer = 1.2;
+            ride.setOrderDistance(round2(DistanceUtils.distanceKilometers(rideLocations) * estimationBuffer));
             ride.setOrderAmount(DistanceUtils.estimateBasePrice(ride.getOrderDistance()));
         }
         return ok(Json.toJson(ride));
@@ -595,35 +596,32 @@ public class RideController extends BaseController {
     }
 
     private void updateAddresses(RideLocation firstLocation, RideLocation lastLocation, Ride ride) {
-        AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
-                .setMaxRequestRetry(0)
-                .setShutdownQuietPeriod(0)
-                .setShutdownTimeout(0).build();
-
-        String name = "wsclient";
-        ActorSystem system = ActorSystem.create(name);
-        ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
-        ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
-        WSClient client = new AhcWSClient(config, materializer);
-        Consumer<WSResponse> sourceAddressConsumer = response -> {
-            Ride currentRide = Ride.find.byId(ride.id);
-            currentRide.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").asText());
-            currentRide.update();
-            System.out.println("Updated actual source address");
-        };
         Consumer<WSResponse> destinationAddressConsumer = response -> {
             Ride currentRide = Ride.find.byId(ride.id);
             currentRide.setActualDestinationAddress(response.asJson().get("results").get(0).get("formatted_address").asText());
             currentRide.update();
             System.out.println("Updated actual destination address");
         };
-
-        updateAddressByLatitudeAndLogitude(firstLocation, system, client, sourceAddressConsumer);
-        updateAddressByLatitudeAndLogitude(lastLocation, system, client, destinationAddressConsumer);
-
+        Consumer<WSResponse> sourceAddressConsumer = response -> {
+            Ride currentRide = Ride.find.byId(ride.id);
+            currentRide.setActualSourceAddress(response.asJson().get("results").get(0).get("formatted_address").asText());
+            currentRide.update();
+            updateAddressByLatitudeAndLogitude(lastLocation, destinationAddressConsumer);
+            System.out.println("Updated actual source address");
+        };
+        updateAddressByLatitudeAndLogitude(firstLocation, sourceAddressConsumer);
     }
 
-    private void updateAddressByLatitudeAndLogitude(RideLocation location, ActorSystem system, WSClient client, Consumer<WSResponse> addressConsumer) {
+    private void updateAddressByLatitudeAndLogitude(RideLocation location, Consumer<WSResponse> addressConsumer) {
+        AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
+                .setMaxRequestRetry(0)
+                .setShutdownQuietPeriod(0)
+                .setShutdownTimeout(0).build();
+        String name = "wsclient";
+        ActorSystem system = ActorSystem.create(name);
+        ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
+        ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
+        WSClient client = new AhcWSClient(config, materializer);
         client.url("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + location.getLatitude() + "," + location.getLongitude() + "&key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs").get().whenComplete((r, e) -> {
 
             Optional.ofNullable(r).ifPresent(addressConsumer);
