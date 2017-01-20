@@ -39,6 +39,7 @@ import static utils.GetBikeErrorCodes.*;
  * Created by sivanookala on 21/10/16.
  */
 public class RideController extends BaseController {
+    final static double MAX_DISTANCE_IN_KILOMETERS = 10.0;
 
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId", "requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
@@ -312,8 +313,14 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             ArrayNode ridesNodes = Json.newArray();
-            // TODO: 05/01/17 Show rides which are in seven km range
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId()).setMaxRows(5).order("requestedAt desc").findList();
+            double latitude = getDouble("latitude");
+            double longitude = getDouble("longitude");
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
+                    ") ) * cos( radians(start_latitude) ) " +
+                    "   * cos( radians(start_longitude) - radians(" + longitude +
+                    ")) + sin(radians(" + latitude + ")) " +
+                    "   * sin( radians(start_latitude)))) < " +
+                    MAX_DISTANCE_IN_KILOMETERS + " ").setMaxRows(5).order("requestedAt desc").findList();
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));
@@ -481,13 +488,12 @@ public class RideController extends BaseController {
     }
 
     public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude, char gender) {
-        double distanceInKilometers = 10.0;
         return User.find.where().eq("isRideInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
                 ") ) * cos( radians( last_known_latitude ) ) " +
                 "   * cos( radians(last_known_longitude) - radians(" + longitude +
                 ")) + sin(radians(" + latitude + ")) " +
                 "   * sin( radians(last_known_latitude)))) < " +
-                distanceInKilometers + " ").raw("gender = '" + gender + "'").gt("lastKnownLatitude", 0.0).gt("lastKnownLongitude", 0.0).not().eq("id", currentId).findList();
+                MAX_DISTANCE_IN_KILOMETERS + " ").raw("gender = '" + gender + "'").gt("lastKnownLatitude", 0.0).gt("lastKnownLongitude", 0.0).not().eq("id", currentId).findList();
     }
 
     public Result rideList() {

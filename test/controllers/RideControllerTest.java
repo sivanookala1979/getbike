@@ -513,7 +513,7 @@ public class RideControllerTest extends BaseControllerTest {
         User otherUser = otherUser();
         Ride firstRide = createRide(otherUser.getId());
         Ride secondRide = createRide(otherUser.getId());
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + firstRide.getStartLatitude() + "&longitude=" + firstRide.getStartLongitude()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
@@ -530,7 +530,7 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void openRidesTESTWithNoOpenRides() {
         User user = loggedInUser();
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + 23.45 + "&longitude=" + 72.83).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
@@ -550,7 +550,7 @@ public class RideControllerTest extends BaseControllerTest {
         Ride acceptedRide = createRide(otherUser.getId());
         acceptedRide.setRideStatus(RideAccepted);
         acceptedRide.save();
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + firstRide.getStartLatitude() + "&longitude=" + firstRide.getStartLongitude()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
@@ -573,7 +573,7 @@ public class RideControllerTest extends BaseControllerTest {
         Ride femaleRide = createRide(otherUser.getId());
         femaleRide.setRideGender('F');
         femaleRide.save();
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + maleRide1.getStartLatitude() + "&longitude=" + maleRide1.getStartLongitude()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
@@ -593,7 +593,7 @@ public class RideControllerTest extends BaseControllerTest {
         User otherUser = otherUser();
         Ride selfRide = createRide(user.getId());
         Ride maleRide2 = createRide(otherUser.getId());
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + maleRide2.getStartLatitude() + "&longitude=" + maleRide2.getStartLongitude()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
@@ -613,7 +613,26 @@ public class RideControllerTest extends BaseControllerTest {
         oldRide.setRequestedAt(minutesOld(16));
         oldRide.save();
         Ride maleRide2 = createRide(otherUser.getId());
-        Result actual = route(fakeRequest(GET, "/openRides").header("Authorization", user.getAuthToken()));
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + maleRide2.getStartLatitude() + "&longitude=" + maleRide2.getStartLongitude()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 1;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(maleRide2.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+    }
+
+    @Test
+    public void openRidesTESTWithFarAwayRides() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride maleRide2 = createRide(otherUser.getId());
+        Ride awayRide = createRide(otherUser.getId());
+        awayRide.setStartLatitude(maleRide2.getStartLatitude() - 20);
+        awayRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + maleRide2.getStartLatitude() + "&longitude=" + maleRide2.getStartLongitude()).header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode ridesList = responseObject.get("rides");
