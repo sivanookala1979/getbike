@@ -22,10 +22,7 @@ import play.libs.ws.WSResponse;
 import play.libs.ws.ahc.AhcWSClient;
 import play.mvc.BodyParser;
 import play.mvc.Result;
-import utils.ApplicationContext;
-import utils.DateUtils;
-import utils.DistanceUtils;
-import utils.IGcmUtils;
+import utils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -135,6 +132,12 @@ public class RideController extends BaseController {
                 if (requestor == null) {
                     requestor = new User();
                     requestor.setPhoneNumber(phoneNumber);
+                    if (locationsJson.has("name") && StringUtils.isNotNullAndEmpty(locationsJson.get("name").textValue())) {
+                        requestor.setName(locationsJson.get("name").textValue());
+                    }
+                    if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
+                        requestor.setEmail(locationsJson.get("email").textValue());
+                    }
                     requestor.save();
                 }
                 ride.setRequestorId(requestor.getId());

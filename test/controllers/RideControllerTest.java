@@ -70,12 +70,16 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        requestObjectNode.set("name", Json.toJson("Subbarao Vellanki"));
+        requestObjectNode.set("email", Json.toJson("subbarao.vellanki@gmail.com"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
         User requestor = User.find.where().eq("phoneNumber", "7776663334").findUnique();
         assertNotNull(requestor);
         assertNotNull(ride);
+        assertEquals("Subbarao Vellanki", requestor.getName());
+        assertEquals("subbarao.vellanki@gmail.com", requestor.getEmail());
         assertEquals(user.getId(), ride.getRiderId());
         assertEquals(requestor.getId(), ride.getRequestorId());
         assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
