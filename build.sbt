@@ -15,3 +15,5 @@ libraryDependencies ++= Seq(
 
 jacoco.settings
 parallelExecution in jacoco.Config := false
+
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-q", "-a")
