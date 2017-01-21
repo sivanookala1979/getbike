@@ -7,6 +7,7 @@ import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
 import models.User;
+import models.Wallet;
 import mothers.RideLocationMother;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -268,6 +269,23 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void acceptRideTESTWithInsufficientWalletAmount() {
+        User user = loggedInUser();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        double startLatitude = 20.4567;
+        double startLongitude = 42.17186;
+        System.out.println("Wallet Amount " + WalletController.getWalletAmount(user));
+        Result getBikeResult = requestGetBike(user, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        assertEquals(GetBikeErrorCodes.INSUFFICIENT_WALLET_AMOUNT, acceptRideJsonNode.get("errorCode").intValue());
+
+    }
+
+    @Test
     public void acceptRideTESTWithInvalidProofsUploadIsTrue() {
         User user = loggedInUser();
         user.setValidProofsUploaded(true);
@@ -420,6 +438,7 @@ public class RideControllerTest extends BaseControllerTest {
         user.setRideInProgress(false);
         user.setCurrentRideId(null);
         user.save();
+        double walletAmountBefore = WalletController.getWalletAmount(user);
         User otherUser = otherUser();
         double startLatitude = 23.4567;
         double startLongitude = 72.17186;
@@ -443,6 +462,8 @@ public class RideControllerTest extends BaseControllerTest {
         Result closeRideResult = route(fakeRequest(GET, "/closeRide?" +
                 Ride.RIDE_ID +
                 "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        double walletAmountAfter = WalletController.getWalletAmount(user);
+
         JsonNode closeRideJsonNode = jsonFromResult(closeRideResult);
         System.out.println(closeRideJsonNode.toString());
         assertEquals("success", closeRideJsonNode.get("result").textValue());
@@ -456,6 +477,8 @@ public class RideControllerTest extends BaseControllerTest {
         User actual = User.find.byId(user.getId());
         assertNull(actual.getCurrentRideId());
         assertFalse(actual.isRideInProgress());
+        ride = Ride.find.byId(ride.id);
+        assertEquals(walletAmountBefore - ride.getTotalBill(), walletAmountAfter);
 
     }
 

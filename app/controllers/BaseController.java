@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
  */
 public class BaseController extends Controller {
     static boolean IS_TEST = false;
+    static boolean IS_ADMIN = false;
     public static final String FAILURE = "failure";
     public static final String SUCCESS = "success";
     public static final String RESULT = "result";
@@ -68,6 +69,7 @@ public class BaseController extends Controller {
     }
 
     protected boolean isValidateAdmin() {
+        if (IS_ADMIN) return true;
         return session("admin") != null;
     }
 

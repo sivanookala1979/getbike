@@ -3,6 +3,7 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.User;
+import models.Wallet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import play.Application;
@@ -31,6 +32,10 @@ public class BaseControllerTest extends WithApplication {
         user.setGender('M');
         user.setValidProofsUploaded(true);
         user.save();
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.getId());
+        wallet.setAmount(500.0);
+        wallet.save();
         return user;
     }
 
@@ -43,6 +48,10 @@ public class BaseControllerTest extends WithApplication {
         user.setGender('M');
         user.setValidProofsUploaded(true);
         user.save();
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.getId());
+        wallet.setAmount(500.0);
+        wallet.save();
         return user;
     }
 

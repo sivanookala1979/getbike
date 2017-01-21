@@ -25,6 +25,7 @@ public class WalletControllerTest extends BaseControllerTest {
     @Test
     public void addMoneyTESTHappyFlow() {
         User user = loggedInUser();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
         ObjectNode walletDetails = Json.newObject();
         walletDetails.put("amount", 50.0);
         Result result = route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
@@ -41,6 +42,7 @@ public class WalletControllerTest extends BaseControllerTest {
     @Test
     public void getBalanceAmountTESTHappyFlow() {
         User user = loggedInUser();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
         ObjectNode walletDetails = Json.newObject();
         walletDetails.put("amount", 65.0);
         route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
@@ -69,6 +71,7 @@ public class WalletControllerTest extends BaseControllerTest {
     @Test
     public void myEntriesTESTHappyFlow() {
         User user = loggedInUser();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
         ObjectNode walletDetails = Json.newObject();
         walletDetails.put("amount", 65.0);
         route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
@@ -319,6 +322,15 @@ public class WalletControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(BaseController.SUCCESS, jsonNode.get(BaseController.RESULT).textValue());
         assertEquals(walletAmount.getAmount(), new WalletController().getWalletAmount(user));
+    }
+
+    @Test
+    public void addBonusPointsToWalletTESTHappyFlow() {
+        BaseController.IS_ADMIN = true;
+        User user = loggedInUser();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        route(fakeRequest(GET, "/wallet/addBonusPointsToWallet/" + user.id + "/30").header("Authorization", user.getAuthToken()));
+        assertEquals(30.0, new WalletController().getWalletAmount(user));
     }
 
     @NotNull

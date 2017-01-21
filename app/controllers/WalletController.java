@@ -152,7 +152,7 @@ public class WalletController extends BaseController {
     }
 
 
-    public double getWalletAmount(User user) {
+    public static double getWalletAmount(User user) {
         List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).findList();
         double amount = 0;
         for (Wallet wallet : wallets) {
@@ -165,11 +165,15 @@ public class WalletController extends BaseController {
         return amount * AMOUNT_MULTIPLIER;
     }
 
-    private boolean hasValidAmountInWallet(double amount, double walletAmount) {
+    public static boolean hasValidAmountInWallet(double amount, double walletAmount) {
         return amount >= 0 && amount <= convertToCash(walletAmount);
     }
 
-    private double convertToCash(double walletAmount) {
+    public static boolean hasPointsInWallet(double points, double walletAmount) {
+        return points >= 0 && points <= walletAmount;
+    }
+
+    public static double convertToCash(double walletAmount) {
         return walletAmount / AMOUNT_MULTIPLIER;
     }
 
@@ -186,4 +190,16 @@ public class WalletController extends BaseController {
         return redirect("/users/usersList");
     }
 
+    public Result addBonusPointsToWallet(Long id, int amount) {
+        if (isValidateAdmin()) {
+            Wallet wallet = new Wallet();
+            wallet.setUserId(id);
+            wallet.setTransactionDateTime(new Date());
+            wallet.setAmount((double) amount);
+            wallet.setType("BonusPoints");
+            wallet.setDescription("Bonus Points from GetBike");
+            wallet.save();
+        }
+        return redirect("/wallet/entries/" + id);
+    }
 }

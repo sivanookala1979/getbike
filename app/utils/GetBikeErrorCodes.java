@@ -12,4 +12,5 @@ public class GetBikeErrorCodes {
     public static final int RIDE_ALLOCATED_TO_OTHERS = 9904;
     public static final int RIDE_VALID_PROOFS_UPLOAD = 9905;
     public static final int CAN_NOT_ACCEPT_YOUR_OWN_RIDE = 9906;
+    public static final int INSUFFICIENT_WALLET_AMOUNT = 9907;
 }

@@ -18,6 +18,7 @@ POST    /wallet/rechargeMobile                      controllers.WalletController
 POST    /wallet/redeemToWallet                      controllers.WalletController.redeemToWallet
 POST    /wallet/redeemToBank                        controllers.WalletController.redeemToBank
 GET     /wallet/entries/:id                         controllers.WalletController.walletEntries(id: Long)
+GET     /wallet/addBonusPointsToWallet/:id/:amount  controllers.WalletController.addBonusPointsToWallet(id: Long, amount: Integer)
 GET     /wallet/myEntries                           controllers.WalletController.myEntries
 
 

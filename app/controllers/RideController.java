@@ -12,6 +12,7 @@ import dataobject.RideStatus;
 import models.Ride;
 import models.RideLocation;
 import models.User;
+import models.Wallet;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.json.simple.JSONObject;
@@ -27,6 +28,9 @@ import utils.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static controllers.WalletController.getWalletAmount;
+import static controllers.WalletController.hasPointsInWallet;
+import static controllers.WalletController.hasValidAmountInWallet;
 import static dataobject.RideStatus.*;
 import static utils.DateUtils.minutesOld;
 import static utils.DistanceUtils.round2;
@@ -37,6 +41,7 @@ import static utils.GetBikeErrorCodes.*;
  */
 public class RideController extends BaseController {
     final static double MAX_DISTANCE_IN_KILOMETERS = 10.0;
+    public static final double MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE = 200.0;
 
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId", "requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
@@ -74,7 +79,10 @@ public class RideController extends BaseController {
         int errorCode = GENERAL_FAILURE;
         User user = currentUser();
         if (user != null) {
-            if (!user.isValidProofsUploaded()) {
+            double walletAmount = getWalletAmount(user);
+            if (!hasPointsInWallet(MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE, walletAmount)) {
+                errorCode = INSUFFICIENT_WALLET_AMOUNT;
+            } else if (!user.isValidProofsUploaded()) {
                 errorCode = RIDE_VALID_PROOFS_UPLOAD;
             } else {
                 if (user.isRideInProgress()) {
@@ -114,42 +122,49 @@ public class RideController extends BaseController {
         String result = FAILURE;
         int errorCode = GENERAL_FAILURE;
         if (user != null) {
-            if (user.isRideInProgress()) {
-                errorCode = RIDE_ALREADY_IN_PROGRESS;
+            double walletAmount = getWalletAmount(user);
+            if (!hasPointsInWallet(MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE, walletAmount)) {
+                errorCode = INSUFFICIENT_WALLET_AMOUNT;
+            } else if (!user.isValidProofsUploaded()) {
+                errorCode = RIDE_VALID_PROOFS_UPLOAD;
             } else {
-                JsonNode locationsJson = request().body().asJson();
-                Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
-                Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
-                Ride ride = new Ride();
-                ride.setStartLatitude(startLatitude);
-                ride.setStartLongitude(startLongitude);
-                ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
-                ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
-                ride.setRiderId(user.getId());
-                ride.setRideGender(user.getGender());
-                String phoneNumber = locationsJson.get("phoneNumber").textValue();
-                User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
-                if (requestor == null) {
-                    requestor = new User();
-                    requestor.setPhoneNumber(phoneNumber);
-                    if (locationsJson.has("name") && StringUtils.isNotNullAndEmpty(locationsJson.get("name").textValue())) {
-                        requestor.setName(locationsJson.get("name").textValue());
+                if (user.isRideInProgress()) {
+                    errorCode = RIDE_ALREADY_IN_PROGRESS;
+                } else {
+                    JsonNode locationsJson = request().body().asJson();
+                    Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
+                    Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
+                    Ride ride = new Ride();
+                    ride.setStartLatitude(startLatitude);
+                    ride.setStartLongitude(startLongitude);
+                    ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
+                    ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+                    ride.setRiderId(user.getId());
+                    ride.setRideGender(user.getGender());
+                    String phoneNumber = locationsJson.get("phoneNumber").textValue();
+                    User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
+                    if (requestor == null) {
+                        requestor = new User();
+                        requestor.setPhoneNumber(phoneNumber);
+                        if (locationsJson.has("name") && StringUtils.isNotNullAndEmpty(locationsJson.get("name").textValue())) {
+                            requestor.setName(locationsJson.get("name").textValue());
+                        }
+                        if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
+                            requestor.setEmail(locationsJson.get("email").textValue());
+                        }
+                        requestor.save();
                     }
-                    if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
-                        requestor.setEmail(locationsJson.get("email").textValue());
-                    }
-                    requestor.save();
+                    ride.setRequestorId(requestor.getId());
+                    ride.setRideStatus(RideAccepted);
+                    ride.setRequestedAt(new Date());
+                    ride.setAcceptedAt(ride.getRequestedAt());
+                    ride.save();
+                    user.setRideInProgress(true);
+                    user.setCurrentRideId(ride.getId());
+                    user.save();
+                    result = SUCCESS;
+                    setJson(objectNode, Ride.RIDE_ID, ride.getId());
                 }
-                ride.setRequestorId(requestor.getId());
-                ride.setRideStatus(RideAccepted);
-                ride.setRequestedAt(new Date());
-                ride.setAcceptedAt(ride.getRequestedAt());
-                ride.save();
-                user.setRideInProgress(true);
-                user.setCurrentRideId(ride.getId());
-                user.save();
-                result = SUCCESS;
-                setJson(objectNode, Ride.RIDE_ID, ride.getId());
             }
         }
         setResult(objectNode, result);
@@ -231,6 +246,7 @@ public class RideController extends BaseController {
                 user.setRideInProgress(false);
                 user.setCurrentRideId(null);
                 user.save();
+                addRideWalletEntry(user, ride);
                 User requestor = User.find.byId(ride.getRequestorId());
                 IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                 gcmUtils.sendMessage(requestor, "Your ride is now closed.", "rideClosed", ride.getId());
@@ -240,6 +256,16 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    private void addRideWalletEntry(User user, Ride ride) {
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.getId());
+        wallet.setAmount(-ride.getTotalBill());
+        wallet.setTransactionDateTime(new Date());
+        wallet.setDescription("Given Ride with Trip ID : " + ride.getId() + " for Rs. " + ride.getTotalBill());
+        wallet.setType("RideGiven");
+        wallet.save();
     }
 
     public Result startRide() {
