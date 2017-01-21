@@ -326,7 +326,7 @@ public class WalletControllerTest extends BaseControllerTest {
 
     @Test
     public void addBonusPointsToWalletTESTHappyFlow() {
-        BaseController.IS_ADMIN = true;
+        BaseController.IS_TEST = true;
         User user = loggedInUser();
         Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
         route(fakeRequest(GET, "/wallet/addBonusPointsToWallet/" + user.id + "/30").header("Authorization", user.getAuthToken()));

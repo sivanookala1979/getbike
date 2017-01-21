@@ -191,7 +191,7 @@ public class WalletController extends BaseController {
     }
 
     public Result addBonusPointsToWallet(Long id, int amount) {
-        if (isValidateAdmin()) {
+        if (isValidateSession()) {
             Wallet wallet = new Wallet();
             wallet.setUserId(id);
             wallet.setTransactionDateTime(new Date());
