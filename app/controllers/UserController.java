@@ -10,9 +10,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
-import utils.GetBikeErrorCodes;
-import utils.NumericUtils;
-import utils.StringUtils;
+import utils.*;
 
 import java.io.*;
 import java.util.*;
@@ -130,6 +128,17 @@ public class UserController extends BaseController {
                 user.setLastKnownLongitude(userLocation.getLastKnownLongitude());
                 user.setLastLocationTime(userLocation.getLastLocationTime());
                 user.save();
+                if (user.isRideInProgress()) {
+                    Ride currentRide = Ride.find.byId(user.getCurrentRideId());
+                    if (currentRide != null) {
+                        User requestor = User.find.byId(currentRide.getRequestorId());
+                        if (requestor != null) {
+                            IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                            gcmUtils.sendMessage(requestor, userLocation.getLastKnownLatitude() + "," + userLocation.getLastKnownLongitude() + "," + currentRide.isRideStarted(), "riderLocation", currentRide.getId());
+                        }
+
+                    }
+                }
                 result = SUCCESS;
             }
         }
