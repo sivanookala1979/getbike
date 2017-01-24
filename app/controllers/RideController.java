@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 
 import static controllers.WalletController.getWalletAmount;
 import static controllers.WalletController.hasPointsInWallet;
-import static controllers.WalletController.hasValidAmountInWallet;
 import static dataobject.RideStatus.*;
 import static utils.DateUtils.minutesOld;
 import static utils.DistanceUtils.round2;
@@ -279,11 +278,22 @@ public class RideController extends BaseController {
                 ride.setRideStarted(true);
                 ride.setRideStartedAt(new Date());
                 ride.save();
+                sendLocationToRequestor(user, ride);
                 result = SUCCESS;
             }
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public static void sendLocationToRequestor(User rider, Ride ride) {
+        if (rider != null && ride != null && ride.getRequestorId() != null) {
+            User requestor = User.find.byId(ride.getRequestorId());
+            if (requestor != null) {
+                IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                gcmUtils.sendMessage(requestor, rider.getLastKnownLatitude() + "," + rider.getLastKnownLongitude() + "," + ride.isRideStarted(), "riderLocation", ride.getId());
+            }
+        }
     }
 
 

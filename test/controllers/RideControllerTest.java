@@ -324,16 +324,21 @@ public class RideControllerTest extends BaseControllerTest {
     @Test
     public void startRideTESTHappyFlow() {
         User user = loggedInUser();
+        user.setLastKnownLatitude(23.45);
+        user.setLastKnownLongitude(76.34);
+        user.save();
         User otherUser = otherUser();
         Ride ride = createRide(otherUser.getId());
         ride.setRiderId(user.getId());
         ride.setRideStatus(RideAccepted);
         ride.save();
+        when(gcmUtilsMock.sendMessage(otherUser, "23.45,76.34,true", "riderLocation", ride.getId())).thenReturn(true);
         Result acceptRideResult = route(fakeRequest(GET, "/startRide?" +
                 Ride.RIDE_ID +
                 "=" + ride.getId()).header("Authorization", user.getAuthToken()));
         JsonNode startRideJsonNode = jsonFromResult(acceptRideResult);
         Ride actualRide = Ride.find.byId(ride.getId());
+        verify(gcmUtilsMock).sendMessage(otherUser, "23.45,76.34,true", "riderLocation", ride.getId());
         assertNotNull(actualRide);
         assertTrue(actualRide.isRideStarted());
         assertNotNull(actualRide.getRideStartedAt());

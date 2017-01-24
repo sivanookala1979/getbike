@@ -6,20 +6,25 @@ import models.LoginOtp;
 import models.Ride;
 import models.RideLocation;
 import models.User;
+import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
-import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
+import utils.ApplicationContext;
 import utils.GetBikeErrorCodes;
+import utils.IGcmUtils;
 import utils.NumericConstants;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
 
 
@@ -257,6 +262,32 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void storeLastKnownLocationTESTWithCurrentRideInProgress() {
+        User user = loggedInUser();
+        User requestor = otherUser();
+        Ride ride = new Ride();
+        ride.setRequestorId(requestor.getId());
+        ride.save();
+        user.setCurrentRideId(ride.getId());
+        user.setRideInProgress(true);
+        user.save();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("lastKnownLatitude", 54.67);
+        objectNode.put("lastKnownLongitude", 21.34);
+        Date locationDate = new Date();
+        objectNode.set("lastLocationTime", Json.toJson(locationDate));
+        when(gcmUtilsMock.sendMessage(requestor, "54.67,21.34,false", "riderLocation", ride.getId())).thenReturn(true);
+        Result result = route(fakeRequest(POST, "/storeLastKnownLocation").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.id);
+        assertEquals(54.67, actual.getLastKnownLatitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(21.34, actual.getLastKnownLongitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(locationDate, actual.getLastLocationTime());
+        verify(gcmUtilsMock).sendMessage(requestor, "54.67,21.34,false", "riderLocation", ride.getId());
+    }
+
+    @Test
     public void storeDrivingLicenseTESTHappyFlow() {
         User user = loggedInUser();
         ObjectNode objectNode = Json.newObject();
@@ -438,9 +469,18 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("getbike".length() + 6, user.getPromoCode().length());
     }
 
+    IGcmUtils gcmUtilsMock;
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------
+
+    @Before
+    public void setUp() {
+        super.setUp();
+        gcmUtilsMock = mock(IGcmUtils.class);
+        ApplicationContext.defaultContext().setGcmUtils(gcmUtilsMock);
+    }
 
     private void cAssertUser(User user, Result result) {
         JsonNode jsonNode = jsonFromResult(result);
