@@ -384,6 +384,33 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getCurrentRideTESTWithOnlyRequest() {
+        User user = loggedInUser();
+        user.setRequestInProgress(true);
+        user.setCurrentRequestRideId(45l);
+        user.save();
+        Result result = route(fakeRequest(GET, "/getCurrentRide").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getCurrentRequestRideId().longValue(), jsonNode.get("requestId").longValue());
+    }
+
+    @Test
+    public void getCurrentRideTESTWithBothRideAndRequest() {
+        User user = loggedInUser();
+        user.setRequestInProgress(true);
+        user.setCurrentRequestRideId(45l);
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        Result result = route(fakeRequest(GET, "/getCurrentRide").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getCurrentRequestRideId().longValue(), jsonNode.get("requestId").longValue());
+        assertEquals(user.getCurrentRideId().longValue(), jsonNode.get("rideId").longValue());
+    }
+
+    @Test
     public void updatePrivateProfileTESTWithLoggedInUser() {
         User user = loggedInUser();
         user.setOccupation("Software Engineer");

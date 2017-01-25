@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import static controllers.WalletController.getWalletAmount;
 import static controllers.WalletController.hasPointsInWallet;
 import static dataobject.RideStatus.*;
+import static utils.DateUtils.isTimePassed;
 import static utils.DateUtils.minutesOld;
 import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.*;
@@ -55,16 +56,31 @@ public class RideController extends BaseController {
             JsonNode locationsJson = request().body().asJson();
             Double startLatitude = locationsJson.get(Ride.LATITUDE).doubleValue();
             Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
-            Ride ride = new Ride();
-            ride.setStartLatitude(startLatitude);
-            ride.setStartLongitude(startLongitude);
-            ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
-            ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
-            ride.setRequestorId(user.getId());
-            ride.setRideStatus(RideRequested);
-            ride.setRequestedAt(new Date());
-            ride.setRideGender(user.getGender());
-            ride.save();
+            Ride ride = null;
+            if (user.isRequestInProgress()) {
+                Ride previousRide = Ride.find.byId(user.getCurrentRequestRideId());
+                if (previousRide != null && isTimePassed(previousRide.getRequestedAt(), new Date(), 15 * 60)) {
+                    processCancelRide(result, user, previousRide);
+                }
+                if (RideRequested.equals(previousRide.getRideStatus()) || RideAccepted.equals(previousRide.getRideStatus())) {
+                    ride = previousRide;
+                }
+            }
+            if (ride == null) {
+                ride = new Ride();
+                ride.setStartLatitude(startLatitude);
+                ride.setStartLongitude(startLongitude);
+                ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
+                ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+                ride.setRequestorId(user.getId());
+                ride.setRideStatus(RideRequested);
+                ride.setRequestedAt(new Date());
+                ride.setRideGender(user.getGender());
+                ride.save();
+            }
+            user.setCurrentRequestRideId(ride.getId());
+            user.setRequestInProgress(true);
+            user.save();
             result = SUCCESS;
             setJson(objectNode, Ride.RIDE_ID, ride.getId());
             publishRideDetails(user, ride);
@@ -162,6 +178,9 @@ public class RideController extends BaseController {
                     user.setRideInProgress(true);
                     user.setCurrentRideId(ride.getId());
                     user.save();
+                    requestor.setCurrentRequestRideId(ride.getId());
+                    requestor.setRequestInProgress(true);
+                    requestor.save();
                     result = SUCCESS;
                     setJson(objectNode, Ride.RIDE_ID, ride.getId());
                 }
@@ -243,11 +262,10 @@ public class RideController extends BaseController {
                     ride.setRideEndedAt(new Date());
                 }
                 ride.save();
-                user.setRideInProgress(false);
-                user.setCurrentRideId(null);
-                user.save();
-                addRideWalletEntry(user, ride);
                 User requestor = User.find.byId(ride.getRequestorId());
+                cleanRider(user);
+                cleanRequestor(requestor);
+                addRideWalletEntry(user, ride);
                 IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                 gcmUtils.sendMessage(requestor, "Your ride is now closed.", "rideClosed", ride.getId());
                 objectNode.set("ride", Json.toJson(ride));
@@ -256,6 +274,18 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    private void cleanRequestor(User requestor) {
+        requestor.setRequestInProgress(false);
+        requestor.setCurrentRequestRideId(null);
+        requestor.save();
+    }
+
+    private void cleanRider(User rider) {
+        rider.setRideInProgress(false);
+        rider.setCurrentRideId(null);
+        rider.save();
     }
 
     private void addRideWalletEntry(User user, Ride ride) {
@@ -305,26 +335,30 @@ public class RideController extends BaseController {
         if (user != null) {
             Long rideId = getLong(Ride.RIDE_ID);
             Ride ride = Ride.find.byId(rideId);
-            if (ride != null && ride.getRequestorId().equals(user.getId())) {
-                boolean rideRequested = RideRequested.equals(ride.getRideStatus());
-                boolean rideNotStarted = (RideAccepted.equals(ride.getRideStatus()) && !ride.isRideStarted());
-                if (rideRequested || rideNotStarted) {
-                    ride.setRideStatus(RideCancelled);
-                    ride.save();
-                    if (ride.getRiderId() != null) {
-                        User rider = User.find.byId(ride.getRiderId());
-                        rider.setRideInProgress(false);
-                        rider.setCurrentRideId(null);
-                        rider.save();
-                        IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
-                        gcmUtils.sendMessage(rider, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
-                    }
-                    result = SUCCESS;
-                }
-            }
+            result = processCancelRide(result, user, ride);
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    private String processCancelRide(String result, User requestor, Ride ride) {
+        if (ride != null && ride.getRequestorId().equals(requestor.getId())) {
+            boolean rideRequested = RideRequested.equals(ride.getRideStatus());
+            boolean rideNotStarted = (RideAccepted.equals(ride.getRideStatus()) && !ride.isRideStarted());
+            if (rideRequested || rideNotStarted) {
+                ride.setRideStatus(RideCancelled);
+                ride.save();
+                cleanRequestor(requestor);
+                if (ride.getRiderId() != null) {
+                    User rider = User.find.byId(ride.getRiderId());
+                    cleanRider(rider);
+                    IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+                    gcmUtils.sendMessage(rider, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
+                }
+                result = SUCCESS;
+            }
+        }
+        return result;
     }
 
     public Result ridePath() {

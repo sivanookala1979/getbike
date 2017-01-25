@@ -207,6 +207,10 @@ public class UserController extends BaseController {
                 objectNode.set("rideId", Json.toJson(user.getCurrentRideId()));
                 result = SUCCESS;
             }
+            if (user.isRequestInProgress() && user.getCurrentRequestRideId() != null && user.getCurrentRequestRideId() > 0) {
+                objectNode.set("requestId", Json.toJson(user.getCurrentRequestRideId()));
+                result = SUCCESS;
+            }
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));

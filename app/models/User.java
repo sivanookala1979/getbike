@@ -34,6 +34,8 @@ public class User extends Model {
     boolean validProofsUploaded;
     Long currentRideId;
     boolean isRideInProgress;
+    Long currentRequestRideId;
+    boolean isRequestInProgress;
     Double lastKnownLatitude;
     Double lastKnownLongitude;
     Date lastLocationTime;
@@ -312,6 +314,22 @@ public class User extends Model {
 
     public String getDisplayName() {
         return StringUtils.isNotNullAndEmpty(name) ? name : phoneNumber;
+    }
+
+    public Long getCurrentRequestRideId() {
+        return currentRequestRideId;
+    }
+
+    public void setCurrentRequestRideId(Long currentRequestRideId) {
+        this.currentRequestRideId = currentRequestRideId;
+    }
+
+    public boolean isRequestInProgress() {
+        return isRequestInProgress;
+    }
+
+    public void setRequestInProgress(boolean requestInProgress) {
+        isRequestInProgress = requestInProgress;
     }
 
     public boolean isSpecialPrice() {

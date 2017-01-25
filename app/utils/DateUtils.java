@@ -35,4 +35,8 @@ public class DateUtils {
     public static Date minutesOld(int minutes) {
         return new Date(new Date().getTime() - minutes * 60 * 1000);
     }
+
+    public static boolean isTimePassed(Date oldDate, Date newDate, int timeInSeconds) {
+        return (newDate.getTime() - oldDate.getTime()) > timeInSeconds * 1000;
+    }
 }

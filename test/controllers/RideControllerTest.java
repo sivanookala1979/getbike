@@ -61,6 +61,50 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getBikeTESTWithPreviousRideNotClosed() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode firstJsonNode = jsonFromResult(firstResult);
+        Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
+        Result secondResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode secondJsonNode = jsonFromResult(secondResult);
+        Ride secondRide = Ride.find.byId(secondJsonNode.get(Ride.RIDE_ID).longValue());
+        assertNotNull(secondRide);
+        assertEquals(firstRide.getId(), secondRide.getId());
+    }
+
+    @Test
+    public void getBikeTESTWithPreviousRideExpired() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode firstJsonNode = jsonFromResult(firstResult);
+        Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
+        firstRide.setRequestedAt(minutesOld(16));
+        firstRide.save();
+        Result secondResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode secondJsonNode = jsonFromResult(secondResult);
+        Ride secondRide = Ride.find.byId(secondJsonNode.get(Ride.RIDE_ID).longValue());
+        assertNotNull(secondRide);
+        assertNotEquals(firstRide.getId(), secondRide.getId());
+        Ride firstRideReloaded = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideCancelled, firstRideReloaded.getRideStatus());
+    }
+
+    @Test
     public void hailCustomerTESTWithNoPreviousUser() {
         User user = loggedInUser();
         ObjectNode requestObjectNode = Json.newObject();
@@ -79,6 +123,8 @@ public class RideControllerTest extends BaseControllerTest {
         User requestor = User.find.where().eq("phoneNumber", "7776663334").findUnique();
         assertNotNull(requestor);
         assertNotNull(ride);
+        assertEquals(ride.getId(), requestor.getCurrentRequestRideId());
+        assertEquals(true, requestor.isRequestInProgress());
         assertEquals("Subbarao Vellanki", requestor.getName());
         assertEquals("subbarao.vellanki@gmail.com", requestor.getEmail());
         assertEquals(user.getId(), ride.getRiderId());
@@ -125,6 +171,9 @@ public class RideControllerTest extends BaseControllerTest {
         User actual = User.find.byId(user.getId());
         assertTrue(actual.isRideInProgress());
         assertEquals(ride.getId(), actual.getCurrentRideId());
+        User requestorReloaded = User.find.byId(requestor.getId());
+        assertEquals(ride.getId(), requestorReloaded.getCurrentRequestRideId());
+        assertEquals(true, requestorReloaded.isRequestInProgress());
     }
 
     @Test
@@ -349,6 +398,9 @@ public class RideControllerTest extends BaseControllerTest {
     public void cancelRideTESTWithRideRequested() {
         User user = loggedInUser();
         Ride ride = createRide(user.getId());
+        user.setRequestInProgress(true);
+        user.setCurrentRequestRideId(ride.getId());
+        user.save();
         Result acceptRideResult = route(fakeRequest(GET, "/cancelRide?" +
                 Ride.RIDE_ID +
                 "=" + ride.getId()).header("Authorization", user.getAuthToken()));
@@ -356,6 +408,9 @@ public class RideControllerTest extends BaseControllerTest {
         Ride actualRide = Ride.find.byId(ride.getId());
         assertEquals(RideCancelled, actualRide.getRideStatus());
         assertEquals("success", startRideJsonNode.get("result").textValue());
+        user.refresh();
+        assertFalse(user.isRequestInProgress());
+        assertNull(user.getCurrentRequestRideId());
     }
 
     @Test
@@ -366,6 +421,9 @@ public class RideControllerTest extends BaseControllerTest {
         ride.setRiderId(user.getId());
         ride.setRideStatus(RideAccepted);
         ride.save();
+        otherUser.setCurrentRequestRideId(ride.getId());
+        otherUser.setRequestInProgress(true);
+        otherUser.save();
         user.setCurrentRideId(ride.getId());
         user.setRideInProgress(true);
         user.save();
@@ -378,9 +436,12 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(RideCancelled, actualRide.getRideStatus());
         assertEquals("success", startRideJsonNode.get("result").textValue());
         verify(gcmUtilsMock).sendMessage(user, "Ride " + ride.getId() + " is cancelled.", "rideCancelled", ride.getId());
-        User actualUser = User.find.byId(user.id);
-        assertFalse(actualUser.isRideInProgress());
-        assertNull(actualUser.getCurrentRideId());
+        user.refresh();
+        otherUser.refresh();
+        assertFalse(user.isRideInProgress());
+        assertNull(user.getCurrentRideId());
+        assertFalse(otherUser.isRequestInProgress());
+        assertNull(otherUser.getCurrentRequestRideId());
     }
 
     @Test
