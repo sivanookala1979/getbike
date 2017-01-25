@@ -19,6 +19,7 @@ public class LoginOtp extends Model {
     Long userId;
     String generatedOtp;
     Date createdAt;
+    String phoneNumber;
 
     public Long getId() {
         return id;
@@ -52,5 +53,11 @@ public class LoginOtp extends Model {
         this.createdAt = createdAt;
     }
 
+    public String getPhoneNumber() {
+        return User.find.where().eq("id", userId).findUnique().phoneNumber;
+    }
 
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

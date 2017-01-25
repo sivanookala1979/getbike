@@ -26,12 +26,14 @@ th {
 }
 
 </style>
+<script src="@routes.Assets.versioned("javascripts/FileSaver.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/json-export-excel.js")" type="text/javascript"></script>
 <div class="container" id="list-view-app-id">
     <div class="row">
         <div class="col-sm-12">
             <div data-ng-controller="ProductController">
                 <div class="row">
-                    <div class="col-sm-4 text-left" style="padding-bottom:10px;">
+                    <div class="col-sm-3 text-left" style="padding-bottom:10px;">
                         <input type="text" ng-model="searchText" id="searchname" placeholder="Search by Name / Mobile" class="form-control">
                     </div>
                     <div class="col-sm-2 text-left">
@@ -48,8 +50,12 @@ th {
                     <div class="col-sm-2 text-left">
                         <input ng-model="endDate" type="date" placeholder="" required class="form-control"/>
                     </div>
-                    <div class="col-sm-2 text-left">
+                    <div class="col-sm-2 text-left" style="width:130px">
                         <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
+                    </div>
+                    <div class="col-sm-1 text-left">
+                       <!-- <input type="button" class="btn btn-primary" value="ExportData" ng-click="doDateFilter()"/>-->
+                        <button ng-json-export-excel data="products" report-fields="{id: 'Trip Id', requestorName: 'Requestor Name', riderName: 'Rider Name',rideStatus: 'Ride Status',orderDistance: 'Order Distance',requestedAt: 'Requested At',acceptedAt: 'Accepted At',rideStartedAt: 'RideStarted At',rideEndedAt: 'RideEnded At',startLatitude: 'Start Latitude',startLongitude: 'Start Longitude',totalBill: 'TotalBill' }" filename="'RidesData'" class="btn-sm btn-primary">ExportData</button>
                     </div>
 
                     @if(isRequired.equalsIgnoreCase("Yes")){
@@ -146,8 +152,7 @@ th {
 </div>
 </div>
 <script>
-
-    var listViewApp = angular.module("myApp", []);
+    var listViewApp = angular.module("myApp", ["ngJsonExportExcel"]);
     listViewApp.controller("ProductController", function ($scope, $http, $filter) {
             $scope.products = [];
             $scope.rideSummary = {};
@@ -193,10 +198,5 @@ th {
                 'RideClosed'
           ];
   }); //end of angular Js
-
-
-
-
-
 </script>
 }

@@ -28,6 +28,7 @@ public class LoginController extends BaseController {
             User user = new User();
             user.setEmail("admin_getbike");
             user.setPassword("cerone");
+            user.setRole("Admin");
             user.save();
         }
         Form<User> logInForm = formFactory.form(User.class).bindFromRequest();

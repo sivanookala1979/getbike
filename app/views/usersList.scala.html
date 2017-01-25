@@ -24,10 +24,13 @@
 th {
     cursor:pointer;
 }
+element.style {
+    width: 200px;
+}
 
 
 </style>
-<div class="container">
+<div class="container" id="list-view-app-id">
     @if(flash.containsKey("error")) {
     <div class="well">
         <div id="error-message" class="text-danger">
@@ -36,51 +39,107 @@ th {
     </div>
     }
     <div class="row">
-        <div class="col-sm-12">
-            <div id="test">
-                <table class="table table-striped"
-                       style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;">
-                    <thead style="border-bottom: 1px solid grey;">
-                    <tr>
-                        @for(header <- headers){
-                        <th>@header</th>
-                        }
-                    </tr>
-                    </thead>
-                    <tbody>
+        <div data-ng-app="myApp" data-ng-controller="ProductController">
+            <div class="col-sm-3 text-left" style="padding-bottom:10px;">
+                <input data-ng-model="input" placeholder="Search by Name / Mobile" data-ng-change="mySearch(input)"
+                       style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
+            </div>
+            <div class="col-sm-12">
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;">
+                        <thead style="border-bottom: 1px solid grey;">
+                        <tr>
+                            <th ng-click="sort('id')">#
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('name')" style="width:180px;">Name
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='name'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('phoneNumber')">Phone Number
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='phoneNumber'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('gender')">Gender
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='gender'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')" style="width:190px;">License Number
+                                <span class="glyphicon sort-icon" ng-show="sortKey==''"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Validate Uploaded Profile
+                                <span class="glyphicon sort-icon" ng-show="sortKey==''"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Wallet
+                                <span class="glyphicon sort-icon" ng-show="sortKey==''"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Special Price
+                                <span class="glyphicon sort-icon" ng-show="sortKey==''"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in users | orderBy:sortKey:reverse">
+                            <td>{{user.id}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.phoneNumber}}</td>
+                            <td>{{user.gender}}</td>
+                            <td>{{user.getDrivingLicenseNumber()}}</td>
+                            <td ng-if="user.validProofsUploaded == true">
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/accept.png")"
+                                    width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
+                                </center>
+                            </td>
 
-                    @for(user <- allUsers){
-                    <tr>
-                        <td>@user.id</td>
-                        <td>@user.name</td>
-                        <td>@user.phoneNumber</td>
-                        <td>@user.gender</td>
-                        <td>@user.authToken</td>
-                        @if(user.isValidProofsUploaded()){
-                        <td>
-                            <center><img style="float:center" src="@routes.Assets.versioned("images/accept.png")"
-                                width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
-                        </td>
-                        }else{
-                        <td>
-                            <center><img style="float:center" src="@routes.Assets.versioned("images/reject.png")"
-                                width="15" height="15"><br><a href="/user/accept/@user.id">Approve / Reject</a></center>
-                        </td>
-                        }
-                        <td><a href="/wallet/entries/@user.id">Wallet</a><br/>
-                            @if(user.isRideInProgress()){
-                                <a href="/users/clearCurrentRide/@user.id">Clear Current Ride</a><br/>
-                            }
-                        </td>
-                    </tr>
-                    }
-                    </tbody>
-                </table>
+                            <td ng-if="user.validProofsUploaded == false" >
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/reject.png")"
+                                    width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
+                                </center>
+                            </td>
+                            <td><a href="/wallet/entries/{{user.id}}">Wallet</a><br/>
+                                    <a ng-if="user.isRideInProgress" href="/users/clearCurrentRide/{{user.id}}">Clear Current Ride</a><br/>
+                            </td>
+                            <td><a href="/userSpecialPrice/{{user.id}}">SPrice</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 <script>
+var listViewApp = angular.module('myApp', []);
+listViewApp.controller("ProductController", function ($scope, $http) {
+    $scope.users = [];
+    $scope.editingData = {};
+    $scope.input = "";
+    $scope.mySearch = function() {
+        var url = "/usersListFilter?"+"input="+$scope.input;
+        var httpRequest = $http({
+        method : 'GET',
+        url : url,
+        }).success(function(data, status) {
+        console.log(data);
+        if(data!=null){
+        $scope.users = [];
+        $scope.users = data["result"];
+        }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+
+    $scope.mySearch();
+
+}); //end of angular Js
+
 </script>
 }

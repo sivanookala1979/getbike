@@ -469,6 +469,57 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("getbike".length() + 6, user.getPromoCode().length());
     }
 
+    @Test
+    public void loginOtpSearchTESTWithHappyFlow(){
+        User user = loggedInUser();
+        user.setPhoneNumber("7338855662");
+        user.save();
+        LoginOtp loginOtp = new LoginOtp();
+        loginOtp.setUserId(user.id);
+        loginOtp.setCreatedAt(new Date());
+        loginOtp.setGeneratedOtp("123456");
+        loginOtp.save();
+        Result result = route(fakeRequest(GET, "/loginOtpFilter?input=8855"));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals(loginOtp.getGeneratedOtp() , jsonNode.findPath("generatedOtp").asText());
+        assertEquals(user.getPhoneNumber() , jsonNode.findPath("phoneNumber").textValue());
+    }
+
+    @Test
+    public void usersListSearchTESTWithSearchName(){
+        User user = loggedInUser();
+        user.setName("Sudarsi");
+        user.setEmail("sivasri@gmail.com");
+        user.setPhoneNumber("9000900022");
+        user.save();
+        Result result = route(fakeRequest(GET , "/usersListFilter?input=Suda"));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals(user.getName() , jsonNode.findPath("name").textValue());
+        assertEquals(user.getPhoneNumber() ,jsonNode.findPath("phoneNumber").textValue());
+        assertEquals(user.getEmail() , jsonNode.findPath("email").textValue());
+    }
+
+    @Test
+    public void usersListSearchTESTWithSearchMobileNumber(){
+        User user = loggedInUser();
+        user.setName("Sudarsi");
+        user.setEmail("sivasri@gmail.com");
+        user.setPhoneNumber("9000900022");
+        user.save();
+        Result result = route(fakeRequest(GET , "/usersListFilter?input=9000"));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals(user.getName() , jsonNode.findPath("name").textValue());
+        assertEquals(user.getPhoneNumber() ,jsonNode.findPath("phoneNumber").textValue());
+        assertEquals(user.getEmail() , jsonNode.findPath("email").textValue());
+    }
+
+
+    @Test
+    public void userSpecialPriceTESTWithHappyFlow(){
+
+    }
+
+
     IGcmUtils gcmUtilsMock;
 
     //--------------------------------------------

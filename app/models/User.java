@@ -50,6 +50,8 @@ public class User extends Model {
     String bankName;
     String branchName;
     String promoCode;
+    boolean isSpecialPrice;
+    Double spePrice;
 
 
     public String getName() {
@@ -310,5 +312,21 @@ public class User extends Model {
 
     public String getDisplayName() {
         return StringUtils.isNotNullAndEmpty(name) ? name : phoneNumber;
+    }
+
+    public boolean isSpecialPrice() {
+        return isSpecialPrice;
+    }
+
+    public void setSpecialPrice(boolean specialPrice) {
+        isSpecialPrice = specialPrice;
+    }
+
+    public Double getSpePrice() {
+        return spePrice;
+    }
+
+    public void setSpePrice(Double spePrice) {
+        this.spePrice = spePrice;
     }
 }

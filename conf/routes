@@ -45,6 +45,10 @@ GET     /users/performSearch/:label             controllers.UserController.perfo
 GET     /loginOtp/performSearch                 controllers.UserController.performSearch1(label: String="")
 GET     /loginOtp/performSearch/                controllers.UserController.performSearch1(label: String="")
 GET     /loginOtp/performSearch/:label          controllers.UserController.performSearch1(label: String)
+GET     /loginOtpFilter                         controllers.UserController.loginOtpSearch
+GET     /usersListFilter                        controllers.UserController.usersListSearch
+GET     /userSpecialPrice/:id                   controllers.UserController.userSpecialPrice(id: Long)
+GET    /updateSpecialPrice                     controllers.UserController.updateUserDetailsWithSpecialPrice
 
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer
