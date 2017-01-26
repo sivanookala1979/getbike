@@ -2,6 +2,7 @@ package models;
 
 import com.avaje.ebean.Model;
 import dataobject.RideStatus;
+import utils.DateUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -49,6 +50,10 @@ public class Ride extends Model {
     boolean rideStarted = false;
     private transient String requestorName;
     private transient String riderName;
+    private transient String formatedRequestAt;
+    private transient String formatedAcceptedAt;
+    private transient String formatedRideStartedAt;
+    private transient String formatedRideEndedAt;
 
     public Long getId() {
         return id;
@@ -256,5 +261,37 @@ public class Ride extends Model {
 
     public void setRideStarted(boolean rideStarted) {
         this.rideStarted = rideStarted;
+    }
+
+    public String getFormatedRequestAt() {
+        return formatedRequestAt;
+    }
+
+    public void setFormatedRequestAt(Date milliseconds) {
+        this.formatedRequestAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    }
+
+    public String getFormatedAcceptedAt() {
+        return formatedAcceptedAt;
+    }
+
+    public void setFormatedAcceptedAt(Date milliseconds) {
+        this.formatedAcceptedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());;
+    }
+
+    public String getFormatedRideStartedAt() {
+        return formatedRideStartedAt;
+    }
+
+    public void setFormatedRideStartedAt(Date milliseconds) {
+        this.formatedRideStartedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());;
+    }
+
+    public String getFormatedRideEndedAt() {
+        return formatedRideEndedAt;
+    }
+
+    public void setFormatedRideEndedAt(Date milliseconds) {
+        this.formatedRideEndedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
     }
 }

@@ -662,7 +662,35 @@ public class RideController extends BaseController {
         obj.put("closed", noOfCompleted);
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "rideSummary", obj);
-        setResult(objectNode, listOfRides);
+        List<Ride> list = new ArrayList<>();
+        for(Ride ride : listOfRides){
+            if (ride.getRequestedAt() != null) {
+                ride.setFormatedRequestAt(ride.getRequestedAt());
+            }
+            if (ride.getAcceptedAt() != null){
+                ride.setFormatedAcceptedAt(ride.getAcceptedAt());
+            }
+            if (ride.getRideStartedAt() != null){
+                ride.setFormatedRideStartedAt(ride.getRideStartedAt());
+            }
+            if(ride.getRideEndedAt() != null){
+                ride.setFormatedRideEndedAt(ride.getRideEndedAt());
+            }
+            if(ride.getActualDestinationAddress() != null) {
+                ride.setActualDestinationAddress(ride.getActualDestinationAddress().replaceAll("," , " "));
+            }
+            if(ride.getDestinationAddress() != null) {
+                ride.setDestinationAddress(ride.getDestinationAddress().replaceAll("," , " "));
+            }
+            if(ride.getSourceAddress() != null) {
+                ride.setSourceAddress(ride.getSourceAddress().replaceAll("," , " "));
+            }
+            if(ride.getActualSourceAddress() != null) {
+                ride.setActualSourceAddress(ride.getActualSourceAddress().replaceAll("," , " "));
+            }
+            list.add(ride);
+        }
+        setResult(objectNode, list);
         return ok(Json.toJson(objectNode));
     }
 

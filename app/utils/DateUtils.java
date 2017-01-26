@@ -39,4 +39,10 @@ public class DateUtils {
     public static boolean isTimePassed(Date oldDate, Date newDate, int timeInSeconds) {
         return (newDate.getTime() - oldDate.getTime()) > timeInSeconds * 1000;
     }
+
+    public static String convertDateMilliSecondToString(long milliseconds) {
+        Date date = new Date(milliseconds);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
+        return sdf.format(date);
+    }
 }

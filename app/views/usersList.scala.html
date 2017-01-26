@@ -54,16 +54,12 @@ element.style {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('name')" style="width:180px;">Name
+                            <th ng-click="sort('name')" style="width:180px;">Profile Details
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='name'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('phoneNumber')">Phone Number
-                                <span class="glyphicon sort-icon" ng-show="sortKey=='phoneNumber'"
-                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                            </th>
-                            <th ng-click="sort('gender')">Gender
-                                <span class="glyphicon sort-icon" ng-show="sortKey=='gender'"
+                            <th ng-click="sort('promoCode')">Promo Code
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='promoCode'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
                             <th ng-click="sort('')" style="width:190px;">License Number
@@ -86,11 +82,10 @@ element.style {
                         </thead>
                         <tbody>
                         <tr ng-repeat="user in users | orderBy:sortKey:reverse">
-                            <td>{{user.id}}</td>
-                            <td>{{user.name}}</td>
-                            <td>{{user.phoneNumber}}</td>
-                            <td>{{user.gender}}</td>
-                            <td>{{user.getDrivingLicenseNumber()}}</td>
+                            <td align="center"><img ng-if="user.profileImage != null" ng-src="/{{user.profileImage}}" width="40"/><br>{{user.id}}</td>
+                            <td>{{user.name}} ({{user.gender}})<br>{{user.email}}<br>{{user.phoneNumber}}</td>
+                            <td>{{user.promoCode}}</td>
+                            <td>{{user.getDrivingLicenseNumber()}}<br/>{{user.getVehicleNumber()}}</td>
                             <td ng-if="user.validProofsUploaded == true">
                                 <center style="width: 180px;"><img src="@routes.Assets.versioned("images/accept.png")"
                                     width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
@@ -121,6 +116,10 @@ listViewApp.controller("ProductController", function ($scope, $http) {
     $scope.users = [];
     $scope.editingData = {};
     $scope.input = "";
+    $scope.sort = function(keyname){
+          $scope.sortKey = keyname;
+          $scope.reverse = !$scope.reverse;
+    };
     $scope.mySearch = function() {
         var url = "/usersListFilter?"+"input="+$scope.input;
         var httpRequest = $http({

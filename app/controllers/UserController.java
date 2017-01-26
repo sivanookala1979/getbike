@@ -420,10 +420,10 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         List<User> userList = null;
         if(srcName != null && !srcName.isEmpty()) {
-            userList = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findList();
+            userList = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).order("id").findList();
         }
         else{
-            userList = User.find.all();
+            userList = User.find.order("id").findList();
         }
         setResult(objectNode ,userList);
         return ok(Json.toJson(objectNode));
