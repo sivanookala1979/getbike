@@ -29,6 +29,7 @@ import static utils.CustomCollectionUtils.first;
  */
 public class UserController extends BaseController {
 
+    public static final double JOINING_BONUS = 1000.0;
     @Inject
     FormFactory formFactory;
 
@@ -46,6 +47,7 @@ public class UserController extends BaseController {
         int previousUserCount = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findRowCount();
         if (previousUserCount == 0) {
             user.save();
+            WalletController.processAddBonusPointsToWallet(user.getId(), JOINING_BONUS);
             return ok(Json.toJson(user));
         } else {
             User previousUser = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findUnique();

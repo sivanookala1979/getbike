@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
+import static controllers.UserController.JOINING_BONUS;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
@@ -106,7 +107,8 @@ public class UserControllerTest extends BaseControllerTest {
         user.setEmail("siva.nookala@gmail.com");
         user.setPhoneNumber("9949287789");
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
-        cAssertUser(user, result);
+        User actual = cAssertUser(user, result);
+        assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
     }
 
     @Test
@@ -117,7 +119,8 @@ public class UserControllerTest extends BaseControllerTest {
         user.setEmail("shravya@vave.co.in");
         user.setPhoneNumber("8282828282");
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
-        cAssertUser(user, result);
+        User actual = cAssertUser(user, result);
+        assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
     }
 
     @Test
@@ -127,11 +130,14 @@ public class UserControllerTest extends BaseControllerTest {
         user.setName("Shravya M");
         user.setEmail("shravya@vave.co.in");
         user.setPhoneNumber("8282828282");
-        route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        Result firstResult = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        JsonNode firstJsonNode = jsonFromResult(firstResult);
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         JsonNode jsonNode = jsonFromResult(result);
+        User actual = User.find.byId(firstJsonNode.get("id").asLong());
         assertEquals("failure", jsonNode.get("result").textValue());
         assertEquals(GetBikeErrorCodes.USER_ALREADY_EXISTS, jsonNode.get("errorCode").intValue());
+        assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
     }
 
     @Test
@@ -497,7 +503,7 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void loginOtpSearchTESTWithHappyFlow(){
+    public void loginOtpSearchTESTWithHappyFlow() {
         User user = loggedInUser();
         user.setPhoneNumber("7338855662");
         user.save();
@@ -508,41 +514,41 @@ public class UserControllerTest extends BaseControllerTest {
         loginOtp.save();
         Result result = route(fakeRequest(GET, "/loginOtpFilter?input=8855"));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals(loginOtp.getGeneratedOtp() , jsonNode.findPath("generatedOtp").asText());
-        assertEquals(user.getPhoneNumber() , jsonNode.findPath("phoneNumber").textValue());
+        assertEquals(loginOtp.getGeneratedOtp(), jsonNode.findPath("generatedOtp").asText());
+        assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());
     }
 
     @Test
-    public void usersListSearchTESTWithSearchName(){
+    public void usersListSearchTESTWithSearchName() {
         User user = loggedInUser();
         user.setName("Sudarsi");
         user.setEmail("sivasri@gmail.com");
         user.setPhoneNumber("9000900022");
         user.save();
-        Result result = route(fakeRequest(GET , "/usersListFilter?input=Suda"));
+        Result result = route(fakeRequest(GET, "/usersListFilter?input=Suda"));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals(user.getName() , jsonNode.findPath("name").textValue());
-        assertEquals(user.getPhoneNumber() ,jsonNode.findPath("phoneNumber").textValue());
-        assertEquals(user.getEmail() , jsonNode.findPath("email").textValue());
+        assertEquals(user.getName(), jsonNode.findPath("name").textValue());
+        assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());
+        assertEquals(user.getEmail(), jsonNode.findPath("email").textValue());
     }
 
     @Test
-    public void usersListSearchTESTWithSearchMobileNumber(){
+    public void usersListSearchTESTWithSearchMobileNumber() {
         User user = loggedInUser();
         user.setName("Sudarsi");
         user.setEmail("sivasri@gmail.com");
         user.setPhoneNumber("9000900022");
         user.save();
-        Result result = route(fakeRequest(GET , "/usersListFilter?input=9000"));
+        Result result = route(fakeRequest(GET, "/usersListFilter?input=9000"));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals(user.getName() , jsonNode.findPath("name").textValue());
-        assertEquals(user.getPhoneNumber() ,jsonNode.findPath("phoneNumber").textValue());
-        assertEquals(user.getEmail() , jsonNode.findPath("email").textValue());
+        assertEquals(user.getName(), jsonNode.findPath("name").textValue());
+        assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());
+        assertEquals(user.getEmail(), jsonNode.findPath("email").textValue());
     }
 
 
     @Test
-    public void userSpecialPriceTESTWithHappyFlow(){
+    public void userSpecialPriceTESTWithHappyFlow() {
 
     }
 
@@ -560,7 +566,7 @@ public class UserControllerTest extends BaseControllerTest {
         ApplicationContext.defaultContext().setGcmUtils(gcmUtilsMock);
     }
 
-    private void cAssertUser(User user, Result result) {
+    private User cAssertUser(User user, Result result) {
         JsonNode jsonNode = jsonFromResult(result);
         assertTrue(jsonNode.has("email"));
         assertEquals(user.getName(), jsonNode.get("name").textValue());
@@ -569,6 +575,7 @@ public class UserControllerTest extends BaseControllerTest {
         User actual = User.find.byId(jsonNode.get("id").asLong());
         assertNotNull(actual);
         assertEquals(user.getGender(), actual.getGender());
+        return actual;
     }
 
 }

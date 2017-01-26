@@ -190,16 +190,20 @@ public class WalletController extends BaseController {
         return redirect("/users/usersList");
     }
 
-    public Result addBonusPointsToWallet(Long id, int amount) {
+    public Result addBonusPointsToWallet(Long userId, int amount) {
         if (isValidateSession()) {
-            Wallet wallet = new Wallet();
-            wallet.setUserId(id);
-            wallet.setTransactionDateTime(new Date());
-            wallet.setAmount((double) amount);
-            wallet.setType("BonusPoints");
-            wallet.setDescription("Bonus Points from GetBike");
-            wallet.save();
+            processAddBonusPointsToWallet(userId, amount);
         }
-        return redirect("/wallet/entries/" + id);
+        return redirect("/wallet/entries/" + userId);
+    }
+
+    public static void processAddBonusPointsToWallet(Long userId, double amount) {
+        Wallet wallet = new Wallet();
+        wallet.setUserId(userId);
+        wallet.setTransactionDateTime(new Date());
+        wallet.setAmount(amount);
+        wallet.setType("BonusPoints");
+        wallet.setDescription("Bonus Points from GetBike");
+        wallet.save();
     }
 }

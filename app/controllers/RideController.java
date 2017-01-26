@@ -25,10 +25,10 @@ import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.*;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static controllers.UserController.JOINING_BONUS;
 import static controllers.WalletController.getWalletAmount;
 import static controllers.WalletController.hasPointsInWallet;
 import static dataobject.RideStatus.*;
@@ -168,7 +168,11 @@ public class RideController extends BaseController {
                         if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
                             requestor.setEmail(locationsJson.get("email").textValue());
                         }
+                        if (locationsJson.has("gender") && StringUtils.isNotNullAndEmpty(locationsJson.get("gender").textValue())) {
+                            requestor.setGender(locationsJson.get("gender").textValue().charAt(0));
+                        }
                         requestor.save();
+                        WalletController.processAddBonusPointsToWallet(requestor.getId(), JOINING_BONUS);
                     }
                     ride.setRequestorId(requestor.getId());
                     ride.setRideStatus(RideAccepted);

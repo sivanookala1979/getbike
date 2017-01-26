@@ -20,6 +20,7 @@ import utils.*;
 
 import java.util.*;
 
+import static controllers.UserController.JOINING_BONUS;
 import static dataobject.RideStatus.*;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
@@ -117,6 +118,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
         requestObjectNode.set("name", Json.toJson("Subbarao Vellanki"));
         requestObjectNode.set("email", Json.toJson("subbarao.vellanki@gmail.com"));
+        requestObjectNode.set("gender", Json.toJson('M'));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -127,6 +129,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(true, requestor.isRequestInProgress());
         assertEquals("Subbarao Vellanki", requestor.getName());
         assertEquals("subbarao.vellanki@gmail.com", requestor.getEmail());
+        assertEquals('M', requestor.getGender());
         assertEquals(user.getId(), ride.getRiderId());
         assertEquals(requestor.getId(), ride.getRequestorId());
         assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
@@ -139,6 +142,7 @@ public class RideControllerTest extends BaseControllerTest {
         User actual = User.find.byId(user.getId());
         assertTrue(actual.isRideInProgress());
         assertEquals(ride.getId(), actual.getCurrentRideId());
+        assertEquals(JOINING_BONUS, WalletController.getWalletAmount(requestor));
     }
 
     @Test
