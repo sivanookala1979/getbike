@@ -58,10 +58,7 @@ public class RideController extends BaseController {
             Double startLongitude = locationsJson.get(Ride.LONGITUDE).doubleValue();
             Ride ride = null;
             if (user.isRequestInProgress()) {
-                Ride previousRide = Ride.find.byId(user.getCurrentRequestRideId());
-                if (previousRide != null && isTimePassed(previousRide.getRequestedAt(), new Date(), 15 * 60)) {
-                    processCancelRide(result, user, previousRide);
-                }
+                Ride previousRide = cancelIfExpired(user, result);
                 if (RideRequested.equals(previousRide.getRideStatus()) || RideAccepted.equals(previousRide.getRideStatus())) {
                     ride = previousRide;
                 }
@@ -87,6 +84,14 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public Ride cancelIfExpired(User user, String result) {
+        Ride previousRide = Ride.find.byId(user.getCurrentRequestRideId());
+        if (previousRide != null && isTimePassed(previousRide.getRequestedAt(), new Date(), 15 * 60)) {
+            processCancelRide(result, user, previousRide);
+        }
+        return previousRide;
     }
 
     public Result acceptRide() {
@@ -345,7 +350,7 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    private String processCancelRide(String result, User requestor, Ride ride) {
+    public String processCancelRide(String result, User requestor, Ride ride) {
         if (ride != null && ride.getRequestorId().equals(requestor.getId())) {
             boolean rideRequested = RideRequested.equals(ride.getRideStatus());
             boolean rideNotStarted = (RideAccepted.equals(ride.getRideStatus()) && !ride.isRideStarted());
@@ -663,30 +668,30 @@ public class RideController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         setJson(objectNode, "rideSummary", obj);
         List<Ride> list = new ArrayList<>();
-        for(Ride ride : listOfRides){
+        for (Ride ride : listOfRides) {
             if (ride.getRequestedAt() != null) {
                 ride.setFormatedRequestAt(ride.getRequestedAt());
             }
-            if (ride.getAcceptedAt() != null){
+            if (ride.getAcceptedAt() != null) {
                 ride.setFormatedAcceptedAt(ride.getAcceptedAt());
             }
-            if (ride.getRideStartedAt() != null){
+            if (ride.getRideStartedAt() != null) {
                 ride.setFormatedRideStartedAt(ride.getRideStartedAt());
             }
-            if(ride.getRideEndedAt() != null){
+            if (ride.getRideEndedAt() != null) {
                 ride.setFormatedRideEndedAt(ride.getRideEndedAt());
             }
-            if(ride.getActualDestinationAddress() != null) {
-                ride.setActualDestinationAddress(ride.getActualDestinationAddress().replaceAll("," , " "));
+            if (ride.getActualDestinationAddress() != null) {
+                ride.setActualDestinationAddress(ride.getActualDestinationAddress().replaceAll(",", " "));
             }
-            if(ride.getDestinationAddress() != null) {
-                ride.setDestinationAddress(ride.getDestinationAddress().replaceAll("," , " "));
+            if (ride.getDestinationAddress() != null) {
+                ride.setDestinationAddress(ride.getDestinationAddress().replaceAll(",", " "));
             }
-            if(ride.getSourceAddress() != null) {
-                ride.setSourceAddress(ride.getSourceAddress().replaceAll("," , " "));
+            if (ride.getSourceAddress() != null) {
+                ride.setSourceAddress(ride.getSourceAddress().replaceAll(",", " "));
             }
-            if(ride.getActualSourceAddress() != null) {
-                ride.setActualSourceAddress(ride.getActualSourceAddress().replaceAll("," , " "));
+            if (ride.getActualSourceAddress() != null) {
+                ride.setActualSourceAddress(ride.getActualSourceAddress().replaceAll(",", " "));
             }
             list.add(ride);
         }

@@ -33,7 +33,7 @@ public class UserController extends BaseController {
     @Inject
     FormFactory formFactory;
 
-    public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"", "", "#", "User Id", "Mobile Number", "OTP", "Created At"}, new String[]{"", "", "id", "userId", "phoneNumber","generatedOtp", "createdAt"});
+    public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"", "", "#", "User Id", "Mobile Number", "OTP", "Created At"}, new String[]{"", "", "id", "userId", "phoneNumber", "generatedOtp", "createdAt"});
 
     public Result index() {
         return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
@@ -210,8 +210,11 @@ public class UserController extends BaseController {
                 result = SUCCESS;
             }
             if (user.isRequestInProgress() && user.getCurrentRequestRideId() != null && user.getCurrentRequestRideId() > 0) {
-                objectNode.set("requestId", Json.toJson(user.getCurrentRequestRideId()));
-                result = SUCCESS;
+                new RideController().cancelIfExpired(user, "SUCCESS");
+                if (user.isRequestInProgress()) {
+                    objectNode.set("requestId", Json.toJson(user.getCurrentRequestRideId()));
+                    result = SUCCESS;
+                }
             }
         }
         setResult(objectNode, result);
@@ -349,7 +352,7 @@ public class UserController extends BaseController {
         User user = User.find.where().eq("id", id).findUnique();
         String drivingLicenseImageName = user.getDrivingLicenseImageName();
         String vehiclePlateImageName = user.getVehiclePlateImageName();
-        Logger.info("Driver lience "+drivingLicenseImageName+"      "+vehiclePlateImageName);
+        Logger.info("Driver lience " + drivingLicenseImageName + "      " + vehiclePlateImageName);
         if (drivingLicenseImageName == null || vehiclePlateImageName == null) {
             flash("error", "No images are upload");
             return redirect("/users/usersList");
@@ -369,7 +372,7 @@ public class UserController extends BaseController {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "License Number", "Validate Uploaded Profile", "Wallet" ,"Special Price");
+        List<String> headers = Arrays.asList("#", "Name", "Phone Number", "Gender", "License Number", "Validate Uploaded Profile", "Wallet", "Special Price");
         List<User> allUsers = User.find.all();
         return ok(views.html.usersList.render(headers, allUsers));
     }
@@ -395,37 +398,36 @@ public class UserController extends BaseController {
         return ok(Json.toJson(userList));
     }
 
-    public Result loginOtpSearch(){
+    public Result loginOtpSearch() {
         String mobileNumber = request().getQueryString("input");
-        Logger.debug("HI this is mobileNumber   "+mobileNumber);
+        Logger.debug("HI this is mobileNumber   " + mobileNumber);
         ObjectNode objectNode = Json.newObject();
         List<LoginOtp> userList = LoginOtp.find.all();
-        if (mobileNumber != null && !mobileNumber.isEmpty() && Character.isDigit(mobileNumber.charAt(0))){
+        if (mobileNumber != null && !mobileNumber.isEmpty() && Character.isDigit(mobileNumber.charAt(0))) {
             List<LoginOtp> loginOtps = new ArrayList<>();
-           userList = LoginOtp.find.all();
-           for (LoginOtp loginOtp :userList){
-               if(loginOtp.getPhoneNumber().contains(mobileNumber)) {
-                   loginOtps.add(loginOtp);
-               }
-           }
-           userList.clear();
-           userList.addAll(loginOtps);
+            userList = LoginOtp.find.all();
+            for (LoginOtp loginOtp : userList) {
+                if (loginOtp.getPhoneNumber().contains(mobileNumber)) {
+                    loginOtps.add(loginOtp);
+                }
+            }
+            userList.clear();
+            userList.addAll(loginOtps);
         }
         setResult(objectNode, userList);
         return ok(Json.toJson(objectNode));
     }
 
-    public Result usersListSearch(){
+    public Result usersListSearch() {
         String srcName = request().getQueryString("input");
         ObjectNode objectNode = Json.newObject();
         List<User> userList = null;
-        if(srcName != null && !srcName.isEmpty()) {
+        if (srcName != null && !srcName.isEmpty()) {
             userList = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).order("id").findList();
-        }
-        else{
+        } else {
             userList = User.find.order("id").findList();
         }
-        setResult(objectNode ,userList);
+        setResult(objectNode, userList);
         return ok(Json.toJson(objectNode));
     }
 
@@ -434,12 +436,12 @@ public class UserController extends BaseController {
         return ok(Json.toJson(loginOtpList));
     }
 
-    public Result userSpecialPrice(Long id){
+    public Result userSpecialPrice(Long id) {
         User user = User.find.byId(id);
         return ok(views.html.specialprice.render(user));
     }
 
-    public Result updateUserDetailsWithSpecialPrice(){
+    public Result updateUserDetailsWithSpecialPrice() {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
         String name = requestData.get("name");

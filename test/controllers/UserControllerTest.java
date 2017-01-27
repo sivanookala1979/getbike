@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.RideStatus;
 import models.LoginOtp;
 import models.Ride;
 import models.RideLocation;
@@ -27,6 +28,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static play.test.Helpers.*;
+import static utils.DateUtils.minutesOld;
 
 
 public class UserControllerTest extends BaseControllerTest {
@@ -399,6 +401,25 @@ public class UserControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
         assertEquals(user.getCurrentRequestRideId().longValue(), jsonNode.get("requestId").longValue());
+    }
+
+    @Test
+    public void getCurrentRideTESTWithRequestExpired() {
+        User user = loggedInUser();
+        Ride ride = new Ride();
+        ride.setRideStatus(RideStatus.RideRequested);
+        ride.setRequestedAt(minutesOld(16));
+        ride.setRequestorId(user.getId());
+        ride.save();
+        user.setRequestInProgress(true);
+        user.setCurrentRequestRideId(ride.getId());
+        user.save();
+        Result result = route(fakeRequest(GET, "/getCurrentRide").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+        user.refresh();
+        assertFalse(user.isRequestInProgress());
+        assertNull(user.getCurrentRequestRideId());
     }
 
     @Test
