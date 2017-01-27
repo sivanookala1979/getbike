@@ -34,8 +34,11 @@ th {
         <div class="@colClass text-center" style="">
             <div data-ng-app="myApp" data-ng-controller="ProductController">
                 <div class="row">
-                    <div class="col-sm-6 text-left" style="padding-bottom:10px;">
-                        <input data-ng-model="input" placeholder="Search" data-ng-change="mySearch(input)" style="margin-top: 15px; border-radius: 10px;">
+                    <div class="col-sm-2 text-left" style="padding-bottom:10px;">
+                        <input data-ng-model="input" placeholder="Search Mobile Number" style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
+                    </div>
+                    <div class="col-sm-2 text-left" style="width: 200px; margin-left:20px; margin-top: 15px; border-radius: 10px;">
+                        <input type="button" class="btn btn-primary" value="Search" ng-click="mySearch()"/>
                     </div>
                     @if(isRequired.equalsIgnoreCase("Yes")){
                         <div class="col-sm-6 text-right" style="padding-top:10px;">

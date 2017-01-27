@@ -6,39 +6,54 @@
     th {
         text-align: center;
     }
-</style>
+    .gallery-items{
+        float: center;
+        height: 250px;
+    }
 
+
+</style>
+<head>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/imageviewer.css")">
+
+    <script src="@routes.Assets.versioned("javascripts/jquery-1.11.3.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/imageviewer.js")" type="text/javascript"></script>
+</head>
 <div class="container">
     <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
-        <div class="col-sm-3"></div>
-        <div id="images-box">
-            <div class="holder">
-                <div id="image-1" class="image-lightbox">
-                    <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
-                        <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
-                        <img src="/@drivingLicense" height="300" width="300"/>
-                    </div>
-                </div>
+            <div class="col-sm-2"></div>
+        <div id="image-gallery-1" class="cf">
+            <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
+                <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
+                <img src="/@drivingLicense" data-high-res-src="/@drivingLicense" alt="" class="gallery-items">
             </div>
-            <a class="expand" href="#image-1"></a>
-        </div>
-            <div style="float:left;margin-right:5px; border: 1px solid lightblue">
-            <font color="green"><B><p style="text-align:center;">Vehicle Plate</p></B></font>
-            <img src="/@vehiclePlate" height="300" width="300"/>
+            <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
+                <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
+                <img src="/@vehiclePlate" data-high-res-src="/@vehiclePlate" alt="" class="gallery-items">
+            </div>
         </div>
     </div>
-    <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
-        <button type="button" onclick="window.location.href='/users/usersList'" id="cancelButton"
-                style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-            Cancel
-        </button>
-        &nbsp;&nbsp;&nbsp;
-        <button type="button" onclick="window.location.href='/user/approve/@id/@isApprove'" id="approveButton"
-                style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-            @userApprove
-        </button>
+        <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
+            <button type="button" onclick="window.location.href='/users/usersList'" id="cancelButton"
+                    style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                Cancel
+            </button>
+            <button type="button" onclick="window.location.href='/user/approve/@id/@isApprove'" id="approveButton"
+                    style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                @userApprove
+            </button>
+        </div>
     </div>
 </div>
-</div>
-</div>
+<script>
+    $(function () {
+    var viewer = ImageViewer();
+    $('.gallery-items').click(function () {
+        var imgSrc = this.src,
+            highResolutionImage = $(this).data('high-res-img');
+
+            viewer.show(imgSrc, highResolutionImage);
+        });
+    });
+</script>
 }

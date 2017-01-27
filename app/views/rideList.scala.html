@@ -54,7 +54,7 @@ th {
                         <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
                     </div>
                     <div class="col-sm-1 text-left">
-                        <button ng-json-export-excel data="products" report-fields="{id: 'Trip Id', requestorName: 'Requestor Name', riderName: 'Rider Name',rideStatus: 'Ride Status',orderDistance: 'Order Distance',formatedRequestAt: 'Requested  At',formatedAcceptedAt: 'Accepted  At', formatedRideStartedAt: 'Ride Started At',formatedRideEndedAt: 'Ride Ended At',startLatitude: 'Start Latitude',startLongitude: 'Start Longitude',sourceAddress: 'Source Address',destinationAddress: 'Destination Address',actualSourceAddress: 'Actual Source Address',actualDestinationAddress: 'Actual Destination Address',totalBill: 'TotalBill' }" filename="'RidesData'" class="btn-sm btn-primary">Export</button>
+                        <button ng-json-export-excel data="products" report-fields="{id: 'Trip Id', requestorName: 'Requestor Name', riderName: 'Rider Name',rideStatus: 'Ride Status',orderDistance: 'Order Distance',formatedRequestAt: 'Requested  At',formatedAcceptedAt: 'Accepted  At', formatedRideStartedAt: 'Ride Started At',formatedRideEndedAt: 'Ride Ended At',startLatitude: 'Start Latitude',startLongitude: 'Start Longitude',sourceAddress: 'Source Address',destinationAddress: 'Destination Address',actualSourceAddress: 'Actual Source Address',actualDestinationAddress: 'Actual Destination Address',totalBill: 'TotalBill' }" filename="'RidesData'" class="btn btn-primary">Export</button>
                     </div>
 
                     @if(isRequired.equalsIgnoreCase("Yes")){
