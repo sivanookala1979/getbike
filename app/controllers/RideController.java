@@ -290,24 +290,26 @@ public class RideController extends BaseController {
     }
 
     private void processFreeRide(Ride ride, User requestor, User rider) {
-        if (zeroIfNull(requestor.getFreeRidesEarned()) > zeroIfNull(requestor.getFreeRidesSpent()) && StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode())) {
-            User referrer = User.find.where().eq("promoCode", requestor.getSignupPromoCode()).findUnique();
-            if (referrer != null) {
-                referrer.setFreeRidesEarned(increment(referrer.getFreeRidesEarned()));
-                referrer.save();
-                requestor.setFreeRidesSpent(increment(referrer.getFreeRidesSpent()));
-                requestor.save();
-                ride.setFreeRide(true);
-                double riderBonus = Math.min(FREE_RIDE_MAX_DISCOUNT, ride.getTotalBill());
-                ride.setFreeRideDiscount(riderBonus);
-                ride.save();
-                Wallet wallet = new Wallet();
-                wallet.setUserId(rider.getId());
-                wallet.setAmount(WalletController.convertToWalletAmount(riderBonus));
-                wallet.setTransactionDateTime(new Date());
-                wallet.setDescription("Free Ride Given with Trip ID : " + ride.getId() + " for Rs. " + riderBonus);
-                wallet.setType("FreeRide");
-                wallet.save();
+        if (zeroIfNull(requestor.getFreeRidesEarned()) > zeroIfNull(requestor.getFreeRidesSpent())) {
+            requestor.setFreeRidesSpent(increment(requestor.getFreeRidesSpent()));
+            requestor.save();
+            ride.setFreeRide(true);
+            double riderBonus = Math.min(FREE_RIDE_MAX_DISCOUNT, ride.getTotalBill());
+            ride.setFreeRideDiscount(riderBonus);
+            ride.save();
+            Wallet wallet = new Wallet();
+            wallet.setUserId(rider.getId());
+            wallet.setAmount(WalletController.convertToWalletAmount(riderBonus));
+            wallet.setTransactionDateTime(new Date());
+            wallet.setDescription("Free Ride Given with Trip ID : " + ride.getId() + " for Rs. " + riderBonus);
+            wallet.setType("FreeRide");
+            wallet.save();
+            if (StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode())) {
+                User referrer = User.find.where().eq("promoCode", requestor.getSignupPromoCode()).findUnique();
+                if (referrer != null) {
+                    referrer.setFreeRidesEarned(increment(referrer.getFreeRidesEarned()));
+                    referrer.save();
+                }
             }
         }
     }
