@@ -111,6 +111,24 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         User actual = cAssertUser(user, result);
         assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
+        assertEquals(0, actual.getFreeRidesEarned().intValue());
+    }
+
+    @Test
+    public void signupTESTWithValidReferralCode() {
+        User referrer = loggedInUser();
+        referrer.setPromoCode("siva32145");
+        referrer.save();
+        User user = new User();
+        user.setGender('M');
+        user.setName("Siva Nookala");
+        user.setEmail("siva.nookala@gmail.com");
+        user.setPhoneNumber("9949287789");
+        user.setSignupPromoCode(referrer.getPromoCode());
+        Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        User actual = cAssertUser(user, result);
+        assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
+        assertEquals(1, actual.getFreeRidesEarned().intValue());
     }
 
     @Test
@@ -123,6 +141,7 @@ public class UserControllerTest extends BaseControllerTest {
         Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
         User actual = cAssertUser(user, result);
         assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
+        assertEquals(0, actual.getFreeRidesEarned().intValue());
     }
 
     @Test

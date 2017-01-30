@@ -54,6 +54,9 @@ public class User extends Model {
     String promoCode;
     boolean isSpecialPrice;
     Double spePrice;
+    String signupPromoCode;
+    Integer freeRidesEarned;
+    Integer freeRidesSpent;
 
 
     public String getName() {
@@ -346,5 +349,29 @@ public class User extends Model {
 
     public void setSpePrice(Double spePrice) {
         this.spePrice = spePrice;
+    }
+
+    public String getSignupPromoCode() {
+        return signupPromoCode;
+    }
+
+    public void setSignupPromoCode(String signupPromoCode) {
+        this.signupPromoCode = signupPromoCode;
+    }
+
+    public Integer getFreeRidesEarned() {
+        return freeRidesEarned;
+    }
+
+    public void setFreeRidesEarned(Integer freeRidesEarned) {
+        this.freeRidesEarned = freeRidesEarned;
+    }
+
+    public Integer getFreeRidesSpent() {
+        return freeRidesSpent;
+    }
+
+    public void setFreeRidesSpent(Integer freeRidesSpent) {
+        this.freeRidesSpent = freeRidesSpent;
     }
 }

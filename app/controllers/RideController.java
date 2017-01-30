@@ -36,6 +36,8 @@ import static utils.DateUtils.isTimePassed;
 import static utils.DateUtils.minutesOld;
 import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.*;
+import static utils.NumericUtils.increment;
+import static utils.NumericUtils.zeroIfNull;
 
 /**
  * Created by sivanookala on 21/10/16.
@@ -43,6 +45,7 @@ import static utils.GetBikeErrorCodes.*;
 public class RideController extends BaseController {
     final static double MAX_DISTANCE_IN_KILOMETERS = 10.0;
     public static final double MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE = 200.0;
+    public static final double FREE_RIDE_MAX_DISCOUNT = 50.0;
 
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId", "requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
@@ -275,6 +278,7 @@ public class RideController extends BaseController {
                 cleanRider(user);
                 cleanRequestor(requestor);
                 addRideWalletEntry(user, ride);
+                processFreeRide(ride, requestor, user);
                 IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                 gcmUtils.sendMessage(requestor, "Your ride is now closed.", "rideClosed", ride.getId());
                 objectNode.set("ride", Json.toJson(ride));
@@ -283,6 +287,29 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    private void processFreeRide(Ride ride, User requestor, User rider) {
+        if (zeroIfNull(requestor.getFreeRidesEarned()) > zeroIfNull(requestor.getFreeRidesSpent()) && StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode())) {
+            User referrer = User.find.where().eq("promoCode", requestor.getSignupPromoCode()).findUnique();
+            if (referrer != null) {
+                referrer.setFreeRidesEarned(increment(referrer.getFreeRidesEarned()));
+                referrer.save();
+                requestor.setFreeRidesSpent(increment(referrer.getFreeRidesSpent()));
+                requestor.save();
+                ride.setFreeRide(true);
+                double riderBonus = Math.min(FREE_RIDE_MAX_DISCOUNT, ride.getTotalBill());
+                ride.setFreeRideDiscount(riderBonus);
+                ride.save();
+                Wallet wallet = new Wallet();
+                wallet.setUserId(rider.getId());
+                wallet.setAmount(WalletController.convertToWalletAmount(riderBonus));
+                wallet.setTransactionDateTime(new Date());
+                wallet.setDescription("Free Ride Given with Trip ID : " + ride.getId() + " for Rs. " + riderBonus);
+                wallet.setType("FreeRide");
+                wallet.save();
+            }
+        }
     }
 
     private void cleanRequestor(User requestor) {

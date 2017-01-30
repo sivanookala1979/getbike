@@ -46,8 +46,16 @@ public class UserController extends BaseController {
         User user = Json.fromJson(userJson, User.class);
         int previousUserCount = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findRowCount();
         if (previousUserCount == 0) {
+            user.setFreeRidesEarned(0);
             user.save();
             WalletController.processAddBonusPointsToWallet(user.getId(), JOINING_BONUS);
+            if (StringUtils.isNotNullAndEmpty(user.getSignupPromoCode())) {
+                User referrer = User.find.where().eq("promoCode", user.getSignupPromoCode()).findUnique();
+                if (referrer != null) {
+                    user.setFreeRidesEarned(1);
+                    user.save();
+                }
+            }
             return ok(Json.toJson(user));
         } else {
             User previousUser = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findUnique();

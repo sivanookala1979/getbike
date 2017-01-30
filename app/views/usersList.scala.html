@@ -29,6 +29,7 @@ element.style {
 }
 
 
+
 </style>
 <div class="container" id="list-view-app-id">
     @if(flash.containsKey("error")) {
@@ -41,9 +42,11 @@ element.style {
     <div class="row">
         <div data-ng-app="myApp" data-ng-controller="ProductController">
             <div class="col-sm-2 text-left" style="padding-bottom:10px;">
-                <input data-ng-model="input" placeholder="Search by Name / Mobile" style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
+                <input data-ng-model="input" placeholder="Search by Name / Mobile"
+                       style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
             </div>
-            <div class="col-sm-2 text-left" style="width: 200px; margin-left:20px; margin-top: 15px; border-radius: 10px;">
+            <div class="col-sm-2 text-left"
+                 style="width: 200px; margin-left:20px; margin-top: 15px; border-radius: 10px;">
                 <input type="button" class="btn btn-primary" value="Search" ng-click="mySearch()"/>
             </div>
             <div class="col-sm-12">
@@ -84,23 +87,28 @@ element.style {
                         </thead>
                         <tbody>
                         <tr ng-repeat="user in users | orderBy:sortKey:reverse">
-                            <td align="center"><img ng-if="user.profileImage != null" ng-src="/{{user.profileImage}}" width="40"/><br>{{user.id}}</td>
+                            <td align="center"><img ng-if="user.profileImage != null" ng-src="/{{user.profileImage}}"
+                                                    width="40"/><br>{{user.id}}
+                            </td>
                             <td>{{user.name}} ({{user.gender}})<br>{{user.email}}<br>{{user.phoneNumber}}</td>
-                            <td>{{user.promoCode}}</td>
+                            <td>{{user.promoCode}}<br/>{{user.signupPromoCode}}<br/>Earned : {{user.freeRidesEarned}}
+                                Spent : {{user.freeRidesSpent}}
+                            </td>
                             <td>{{user.getDrivingLicenseNumber()}}<br/>{{user.getVehicleNumber()}}</td>
                             <td ng-if="user.validProofsUploaded == true">
-                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/accept.png")"
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned(" images/accept.png")"
                                     width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
                                 </center>
                             </td>
 
-                            <td ng-if="user.validProofsUploaded == false" >
-                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/reject.png")"
+                            <td ng-if="user.validProofsUploaded == false">
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned(" images/reject.png")"
                                     width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
                                 </center>
                             </td>
                             <td><a href="/wallet/entries/{{user.id}}">Wallet</a><br/>
-                                    <a ng-if="user.isRideInProgress" href="/users/clearCurrentRide/{{user.id}}">Clear Current Ride</a><br/>
+                                <a ng-if="user.isRideInProgress" href="/users/clearCurrentRide/{{user.id}}">Clear
+                                    Current Ride</a><br/>
                             </td>
                             <td><a href="/userSpecialPrice/{{user.id}}">SPrice</a>
                             </td>
@@ -141,6 +149,7 @@ listViewApp.controller("ProductController", function ($scope, $http) {
     $scope.mySearch();
 
 }); //end of angular Js
+
 
 </script>
 }

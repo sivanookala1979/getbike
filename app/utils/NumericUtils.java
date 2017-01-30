@@ -18,6 +18,10 @@ public class NumericUtils {
         return value != null && value > 0;
     }
 
+    public static int increment(Integer value) {
+        return 1 + (value == null ? 0 : value);
+    }
+
     public static double inverse(double value) {
         return 1.0 / value;
     }

@@ -48,6 +48,8 @@ public class Ride extends Model {
     String actualSourceAddress;
     String actualDestinationAddress;
     boolean rideStarted = false;
+    boolean freeRide = false;
+    Double freeRideDiscount;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -276,7 +278,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedAcceptedAt(Date milliseconds) {
-        this.formatedAcceptedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());;
+        this.formatedAcceptedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
     }
 
     public String getFormatedRideStartedAt() {
@@ -284,7 +286,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedRideStartedAt(Date milliseconds) {
-        this.formatedRideStartedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());;
+        this.formatedRideStartedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
     }
 
     public String getFormatedRideEndedAt() {
@@ -293,5 +295,21 @@ public class Ride extends Model {
 
     public void setFormatedRideEndedAt(Date milliseconds) {
         this.formatedRideEndedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    }
+
+    public boolean isFreeRide() {
+        return freeRide;
+    }
+
+    public void setFreeRide(boolean freeRide) {
+        this.freeRide = freeRide;
+    }
+
+    public Double getFreeRideDiscount() {
+        return freeRideDiscount;
+    }
+
+    public void setFreeRideDiscount(Double freeRideDiscount) {
+        this.freeRideDiscount = freeRideDiscount;
     }
 }
