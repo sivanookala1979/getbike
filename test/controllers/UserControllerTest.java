@@ -411,6 +411,20 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getCurrentRideTESTWithAppVersion() {
+        User user = loggedInUser();
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        Result result = route(fakeRequest(GET, "/getCurrentRide?version=1.8~13~2211").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(user.getCurrentRideId().longValue(), jsonNode.get("rideId").longValue());
+        user.refresh();
+        assertEquals("1.8~13~2211", user.getAppVersion());
+    }
+
+    @Test
     public void getCurrentRideTESTWithOnlyRequest() {
         User user = loggedInUser();
         user.setRequestInProgress(true);

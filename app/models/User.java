@@ -57,6 +57,7 @@ public class User extends Model {
     String signupPromoCode;
     Integer freeRidesEarned;
     Integer freeRidesSpent;
+    String appVersion;
 
 
     public String getName() {
@@ -373,5 +374,13 @@ public class User extends Model {
 
     public void setFreeRidesSpent(Integer freeRidesSpent) {
         this.freeRidesSpent = freeRidesSpent;
+    }
+
+    public String getAppVersion() {
+        return appVersion;
+    }
+
+    public void setAppVersion(String appVersion) {
+        this.appVersion = appVersion;
     }
 }

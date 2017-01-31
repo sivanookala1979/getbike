@@ -92,17 +92,17 @@ element.style {
                             </td>
                             <td>{{user.name}} ({{user.gender}})<br>{{user.email}}<br>{{user.phoneNumber}}</td>
                             <td>{{user.promoCode}}<br/>{{user.signupPromoCode}}<br/>Earned : {{user.freeRidesEarned}}
-                                Spent : {{user.freeRidesSpent}}
+                                Spent : {{user.freeRidesSpent}}<br/>{{user.appVersion}}
                             </td>
                             <td>{{user.getDrivingLicenseNumber()}}<br/>{{user.getVehicleNumber()}}</td>
                             <td ng-if="user.validProofsUploaded == true">
-                                <center style="width: 180px;"><img src="@routes.Assets.versioned(" images/accept.png")"
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/accept.png")"
                                     width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
                                 </center>
                             </td>
 
                             <td ng-if="user.validProofsUploaded == false">
-                                <center style="width: 180px;"><img src="@routes.Assets.versioned(" images/reject.png")"
+                                <center style="width: 180px;"><img src="@routes.Assets.versioned("images/reject.png")"
                                     width="15" height="15"><a href="/user/accept/{{user.id}}">&nbsp;Proofs</a>
                                 </center>
                             </td>

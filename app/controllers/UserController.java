@@ -224,6 +224,11 @@ public class UserController extends BaseController {
                     result = SUCCESS;
                 }
             }
+            String appVersion = getString("version");
+            if (StringUtils.isNotNullAndEmpty(appVersion)) {
+                user.setAppVersion(appVersion);
+                user.save();
+            }
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
