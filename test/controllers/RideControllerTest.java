@@ -649,6 +649,51 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void closeRideTESTMoreThanOneFreeRideEarned() {
+        User referrer = new User();
+        referrer.setPromoCode("siva625255");
+        referrer.setFreeRidesEarned(0);
+        referrer.save();
+        User user = loggedInUser();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.save();
+        User otherUser = otherUser();
+        otherUser.setSignupPromoCode(referrer.getPromoCode());
+        otherUser.setFreeRidesEarned(2);
+        otherUser.setFreeRidesSpent(0);
+        otherUser.save();
+        double walletAmountBefore = WalletController.getWalletAmount(user);
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(otherUser, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        List<RideLocation> rideLocations = new ArrayList<>();
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1], i);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        route(fakeRequest(GET, "/closeRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        referrer.refresh();
+        otherUser.refresh();
+        ride.refresh();
+        assertTrue(ride.isFreeRide());
+        assertEquals(FREE_RIDE_MAX_DISCOUNT, ride.getFreeRideDiscount());
+        double walletAmountAfter = WalletController.getWalletAmount(user);
+        assertEquals(1, otherUser.getFreeRidesSpent().intValue());
+        assertEquals(0, referrer.getFreeRidesEarned().intValue());
+        assertEquals(walletAmountBefore - ride.getTotalBill() + (FREE_RIDE_MAX_DISCOUNT * 10.0), walletAmountAfter);
+    }
+
+    @Test
     public void closeRideTESTWithReferralCodeAndInvoiceAmountLessThanFreeDiscount() {
         User referrer = new User();
         referrer.setPromoCode("siva625255");

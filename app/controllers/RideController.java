@@ -304,7 +304,7 @@ public class RideController extends BaseController {
             wallet.setDescription("Free Ride Given with Trip ID : " + ride.getId() + " for Rs. " + riderBonus);
             wallet.setType("FreeRide");
             wallet.save();
-            if (StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode())) {
+            if (StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode()) && zeroIfNull(requestor.getFreeRidesEarned()) == 1) {
                 User referrer = User.find.where().eq("promoCode", requestor.getSignupPromoCode()).findUnique();
                 if (referrer != null) {
                     referrer.setFreeRidesEarned(increment(referrer.getFreeRidesEarned()));
