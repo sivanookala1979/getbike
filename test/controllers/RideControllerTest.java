@@ -205,6 +205,46 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void hailCustomerTESTWithNoWalletBalance() {
+        User user = loggedInUser();
+        user.setRideInProgress(true);
+        user.setCurrentRideId(24l);
+        user.save();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode hailCustomerJsonNode = jsonFromResult(result);
+        assertEquals(GetBikeErrorCodes.INSUFFICIENT_WALLET_AMOUNT, hailCustomerJsonNode.get("errorCode").intValue());
+        assertEquals("failure", hailCustomerJsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void hailCustomerTESTWithProofsNotUploaded() {
+        User user = loggedInUser();
+        user.setValidProofsUploaded(false);
+        user.save();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode hailCustomerJsonNode = jsonFromResult(result);
+        assertEquals(GetBikeErrorCodes.RIDE_VALID_PROOFS_UPLOAD, hailCustomerJsonNode.get("errorCode").intValue());
+        assertEquals("failure", hailCustomerJsonNode.get("result").textValue());
+    }
+
+    @Test
     public void getBikeTESTWithAccessToken() {
         User user = loggedInUser();
         double startLatitude = 23.4567;
