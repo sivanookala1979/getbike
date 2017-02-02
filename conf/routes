@@ -22,7 +22,8 @@ GET     /wallet/addBonusPointsToWallet/:id/:amount  controllers.WalletController
 GET     /wallet/myEntries                           controllers.WalletController.myEntries
 
 
-GET    /allRiders                                   controllers.DashboardController.allRiders
+GET     /allRiders                                  controllers.DashboardController.allRiders
+GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders
 
 
 
@@ -48,7 +49,9 @@ GET     /loginOtp/performSearch/:label          controllers.UserController.perfo
 GET     /loginOtpFilter                         controllers.UserController.loginOtpSearch
 GET     /usersListFilter                        controllers.UserController.usersListSearch
 GET     /userSpecialPrice/:id                   controllers.UserController.userSpecialPrice(id: Long)
-GET    /updateSpecialPrice                     controllers.UserController.updateUserDetailsWithSpecialPrice
+GET     /updateSpecialPrice                     controllers.UserController.updateUserDetailsWithSpecialPrice
+GET     /editUserDetails/:id                    controllers.UserController.editUserDetails(id: Long)
+GET     /updateUserDetail                       controllers.UserController.updateUserDetail
 
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer

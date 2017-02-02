@@ -1,6 +1,6 @@
 @(drivingLicense: java.lang.String="" , vehiclePlate: String="" , isApprove: Boolean , id: Long)
 @import views.html.custom_views._
-@userApprove = @{if (isApprove == true) "Reject" else "Approve";}
+@userApprove = @{if (isApprove == false) "Approve" else "Reject";}
 @main("Get Bike", "Users"){
 <style>
     th {
@@ -23,12 +23,12 @@
     <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
             <div class="col-sm-2"></div>
         <div id="image-gallery-1" class="cf">
-            <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
+            <div style="float:left;margin-right:5px; border: 1px solid lightblue; width:400px;">
                 <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
                 <img src="/@drivingLicense" data-high-res-src="/@drivingLicense" alt="" class="gallery-items">
             </div>
-            <div style="float:left;margin-right:5px; border: 1px solid lightblue ">
-                <font color="green"><B><p style="text-align:center;">Driving License</p></B></font>
+            <div style="float:left;margin-right:5px; border: 1px solid lightblue; width:400px; ">
+                <font color="green"><B><p style="text-align:center;">Vehicle Plate</p></B></font>
                 <img src="/@vehiclePlate" data-high-res-src="/@vehiclePlate" alt="" class="gallery-items">
             </div>
         </div>

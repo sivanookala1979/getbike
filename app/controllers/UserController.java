@@ -287,6 +287,7 @@ public class UserController extends BaseController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            user.setValidProofsUploaded(false);
             user.save();
             result = SUCCESS;
         }
@@ -314,6 +315,7 @@ public class UserController extends BaseController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            user.setValidProofsUploaded(false);
             user.save();
             result = SUCCESS;
         }
@@ -462,6 +464,25 @@ public class UserController extends BaseController {
         User user = User.find.byId(Long.valueOf(userId));
         user.setSpePrice(Double.valueOf(spePrice));
         user.setSpecialPrice(true);
+        user.update();
+        return redirect("/users/usersList");
+    }
+    public Result editUserDetails(Long id) {
+        User user = User.find.byId(id);
+        return ok(views.html.editUsersDetails.render(user));
+    }
+    public Result updateUserDetail() {
+        DynamicForm requestData = formFactory.form().bindFromRequest();
+        String userId = requestData.get("userId");
+        String name = requestData.get("name");
+        String email= requestData.get("email");
+        String mobileNumber =requestData.get("mobileNumber");
+        String gender= requestData.get("gender");
+        User user = User.find.byId(Long.valueOf(userId));
+        user.setName(name);
+        user.setGender(gender.charAt(0));
+        user.setPhoneNumber(mobileNumber);
+        user.setEmail(email);
         user.update();
         return redirect("/users/usersList");
     }
