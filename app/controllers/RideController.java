@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
+import dataobject.WalletEntryType;
 import models.Ride;
 import models.RideLocation;
 import models.User;
@@ -302,7 +303,7 @@ public class RideController extends BaseController {
             wallet.setAmount(WalletController.convertToWalletAmount(riderBonus));
             wallet.setTransactionDateTime(new Date());
             wallet.setDescription("Free Ride Given with Trip ID : " + ride.getId() + " for Rs. " + riderBonus);
-            wallet.setType("FreeRide");
+            wallet.setType(WalletEntryType.FREE_RIDE);
             wallet.save();
             if (StringUtils.isNotNullAndEmpty(requestor.getSignupPromoCode()) && zeroIfNull(requestor.getFreeRidesEarned()) == 1) {
                 User referrer = User.find.where().eq("promoCode", requestor.getSignupPromoCode()).findUnique();
@@ -332,7 +333,7 @@ public class RideController extends BaseController {
         wallet.setAmount(-ride.getTotalBill());
         wallet.setTransactionDateTime(new Date());
         wallet.setDescription("Given Ride with Trip ID : " + ride.getId() + " for Rs. " + ride.getTotalBill());
-        wallet.setType("RideGiven");
+        wallet.setType(WalletEntryType.RIDE_GIVEN);
         wallet.save();
     }
 

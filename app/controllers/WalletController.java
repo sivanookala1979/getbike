@@ -3,10 +3,10 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
 
 import java.util.Date;
@@ -20,41 +20,19 @@ public class WalletController extends BaseController {
 
     public static final double AMOUNT_MULTIPLIER = 10.0;
 
-    @BodyParser.Of(BodyParser.Json.class)
-    public Result addMoney() {
-        String result = FAILURE;
-        JsonNode userJson = request().body().asJson();
-        User user = currentUser();
-        if (user != null) {
-            Wallet wallet = new Wallet();
-            wallet.setUserId(user.getId());
-            double amount = userJson.get("amount").doubleValue();
-            wallet.setAmount(convertToWalletAmount(amount));
-            wallet.setTransactionDateTime(new Date());
-            wallet.setDescription("Added " + wallet.getAmount() + " points for a recharge of Rs " + amount);
-            wallet.setType("AddMoney");
-            wallet.save();
-            result = SUCCESS;
-        }
-        ObjectNode objectNode = Json.newObject();
-        objectNode.set("result", Json.toJson(result));
-        return ok(Json.toJson(objectNode));
-    }
-
     public Result rechargeMobile() {
         String result = FAILURE;
         JsonNode userJson = request().body().asJson();
         User user = currentUser();
         if (user != null) {
             double amount = userJson.get("amount").doubleValue();
-            double walletAmount = getWalletAmount(user);
-            if (hasValidAmountInWallet(amount, walletAmount)) {
+            if (canPayOutUsingCash(user, amount)) {
                 Wallet wallet = new Wallet();
                 wallet.setUserId(user.getId());
                 wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
                 wallet.setCircle(userJson.get("circle").textValue());
                 wallet.setOperator(userJson.get("operator").textValue());
-                wallet.setType("MobileRecharge");
+                wallet.setType(WalletEntryType.MOBILE_RECHARGE);
                 wallet.setAmount(-convertToWalletAmount(amount));
                 wallet.setDescription("Recharged amount of Rs. " + amount + " for your mobile number " + wallet.getMobileNumber());
                 wallet.setTransactionDateTime(new Date());
@@ -75,8 +53,7 @@ public class WalletController extends BaseController {
         User user = currentUser();
         if (user != null) {
             double amount = userJson.get("amount").doubleValue();
-            double walletAmount = getWalletAmount(user);
-            if (hasValidAmountInWallet(amount, walletAmount)) {
+            if (canPayOutUsingCash(user, amount)) {
                 Wallet wallet = new Wallet();
                 wallet.setUserId(user.getId());
                 wallet.setMobileNumber(userJson.get("mobileNumber").textValue());
@@ -84,7 +61,7 @@ public class WalletController extends BaseController {
                 wallet.setAmount(-convertToWalletAmount(amount));
                 wallet.setDescription("Transfer Rs." + amount + " To your" + wallet.getWalletName() + " Wallet");
                 wallet.setTransactionDateTime(new Date());
-                wallet.setType("RedeemToWallet");
+                wallet.setType(WalletEntryType.REDEEM_TO_WALLET);
                 wallet.save();
                 result = SUCCESS;
             }
@@ -101,15 +78,14 @@ public class WalletController extends BaseController {
         JsonNode userJson = request().body().asJson();
         User user = currentUser();
         if (user != null) {
-            Wallet wallet = new Wallet();
-            wallet.setUserId(user.getId());
             double amount = userJson.get("amount").doubleValue();
-            double walletAmount = getWalletAmount(user);
-            if (hasValidAmountInWallet(amount, walletAmount)) {
+            if (canPayOutUsingCash(user, amount)) {
+                Wallet wallet = new Wallet();
+                wallet.setUserId(user.getId());
                 wallet.setAmount(-convertToWalletAmount(amount));
                 wallet.setDescription("Transfer Rs." + amount + " To your Given Bank Account");
                 wallet.setTransactionDateTime(new Date());
-                wallet.setType("RedeemToBank");
+                wallet.setType(WalletEntryType.REDEEM_TO_BANK);
                 wallet.save();
                 result = SUCCESS;
             }
@@ -120,6 +96,12 @@ public class WalletController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    private boolean canPayOutUsingCash(User user, double amount) {
+        double walletAmount = getWalletAmount(user);
+        double cashAmount = getCashTransactionsAmount(user);
+        return hasValidAmountInWallet(amount, walletAmount) && hasValidAmountInWallet(amount, cashAmount);
+    }
+
     public Result getBalanceAmount() {
         String result = FAILURE;
         User user = currentUser();
@@ -127,7 +109,18 @@ public class WalletController extends BaseController {
 
         if (user != null) {
             double amount = getWalletAmount(user);
+            double cashAmount = getCashTransactionsAmount(user);
+            double promoAmount = amount - cashAmount;
+            if (amount < cashAmount) {
+                cashAmount = amount;
+                promoAmount = 0.0;
+            }
             objectNode.set("balanceAmount", Json.toJson(amount));
+            objectNode.set("freeRidesEarned", Json.toJson(user.getFreeRidesEarned()));
+            objectNode.set("freeRidesSpent", Json.toJson(user.getFreeRidesSpent()));
+            objectNode.set("cashBalance", Json.toJson(cashAmount));
+            objectNode.set("promoBalance", Json.toJson(promoAmount));
+            objectNode.set("userBalance", Json.toJson(amount));
             result = SUCCESS;
         }
         objectNode.set("result", Json.toJson(result));
@@ -154,6 +147,15 @@ public class WalletController extends BaseController {
 
     public static double getWalletAmount(User user) {
         List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).findList();
+        double amount = 0;
+        for (Wallet wallet : wallets) {
+            amount += wallet.getAmount();
+        }
+        return amount;
+    }
+
+    public static double getCashTransactionsAmount(User user) {
+        List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).in("type", WalletEntryType.PAY_U_PAYMENT, WalletEntryType.MOBILE_RECHARGE, WalletEntryType.REDEEM_TO_BANK, WalletEntryType.REDEEM_TO_WALLET).findList();
         double amount = 0;
         for (Wallet wallet : wallets) {
             amount += wallet.getAmount();
@@ -202,7 +204,7 @@ public class WalletController extends BaseController {
         wallet.setUserId(userId);
         wallet.setTransactionDateTime(new Date());
         wallet.setAmount(amount);
-        wallet.setType("BonusPoints");
+        wallet.setType(WalletEntryType.BONUS_POINTS);
         wallet.setDescription("Bonus Points from GetBike");
         wallet.save();
     }

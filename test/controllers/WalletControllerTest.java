@@ -3,104 +3,241 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
-import utils.CustomCollectionUtils;
 import utils.GetBikeUtils;
 
 import java.util.Date;
 
+import static dataobject.WalletEntryType.*;
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 import static play.test.Helpers.*;
 
 
 public class WalletControllerTest extends BaseControllerTest {
 
-    @Test
-    public void addMoneyTESTHappyFlow() {
-        User user = loggedInUser();
-        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
-        ObjectNode walletDetails = Json.newObject();
-        walletDetails.put("amount", 50.0);
-        Result result = route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
-        JsonNode jsonNode = jsonFromResult(result);
-        Logger.info(jsonNode.get("result").textValue().toString());
-        Wallet wallet = CustomCollectionUtils.first(Wallet.find.where().eq("userId", user.getId()).findList());
-        assertEquals(50.0 * 10, wallet.getAmount());
-        assertNotNull(wallet.getTransactionDateTime());
-        assertEquals("Added 500.0 points for a recharge of Rs 50.0", wallet.getDescription());
-
-        assertEquals("success", jsonNode.get("result").textValue());
-    }
 
     @Test
     public void getBalanceAmountTESTHappyFlow() {
         User user = loggedInUser();
+        user.setFreeRidesEarned(2);
+        user.setFreeRidesSpent(1);
+        user.save();
         Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
-        ObjectNode walletDetails = Json.newObject();
-        walletDetails.put("amount", 65.0);
-        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
-
-        walletDetails = Json.newObject();
-        walletDetails.put("amount", 50.0);
-        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
+        Wallet addCash1 = new Wallet();
+        addCash1.setAmount(650.0);
+        addCash1.setType(WalletEntryType.PAY_U_PAYMENT);
+        addCash1.setUserId(user.getId());
+        addCash1.save();
+        GetBikeUtils.sleep(200);
+        Wallet addCash2 = new Wallet();
+        addCash2.setAmount(500.0);
+        addCash2.setType(PAY_U_PAYMENT);
+        addCash2.setUserId(user.getId());
+        addCash2.save();
+        GetBikeUtils.sleep(200);
 
         Wallet rideEntry1 = new Wallet();
         rideEntry1.setUserId(user.getId());
         rideEntry1.setAmount(-67.0);
-        rideEntry1.setType("RideGiven");
+        rideEntry1.setType(RIDE_GIVEN);
         rideEntry1.save();
+        GetBikeUtils.sleep(200);
+
         Wallet rideEntry2 = new Wallet();
         rideEntry2.setUserId(user.getId());
         rideEntry2.setAmount(-33.0);
-        rideEntry2.setType("RideGiven");
+        rideEntry2.setType(RIDE_GIVEN);
         rideEntry2.save();
         Result result = route(fakeRequest(GET, "/wallet/getBalanceAmount").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
 
         assertEquals(1050.0, jsonNode.get("balanceAmount").doubleValue());
+        assertEquals(1050.0, jsonNode.get("cashBalance").doubleValue());
+        assertEquals(0.0, jsonNode.get("promoBalance").doubleValue());
+        assertEquals(1050.0, jsonNode.get("userBalance").doubleValue());
+        assertEquals(2, jsonNode.get("freeRidesEarned").intValue());
+        assertEquals(1, jsonNode.get("freeRidesSpent").intValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
+
+    @Test
+    public void getBalanceAmountTESTWithPromoBalanceAndCashBalance() {
+        User user = loggedInUser();
+        user.setFreeRidesEarned(2);
+        user.setFreeRidesSpent(1);
+        user.save();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        Wallet addCash1 = new Wallet();
+        addCash1.setAmount(650.0);
+        addCash1.setType(WalletEntryType.PAY_U_PAYMENT);
+        addCash1.setUserId(user.getId());
+        addCash1.save();
+        GetBikeUtils.sleep(200);
+        Wallet addCash2 = new Wallet();
+        addCash2.setAmount(500.0);
+        addCash2.setType(BONUS_POINTS);
+        addCash2.setUserId(user.getId());
+        addCash2.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry1 = new Wallet();
+        rideEntry1.setUserId(user.getId());
+        rideEntry1.setAmount(-67.0);
+        rideEntry1.setType(RIDE_GIVEN);
+        rideEntry1.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry2 = new Wallet();
+        rideEntry2.setUserId(user.getId());
+        rideEntry2.setAmount(-33.0);
+        rideEntry2.setType(RIDE_GIVEN);
+        rideEntry2.save();
+        Result result = route(fakeRequest(GET, "/wallet/getBalanceAmount").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+
+        assertEquals(1050.0, jsonNode.get("balanceAmount").doubleValue());
+        assertEquals(650.0, jsonNode.get("cashBalance").doubleValue());
+        assertEquals(400.0, jsonNode.get("promoBalance").doubleValue());
+        assertEquals(1050.0, jsonNode.get("userBalance").doubleValue());
+        assertEquals(2, jsonNode.get("freeRidesEarned").intValue());
+        assertEquals(1, jsonNode.get("freeRidesSpent").intValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void getBalanceAmountTESTWithOnlyPromoBalance() {
+        User user = loggedInUser();
+        user.setFreeRidesEarned(2);
+        user.setFreeRidesSpent(1);
+        user.save();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        Wallet addCash1 = new Wallet();
+        addCash1.setAmount(650.0);
+        addCash1.setType(WalletEntryType.BONUS_POINTS);
+        addCash1.setUserId(user.getId());
+        addCash1.save();
+        GetBikeUtils.sleep(200);
+        Wallet addCash2 = new Wallet();
+        addCash2.setAmount(500.0);
+        addCash2.setType(BONUS_POINTS);
+        addCash2.setUserId(user.getId());
+        addCash2.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry1 = new Wallet();
+        rideEntry1.setUserId(user.getId());
+        rideEntry1.setAmount(-67.0);
+        rideEntry1.setType(RIDE_GIVEN);
+        rideEntry1.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry2 = new Wallet();
+        rideEntry2.setUserId(user.getId());
+        rideEntry2.setAmount(-33.0);
+        rideEntry2.setType(RIDE_GIVEN);
+        rideEntry2.save();
+        Result result = route(fakeRequest(GET, "/wallet/getBalanceAmount").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+
+        assertEquals(1050.0, jsonNode.get("balanceAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("cashBalance").doubleValue());
+        assertEquals(1050.0, jsonNode.get("promoBalance").doubleValue());
+        assertEquals(1050.0, jsonNode.get("userBalance").doubleValue());
+        assertEquals(2, jsonNode.get("freeRidesEarned").intValue());
+        assertEquals(1, jsonNode.get("freeRidesSpent").intValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void getBalanceAmountTESTWithOnlyCashBalance() {
+        User user = loggedInUser();
+        user.setFreeRidesEarned(2);
+        user.setFreeRidesSpent(2);
+        user.save();
+        Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
+        Wallet addCash1 = new Wallet();
+        addCash1.setAmount(650.0);
+        addCash1.setType(WalletEntryType.PAY_U_PAYMENT);
+        addCash1.setUserId(user.getId());
+        addCash1.save();
+        GetBikeUtils.sleep(200);
+        Wallet addCash2 = new Wallet();
+        addCash2.setAmount(500.0);
+        addCash2.setType(PAY_U_PAYMENT);
+        addCash2.setUserId(user.getId());
+        addCash2.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry1 = new Wallet();
+        rideEntry1.setUserId(user.getId());
+        rideEntry1.setAmount(-300.0);
+        rideEntry1.setType(REDEEM_TO_WALLET);
+        rideEntry1.save();
+        GetBikeUtils.sleep(200);
+
+        Wallet rideEntry2 = new Wallet();
+        rideEntry2.setUserId(user.getId());
+        rideEntry2.setAmount(-400.0);
+        rideEntry2.setType(REDEEM_TO_BANK);
+        rideEntry2.save();
+        Result result = route(fakeRequest(GET, "/wallet/getBalanceAmount").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+
+        assertEquals(450.0, jsonNode.get("balanceAmount").doubleValue());
+        assertEquals(450.0, jsonNode.get("cashBalance").doubleValue());
+        assertEquals(0.0, jsonNode.get("promoBalance").doubleValue());
+        assertEquals(450.0, jsonNode.get("userBalance").doubleValue());
+        assertEquals(2, jsonNode.get("freeRidesEarned").intValue());
+        assertEquals(2, jsonNode.get("freeRidesSpent").intValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
 
     @Test
     public void myEntriesTESTHappyFlow() {
         User user = loggedInUser();
         Ebean.deleteAll(Wallet.find.where().eq("user_id", user.id).findList());
-        ObjectNode walletDetails = Json.newObject();
-        walletDetails.put("amount", 65.0);
-        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
+        Wallet addCash1 = new Wallet();
+        addCash1.setAmount(650.0);
+        addCash1.setType(PAY_U_PAYMENT);
+        addCash1.setUserId(user.getId());
+        addCash1.save();
         GetBikeUtils.sleep(200);
-        walletDetails = Json.newObject();
-        walletDetails.put("amount", 50.0);
-        route(fakeRequest(POST, "/wallet/addMoney").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(walletDetails))).withHeader("Content-Type", "application/json");
+
+        Wallet addCash2 = new Wallet();
+        addCash2.setAmount(500.0);
+        addCash2.setType(PAY_U_PAYMENT);
+        addCash2.setUserId(user.getId());
+        addCash2.save();
         GetBikeUtils.sleep(200);
+
         Wallet rideEntry1 = new Wallet();
         rideEntry1.setUserId(user.getId());
         rideEntry1.setAmount(-67.0);
-        rideEntry1.setType("RideGiven");
+        rideEntry1.setType(RIDE_GIVEN);
         rideEntry1.setTransactionDateTime(new Date());
         rideEntry1.save();
         GetBikeUtils.sleep(200);
         Wallet rideEntry2 = new Wallet();
         rideEntry2.setUserId(user.getId());
         rideEntry2.setAmount(-33.0);
-        rideEntry2.setType("RideGiven");
+        rideEntry2.setType(RIDE_GIVEN);
         rideEntry2.setTransactionDateTime(new Date());
         rideEntry2.save();
         Result result = route(fakeRequest(GET, "/wallet/myEntries").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
         System.out.println(jsonNode);
         assertEquals(4, jsonNode.get("entries").size());
-        assertEquals("RideGiven", jsonNode.get("entries").get(0).get("type").textValue());
+        assertEquals(RIDE_GIVEN, jsonNode.get("entries").get(0).get("type").textValue());
         assertEquals(-33.0, jsonNode.get("entries").get(0).get("amount").doubleValue());
-        assertEquals("AddMoney", jsonNode.get("entries").get(2).get("type").textValue());
-        assertEquals(500.0, jsonNode.get("entries").get(2).get("amount").doubleValue());
+        assertEquals(PAY_U_PAYMENT, jsonNode.get("entries").get(2).get("type").textValue());
+        assertEquals(650.0, jsonNode.get("entries").get(2).get("amount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
 
@@ -338,7 +475,7 @@ public class WalletControllerTest extends BaseControllerTest {
         Wallet walletAmount = new Wallet();
         walletAmount.setUserId(user.getId());
         walletAmount.setAmount(1000.0);
-        walletAmount.setType("AddMoney");
+        walletAmount.setType(WalletEntryType.PAY_U_PAYMENT);
         walletAmount.save();
         return walletAmount;
     }
