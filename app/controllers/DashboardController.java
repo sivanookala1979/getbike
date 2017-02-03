@@ -1,5 +1,6 @@
 package controllers;
 
+import models.RiderPosition;
 import models.User;
 import play.Logger;
 import play.libs.Json;
@@ -48,6 +49,30 @@ public class DashboardController extends BaseController {
                 radius + " ").findList();
         Logger.info("List of objects "+list);
         return ok(Json.toJson(list));
+    }
+
+    public Result riderPositions(Long id, int rowCount){
+        List<RiderPosition> list = RiderPosition.find.where().eq("user_id", id).order("lastLocationTime desc").setMaxRows(rowCount).findList();
+        Logger.info("All list data size is "+list.size());
+        String riderPositionsString = "[";
+        int count = 0;
+        for(RiderPosition riderLocation :list){
+            System.out.println(riderLocation.getLastKnownLatitude() + " " + riderLocation.getLastKnownLongitude());
+            if (riderLocation.getLastKnownLatitude() != null && riderLocation.getLastKnownLongitude() != null && riderLocation.getLastKnownLatitude() != 0.0 && riderLocation.getLastKnownLongitude() != 0.0) {
+                riderPositionsString += "{lat: " + riderLocation.getLastKnownLatitude() +
+                        ", count: "+count+
+                        ", lng: " + riderLocation.getLastKnownLongitude() +
+                        ", infowindow : \"<b> " + count + ". " + riderLocation.getLastLocationTime() + "</b>" + "\"" +
+                        "},";
+                count++;
+            }
+        }
+        if (riderPositionsString.endsWith(",")) {
+            riderPositionsString = riderPositionsString.substring(0, riderPositionsString.length() - 1);
+        }
+        riderPositionsString += "]";
+        Logger.debug("Rider position string "+riderPositionsString);
+        return ok(views.html.userRides.render(riderPositionsString));
     }
 
 }

@@ -3,10 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
-import models.LoginOtp;
-import models.Ride;
-import models.RideLocation;
-import models.User;
+import models.*;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
@@ -312,6 +309,28 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(21.34, actual.getLastKnownLongitude().doubleValue(), NumericConstants.DELTA);
         assertEquals(locationDate, actual.getLastLocationTime());
         verify(gcmUtilsMock).sendMessage(requestor, "54.67,21.34,false", "riderLocation", ride.getId());
+    }
+
+    @Test
+    public void storeLastKnownLocationTESTWithSaveRiderLocations() {
+        User user = loggedInUser();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("lastKnownLatitude", 47.87);
+        objectNode.put("lastKnownLongitude", 17.23);
+        Date locationDate = new Date();
+        objectNode.set("lastLocationTime", Json.toJson(locationDate));
+        Result result = route(fakeRequest(POST, "/storeLastKnownLocation").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User actual = User.find.byId(user.id);
+        assertEquals(47.87, actual.getLastKnownLatitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(17.23, actual.getLastKnownLongitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(locationDate, actual.getLastLocationTime());
+        RiderPosition riderPosition = RiderPosition.find.where().eq("user_id" , user.getId()).findUnique();
+        assertNotNull(riderPosition);
+        assertEquals(47.87 , riderPosition.getLastKnownLatitude().doubleValue() , NumericConstants.DELTA);
+        assertEquals(17.23 , riderPosition.getLastKnownLongitude() , NumericConstants.DELTA);
+        assertEquals(locationDate , riderPosition.getLastLocationTime());
     }
 
     @Test

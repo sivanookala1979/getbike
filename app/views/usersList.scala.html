@@ -83,6 +83,10 @@ element.style {
                                 <span class="glyphicon sort-icon" ng-show="sortKey==''"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
+                            <th ng-click="sort('')">Rider Positions
+                                <span class="glyphicon sort-icon" ng-show="sortKey==''"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -112,6 +116,8 @@ element.style {
                                     Current Ride</a><br/>
                             </td>
                             <td><a href="/userSpecialPrice/{{user.id}}">SPrice</a>
+                            </td>
+                            <td><a href="/riderPositions/{{user.id}}/10">Rider Positions</a>
                             </td>
                         </tr>
                         </tbody>

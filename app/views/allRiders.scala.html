@@ -119,6 +119,7 @@
                     });
 
                    function getData(){
+                        $("#error").show();
                       if (!place.geometry) {
                                 window.alert("No details available for input: '" + place.name + "'");
                                 return;
@@ -142,7 +143,7 @@
                         }else{
                             var errorMsg = "<center><p style='color:#ff1a1a;margin-top:10px;font-weight:bold'>There are no riders with given filters</p></center>"
                             document.getElementById("error").innerHTML = errorMsg
-                           setTimeout('$("#error").hide()',1500);
+                            setTimeout('$("#error").hide()',1500);
                         }
 
                       });

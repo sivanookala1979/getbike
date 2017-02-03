@@ -3,10 +3,7 @@ package controllers;
 import com.avaje.ebean.Expr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.LoginOtp;
-import models.Ride;
-import models.RideLocation;
-import models.User;
+import models.*;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -147,6 +144,12 @@ public class UserController extends BaseController {
                 user.setLastKnownLongitude(userLocation.getLastKnownLongitude());
                 user.setLastLocationTime(userLocation.getLastLocationTime());
                 user.save();
+                RiderPosition riderPosition = new RiderPosition();
+                riderPosition.setUserId(user.getId());
+                riderPosition.setLastKnownLatitude(user.getLastKnownLatitude());
+                riderPosition.setLastKnownLongitude(user.getLastKnownLongitude());
+                riderPosition.setLastLocationTime(user.getLastLocationTime());
+                riderPosition.save();
                 if (user.isRideInProgress()) {
                     Ride currentRide = Ride.find.byId(user.getCurrentRideId());
                     RideController.sendLocationToRequestor(user, currentRide);
@@ -354,7 +357,6 @@ public class UserController extends BaseController {
             e.printStackTrace();
         }
     }
-
 
     public Result loginOtpList() {
         if (!isValidateSession()) {

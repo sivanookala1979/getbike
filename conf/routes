@@ -21,11 +21,9 @@ GET     /wallet/entries/:id                         controllers.WalletController
 GET     /wallet/addBonusPointsToWallet/:id/:amount  controllers.WalletController.addBonusPointsToWallet(id: Long, amount: Integer)
 GET     /wallet/myEntries                           controllers.WalletController.myEntries
 
-
 GET     /allRiders                                  controllers.DashboardController.allRiders
 GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders
-
-
+GET     /riderPositions/:id/:count                  controllers.DashboardController.riderPositions(id: Long, count: Integer)
 
 GET     /index                                  controllers.HomeController.index
 GET     /users                                  controllers.UserController.index
