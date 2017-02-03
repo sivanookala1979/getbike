@@ -142,6 +142,20 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void signupTESTWithInvalidPromoCode() {
+        User user = new User();
+        user.setGender('M');
+        user.setName("Shravya M");
+        user.setEmail("shravya@vave.co.in");
+        user.setPhoneNumber("8282828282");
+        user.setSignupPromoCode("222211");
+        Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+        assertEquals(GetBikeErrorCodes.INVALID_PROMO_CODE, jsonNode.get("errorCode").intValue());
+    }
+
+    @Test
     public void signupTESTAlreadyExistingUser() {
         User user = new User();
         user.setGender('M');
@@ -156,6 +170,20 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals("failure", jsonNode.get("result").textValue());
         assertEquals(GetBikeErrorCodes.USER_ALREADY_EXISTS, jsonNode.get("errorCode").intValue());
         assertEquals(JOINING_BONUS, WalletController.getWalletAmount(actual));
+    }
+
+    @Test
+    public void signupTESTAlreadyExistingUserThroughHailSystem() {
+        User user = new User();
+        user.setPhoneNumber("8282828282");
+        user.save();
+        user.setGender('M');
+        user.setName("Shravya M");
+        user.setEmail("shravya@vave.co.in");
+        Result result = route(fakeRequest(POST, "/signup").bodyJson(Json.toJson(user))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure", jsonNode.get("result").textValue());
+        assertEquals(GetBikeErrorCodes.USER_ALREADY_EXISTS, jsonNode.get("errorCode").intValue());
     }
 
     @Test
@@ -326,11 +354,11 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(47.87, actual.getLastKnownLatitude().doubleValue(), NumericConstants.DELTA);
         assertEquals(17.23, actual.getLastKnownLongitude().doubleValue(), NumericConstants.DELTA);
         assertEquals(locationDate, actual.getLastLocationTime());
-        RiderPosition riderPosition = RiderPosition.find.where().eq("user_id" , user.getId()).findUnique();
+        RiderPosition riderPosition = RiderPosition.find.where().eq("user_id", user.getId()).findUnique();
         assertNotNull(riderPosition);
-        assertEquals(47.87 , riderPosition.getLastKnownLatitude().doubleValue() , NumericConstants.DELTA);
-        assertEquals(17.23 , riderPosition.getLastKnownLongitude() , NumericConstants.DELTA);
-        assertEquals(locationDate , riderPosition.getLastLocationTime());
+        assertEquals(47.87, riderPosition.getLastKnownLatitude().doubleValue(), NumericConstants.DELTA);
+        assertEquals(17.23, riderPosition.getLastKnownLongitude(), NumericConstants.DELTA);
+        assertEquals(locationDate, riderPosition.getLastLocationTime());
     }
 
     @Test

@@ -42,16 +42,21 @@ public class UserController extends BaseController {
         JsonNode userJson = request().body().asJson();
         User user = Json.fromJson(userJson, User.class);
         int previousUserCount = User.find.where().eq("phoneNumber", user.getPhoneNumber()).findRowCount();
-        if (previousUserCount == 0) {
+        boolean validPromoCode = true;
+        User referrer = null;
+        if (StringUtils.isNotNullAndEmpty(user.getSignupPromoCode())) {
+            referrer = User.find.where().eq("promoCode", user.getSignupPromoCode()).findUnique();
+            if (referrer == null) validPromoCode = false;
+        }
+        if (!validPromoCode) {
+            errorCode = GetBikeErrorCodes.INVALID_PROMO_CODE;
+        } else if (previousUserCount == 0) {
             user.setFreeRidesEarned(0);
             user.save();
             WalletController.processAddBonusPointsToWallet(user.getId(), JOINING_BONUS);
-            if (StringUtils.isNotNullAndEmpty(user.getSignupPromoCode())) {
-                User referrer = User.find.where().eq("promoCode", user.getSignupPromoCode()).findUnique();
-                if (referrer != null) {
-                    user.setFreeRidesEarned(1);
-                    user.save();
-                }
+            if (referrer != null) {
+                user.setFreeRidesEarned(1);
+                user.save();
             }
             return ok(Json.toJson(user));
         } else {
@@ -469,17 +474,19 @@ public class UserController extends BaseController {
         user.update();
         return redirect("/users/usersList");
     }
+
     public Result editUserDetails(Long id) {
         User user = User.find.byId(id);
         return ok(views.html.editUsersDetails.render(user));
     }
+
     public Result updateUserDetail() {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
         String name = requestData.get("name");
-        String email= requestData.get("email");
-        String mobileNumber =requestData.get("mobileNumber");
-        String gender= requestData.get("gender");
+        String email = requestData.get("email");
+        String mobileNumber = requestData.get("mobileNumber");
+        String gender = requestData.get("gender");
         User user = User.find.byId(Long.valueOf(userId));
         user.setName(name);
         user.setGender(gender.charAt(0));
