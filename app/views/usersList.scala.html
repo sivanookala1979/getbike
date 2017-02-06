@@ -152,9 +152,12 @@ listViewApp.controller("ProductController", function ($scope, $http) {
         console.log(arg);
         });
     };
-
     $scope.mySearch();
 
+    $scope.sort = function(keyname){
+          $scope.sortKey = keyname;
+          $scope.reverse = !$scope.reverse;
+    };
 }); //end of angular Js
 
 

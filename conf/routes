@@ -19,6 +19,10 @@ POST    /wallet/redeemToBank                        controllers.WalletController
 GET     /wallet/entries/:id                         controllers.WalletController.walletEntries(id: Long)
 GET     /wallet/addBonusPointsToWallet/:id/:amount  controllers.WalletController.addBonusPointsToWallet(id: Long, amount: Integer)
 GET     /wallet/myEntries                           controllers.WalletController.myEntries
+GET     /wallet/isAmountPaidStatusAccepted/:id      controllers.WalletController.isAmountPaidStatusAccepted(id: Long)
+GET     /wallet/isAmountPaidStatusRejected/:id      controllers.WalletController.isAmountPaidStatusRejected(id: Long)
+GET     /dateWiseFilterForRedeem                    controllers.WalletController.dateWiseFilterForRedeem
+GET     /wallet/redeemWalletEntries                 controllers.WalletController.redeemWalletEntries
 
 GET     /allRiders                                  controllers.DashboardController.allRiders
 GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders

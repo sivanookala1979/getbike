@@ -653,7 +653,12 @@ public class RideController extends BaseController {
         ExpressionList<Ride> rideQuery = null;
         if (isNotNullAndEmpty(srcName)) {
             listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findIds();
-            rideQuery = Ride.find.where().or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds));
+            if(listOfIds.size() == 0) {
+                rideQuery = Ride.find.where().or(Expr.or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds)), Expr.idEq(Long.valueOf(srcName)));
+            }else{
+                rideQuery = Ride.find.where().or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds));
+            }
+
         } else {
             rideQuery = Ride.find.where();
         }
@@ -679,6 +684,7 @@ public class RideController extends BaseController {
                 noOfPending++;
             }
             if (ride.getRideStatus().equals(RideStatus.RideAccepted)) {
+                ride.setRiderMobileNumber(User.find.where().eq("id" , ride.getRiderId()).findUnique().getPhoneNumber());
                 Logger.info("Inside Ride acc");
                 noOfaccepted++;
             }

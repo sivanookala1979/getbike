@@ -24,6 +24,9 @@ public class Wallet extends Model {
     String operator;
     String circle;
     String walletName;
+    String isAmountPaidStatus;
+    Date   statusActedAt;
+    public transient String userName;
     @Column(length = 4096)
     String pgDetails;
     public static Finder<Long, Wallet> find = new Finder<Long, Wallet>(Wallet.class);
@@ -114,5 +117,29 @@ public class Wallet extends Model {
 
     public void setPgDetails(String pgDetails) {
         this.pgDetails = pgDetails;
+    }
+
+    public String getIsAmountPaidStatus() {
+        return isAmountPaidStatus;
+    }
+
+    public void setIsAmountPaidStatus(String isAmountPaidStatus) {
+        this.isAmountPaidStatus = isAmountPaidStatus;
+    }
+
+    public String getUserName() {
+        return User.find.byId(getUserId()).name;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Date getStatusActedAt() {
+        return statusActedAt;
+    }
+
+    public void setStatusActedAt(Date statusActedAt) {
+        this.statusActedAt = statusActedAt;
     }
 }

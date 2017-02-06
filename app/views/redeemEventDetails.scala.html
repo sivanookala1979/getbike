@@ -1,0 +1,233 @@
+@(tableHeaders: LinkedHashMap[String, String] , colClass: String ="col-sm-12", isRequired: String ="", header: String="Ride" ,newUrl: String ="", editUrl: String = "", deleteUrl: String ="")
+@import views.html.custom_views._
+@main("Get Bike", "Wallet"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
+
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+
+
+</style>
+<script src="@routes.Assets.versioned(" javascripts/FileSaver.js")" type="text/javascript"></script>
+<div class="container" id="list-view-app-id">
+    <div class="row">
+        <div class="col-sm-12">
+            <div data-ng-controller="ProductController">
+                <div class="row">
+                    <div class="col-sm-2 text-left" style="padding-bottom:10px;">
+                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search Name / Mobile" class="form-control">
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <select name="manualrecfilter2" ng-options="choice for choice in manualrecfilter2"
+                                ng-model="filterText2"
+                                class="form-control" style="width:100% !important">
+                            <option value="">Type ALL</option>
+
+                        </select>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter"
+                                ng-model="filterText"
+                                class="form-control" style="width:100% !important">
+                            <option value="">Status ALL</option>
+
+                        </select>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="startDate" type="date" placeholder="" required class="form-control"/>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="endDate" type="date" placeholder="" required class="form-control"/>
+                    </div>
+                    <div class="col-sm-2 text-left" style="width:130px">
+                        <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
+                    </div>
+
+                </div>
+
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border: 1px solid lightgrey; width: 100%;overflow: auto;">
+                        <thead style="border-bottom: 1px solid grey;">
+                        <tr>
+                            <th ng-click="sort('name')">Name
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='name'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('requestedActedDate')" style="width:180px;">Requested / Acted <br>Date Time
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='requestedActedDate'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('amount')">Amount
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='amount'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('discription')">Description
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='discription'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('type')" style="width:190px;">Type
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='type'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('mobileNumber')">Mobile Number</span>
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='type'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('circle')">Circle
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='circle'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('walletName')">Wallet Name
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='walletName'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('status')">Status
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(index, product) in products| orderBy:sortKey:reverse" class="text-left">
+                            <td>{{product.id}}.{{product.userName}}</td>
+                            <td>{{product.transactionDateTime | date:'medium'}}<br/>
+                                {{product.statusActedAt | date:'medium'}}
+                            </td>
+                            <td>{{product.amount}}</td>
+                            <td>{{product.description}}</td>
+                            <td>{{product.type}}</td>
+                            <td>{{product.mobileNumber}}</td>
+                            <td>{{product.circle}}</td>
+                            <td>{{product.walletName}}</td>
+                            <td class="case" data-ng-if="product.isAmountPaidStatus =='Raised'">{{product.isAmountPaidStatus}}<br>
+                            <img src="@routes.Assets.versioned("images/accept.png")"
+                                width="15" height="15"><a name="accept" ng-click="walletStatus(product.id , 'Accept')" id="success">&nbsp;Accept</a>
+                            <img src="@routes.Assets.versioned("images/reject.png")"
+                                width="15" height="15"><a name="reject" ng-click="walletStatus(product.id , 'Reject')" id="danger" >&nbsp;Reject</a>
+                            </td>
+                            <td class="case" data-ng-if="product.isAmountPaidStatus !='Raised'">{{product.isAmountPaidStatus}}<br>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+<script>
+    var listViewApp = angular.module("myApp", []);
+    listViewApp.controller("ProductController", function ($scope, $http, $filter) {
+            $scope.products = [];
+            $scope.rideSummary = {};
+            $scope.startDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
+            $scope.endDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
+            $scope.sort = function(keyname){
+            $scope.sortKey = keyname;
+            $scope.reverse = !$scope.reverse;
+        };
+        $scope.doDateFilter = function() {
+        console.log($scope.startDate);
+        console.log($scope.searchText);
+        var url = "/dateWiseFilterForRedeem?"
+                if(!angular.isUndefined($scope.startDate)){
+                    url+="startDate="+$scope.startDate;
+                }
+                if(!angular.isUndefined($scope.endDate)){
+                    url+="&endDate="+$scope.endDate;
+                }
+                if(!angular.isUndefined($scope.filterText2)){
+                    url+="&redeemType="+$scope.filterText2;
+                }
+                if(!angular.isUndefined($scope.filterText)){
+                    url+="&status="+$scope.filterText;
+                }
+                if(!angular.isUndefined($scope.searchText)){
+                     url+="&srcName="+$scope.searchText;
+                }
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.products = [];
+                       $scope.products = data["result"];
+                       $scope.rideSummary = data["rideSummary"];
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+
+        $scope.walletStatus = function(id , status) {
+        console.log(id);
+        console.log($scope.startDate);
+        $scope.reject = "reject";
+        $scope.id = id;
+        console.log($scope.reject);
+        var url = "/dateWiseFilterForRedeem?"
+                if(!angular.isUndefined($scope.startDate)){
+                    url+="startDate="+$scope.startDate;
+                }
+                if(!angular.isUndefined($scope.endDate)){
+                    url+="&endDate="+$scope.endDate;
+                }
+                if(!angular.isUndefined($scope.reject)){
+                     url+="&walletStatus="+status;
+                }
+                if(!angular.isUndefined($scope.id)){
+                     url+="&id="+$scope.id;
+                }
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.products = [];
+                       $scope.products = data["result"];
+                       $scope.rideSummary = data["rideSummary"];
+                       $scope.doDateFilter();
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+
+        };
+        $scope.doDateFilter();
+
+          $scope.manualrecfilter = [
+                'Raised',
+                'Accepted',
+                'Rejected'
+          ];
+          $scope.manualrecfilter2 = [
+                'MobileRecharge',
+                'RedeemToWallet',
+                'RedeemToBank'
+          ];
+
+  }); //end of angular Js
+</script>
+}

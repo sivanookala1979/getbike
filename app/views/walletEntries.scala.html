@@ -1,15 +1,24 @@
 @(walletEntries: List[Wallet], amount: Double, user : User)
-<html>
-<body>
-<h2>Wallet Entries for @user.getName (@user.getPhoneNumber)</h2>
-<h3>Wallet Balance is @amount</h3>
-<br/><br/>
-<a href="/wallet/addBonusPointsToWallet/@user.id/100">Add 100 Points</a>&nbsp;&nbsp;&nbsp;
-<a href="/wallet/addBonusPointsToWallet/@user.id/200">Add 200 Points</a>&nbsp;&nbsp;&nbsp;
-<a href="/wallet/addBonusPointsToWallet/@user.id/500">Add 500 Points</a>&nbsp;&nbsp;&nbsp;
-<a href="/wallet/addBonusPointsToWallet/@user.id/1000">Add 1000 Points</a>&nbsp;&nbsp;&nbsp;
-<table border="1">
-    <tr>
+@import views.html.custom_views._
+@main("Get Bike", "Ride"){
+
+<div class="container">
+    <div class = "panel panel-primary">
+        <div class = "panel-heading">
+            <h1 class = "panel-title" align="center">Wallet Entries for : @user.getName &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PhoneNumber : @user.getPhoneNumber</h1>
+        </div>
+
+        <div class = "panel-body">
+           <center><font size="3"><b>Wallet Balance is : @amount</b></font></center>
+        </div>
+        <center>
+            <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/wallet/addBonusPointsToWallet/@user.id/100'">100 Points Bonus</button>&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/wallet/addBonusPointsToWallet/@user.id/200'">200 Points Bonus</button>&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/wallet/addBonusPointsToWallet/@user.id/500'">500 Points Bonus</button>&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/wallet/addBonusPointsToWallet/@user.id/1000'">1000 Points Bonus</button>
+        </center>
+    <table class="table table-hover">
+    <tr bgcolor="#f2f2f2">
         <th>Transaction Date Time</th>
         <th>Amount</th>
         <th>Description</th>
@@ -18,6 +27,8 @@
         <th>Operator</th>
         <th>Circle</th>
         <th>Wallet Name</th>
+        <th>Status</th>
+        <th>Acted Date Time</th>
     </tr>
     @for(entry <- walletEntries) {
     <tr style="overflow:auto;">
@@ -29,9 +40,19 @@
         <td>@entry.getOperator()</td>
         <td>@entry.getCircle()</td>
         <td>@entry.getWalletName()</td>
+        @if(entry.getType().equalsIgnoreCase("MobileRecharge") || entry.getType().equalsIgnoreCase("RedeemToBank") || entry.getType().equalsIgnoreCase("RedeemToWallet")){
+        <td>@if(entry.getIsAmountPaidStatus().equalsIgnoreCase("Raised")){@entry.getIsAmountPaidStatus()<br>
+        <img src="@routes.Assets.versioned("images/accept.png")"
+        width="15" height="15"><a href="/wallet/isAmountPaidStatusAccepted/@entry.getId()">Accept</a>
+        <img src="@routes.Assets.versioned("images/reject.png")"
+        width="15" height="15"><a href="/wallet/isAmountPaidStatusRejected/@entry.getId()">&nbsp;Reject</a>
+        }else {@entry.getIsAmountPaidStatus()}
+        }
+    </td>
+        <td>@entry.getStatusActedAt()</td>
     </tr>
     }
 </table>
-
-</body>
-</html>
+</div>
+</div>
+}

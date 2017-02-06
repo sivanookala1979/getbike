@@ -1,15 +1,22 @@
 package controllers;
 
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.RedeemStatus;
 import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import utils.DateUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -18,6 +25,9 @@ import java.util.List;
  */
 public class WalletController extends BaseController {
 
+    public LinkedHashMap<String, String> walletTableHearder = getTableHeadersList(new String[]{"Name", "Requested/Acted " +
+                    "Date Time", "Amount", "Description", "Type", "Mobile Number", "Circle", "Wallet Name", "Status", "accept", "reject"},
+            new String[]{"name", "requestedActedDate", "amount", "discription", "type", "mobileNumber", "circle", "walletName", "status", "accept", "reject"});
     public static final double AMOUNT_MULTIPLIER = 10.0;
 
     public Result rechargeMobile() {
@@ -184,7 +194,7 @@ public class WalletController extends BaseController {
             User user = User.find.byId(id);
             if (user != null) {
                 double amount = getWalletAmount(user);
-                List<Wallet> entries = Wallet.find.where().eq("userId", user.getId()).findList();
+                List<Wallet> entries = Wallet.find.where().eq("userId", user.getId()).order("transactionDateTime desc").findList();
                 return ok(views.html.walletEntries.render(entries, amount, user));
             }
         }
@@ -207,5 +217,125 @@ public class WalletController extends BaseController {
         wallet.setType(WalletEntryType.BONUS_POINTS);
         wallet.setDescription("Bonus Points from GetBike");
         wallet.save();
+    }
+
+    public Result isAmountPaidStatusAccepted(Long id) {
+        Wallet wallet = Wallet.find.byId(id);
+        wallet.setIsAmountPaidStatus("Accepted");
+        wallet.setStatusActedAt(new Date());
+        wallet.update();
+        return redirect("/wallet/entries/" + wallet.getUserId());
+    }
+
+    public Result isAmountPaidStatusRejected(Long id) {
+        Wallet wallet = Wallet.find.byId(id);
+        wallet.setIsAmountPaidStatus("Rejected");
+        wallet.setStatusActedAt(new Date());
+        wallet.update();
+        return redirect("/wallet/entries/" + wallet.getUserId());
+    }
+
+    public Result dateWiseFilterForRedeem() {
+        String startDate = request().getQueryString("startDate");
+        Logger.info("Start date "+startDate);
+        String endDate = request().getQueryString("endDate");
+        String status = request().getQueryString("status");
+        String redeemType = request().getQueryString("redeemType");
+        String srcName = request().getQueryString("srcName");
+        String walletStatus = request().getQueryString("walletStatus");
+        Logger.info("Wallet Status is "+walletStatus);
+        String walletId = request().getQueryString("id");
+        if ("Status ALL".equals(status) || "null".equals(status)) {
+            status = null;
+        }
+        if ("Type ALL".equals(redeemType) || "null".equals(redeemType)) {
+            redeemType = null;
+        }
+        List<Wallet> listOfRedeemWallet = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
+        ExpressionList<Wallet> rideQuery = null;
+        if (isNotNullAndEmpty(srcName)) {
+            listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).orderBy("id").findIds();
+            rideQuery = Wallet.find.where().or(Expr.in("userId", listOfIds), Expr.in("userId", listOfIds));
+        } else {
+            rideQuery = Wallet.find.where();
+        }
+        if (isNotNullAndEmpty(status) && isNotNullAndEmpty(redeemType) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            listOfRedeemWallet = rideQuery.between("transaction_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("is_amount_paid_status", status).eq("type", redeemType).orderBy("id").findList();
+        } else if (isNotNullAndEmpty(status) && isNotNullAndEmpty(redeemType) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            listOfRedeemWallet = rideQuery.eq("is_amount_paid_status", status).eq("type", redeemType).findList();
+        } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(redeemType) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            listOfRedeemWallet = rideQuery.between("transaction_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
+        } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(redeemType) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            listOfRedeemWallet = rideQuery.orderBy("id").findList();
+        }
+        if(isNotNullAndEmpty(walletId) && isNotNullAndEmpty(walletStatus)) {
+            if (walletStatus.equalsIgnoreCase("Reject")) {
+                Wallet wallet = Wallet.find.byId(Long.parseLong(walletId));
+                wallet.setIsAmountPaidStatus("Rejected");
+                Logger.info("Walllet Status Store" + wallet.getIsAmountPaidStatus());
+                wallet.setStatusActedAt(new Date());
+                wallet.update();
+            }
+            if (walletStatus.equalsIgnoreCase("Accept")) {
+                Wallet wallet = Wallet.find.byId(Long.parseLong(walletId));
+                wallet.setIsAmountPaidStatus("Accepted");
+                Logger.info("Walllet Status Store" + wallet.getIsAmountPaidStatus());
+                wallet.setStatusActedAt(new Date());
+                wallet.update();
+            }
+        }
+        for (Wallet wallet : listOfRedeemWallet) {
+            if (wallet.getType().equals(RedeemStatus.Raised)) {
+                Logger.info("Inside Ride Raised");
+            }
+            if (wallet.getType().equals(RedeemStatus.Accepted)) {
+                Logger.info("Inside Ride Accepted");
+            }
+            if (wallet.getType().equals(RedeemStatus.Rejected)) {
+                Logger.info("Inside Ride Rejected");
+            }
+            if (wallet.getType().equals(RedeemStatus.MobileRecharge)) {
+                Logger.info("Inside Ride MobileRecharge");
+            }
+            if (wallet.getType().equals(RedeemStatus.RedeemToWallet)) {
+                Logger.info("Inside Ride RedeemToWallet");
+            }
+            if (wallet.getType().equals(RedeemStatus.RedeemToBank)) {
+                Logger.info("Inside Ride RedeemToBank");
+            }
+        }
+        ObjectNode objectNode = Json.newObject();
+        List<Wallet> list = new ArrayList<>();
+        for (Wallet wallet : listOfRedeemWallet) {
+            if (wallet.getTransactionDateTime() != null) {
+                wallet.setTransactionDateTime(new Date());
+            }
+            if (wallet.getStatusActedAt() != null) {
+                wallet.setStatusActedAt(wallet.getStatusActedAt());
+            }
+            if (wallet.getIsAmountPaidStatus() == null) {
+                wallet.setIsAmountPaidStatus("Raised");
+            }
+            if (wallet.getIsAmountPaidStatus() != null) {
+                wallet.setIsAmountPaidStatus(wallet.getIsAmountPaidStatus());
+            }
+            if (!wallet.getType().equalsIgnoreCase("PayUPayment") && !wallet.getType().equalsIgnoreCase("RideGiven") && !wallet.getType().equalsIgnoreCase("BonusPoints")) {
+                list.add(wallet);
+            }
+        }
+        setResult(objectNode, list);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result redeemWalletEntries() {
+        for (Wallet wallet : Wallet.find.all()) {
+            if (wallet.getIsAmountPaidStatus() == null) {
+                wallet.setIsAmountPaidStatus("Raised");
+                wallet.update();
+                Logger.info("Wallet details " + wallet.getIsAmountPaidStatus());
+            }
+        }
+        return ok(views.html.redeemEventDetails.render(walletTableHearder, "col-sm-12", "", "Wallet", "", "", ""));
     }
 }

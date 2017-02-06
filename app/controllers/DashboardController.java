@@ -6,7 +6,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -51,18 +51,24 @@ public class DashboardController extends BaseController {
         return ok(Json.toJson(list));
     }
 
-    public Result riderPositions(Long id, int rowCount){
+    public Result riderPositions(Long id, int rowCount) {
         List<RiderPosition> list = RiderPosition.find.where().eq("user_id", id).order("lastLocationTime desc").setMaxRows(rowCount).findList();
-        Logger.info("All list data size is "+list.size());
+        Logger.info("All list data size is " + list.size()+" "+id);
         String riderPositionsString = "[";
         int count = 0;
-        for(RiderPosition riderLocation :list){
-            System.out.println(riderLocation.getLastKnownLatitude() + " " + riderLocation.getLastKnownLongitude());
-            if (riderLocation.getLastKnownLatitude() != null && riderLocation.getLastKnownLongitude() != null && riderLocation.getLastKnownLatitude() != 0.0 && riderLocation.getLastKnownLongitude() != 0.0) {
-                riderPositionsString += "{lat: " + riderLocation.getLastKnownLatitude() +
-                        ", count: "+count+
-                        ", lng: " + riderLocation.getLastKnownLongitude() +
-                        ", infowindow : \"<b> " + count + ". " + riderLocation.getLastLocationTime() + "</b>" + "\"" +
+        for (int i = list.size()-1 ; i > 1 ; i--) {
+            RiderPosition firstRider = list.get(i);
+            RiderPosition secondRider = list.get(i-1);
+            if (firstRider.getLastKnownLatitude().equals(secondRider.getLastKnownLatitude()) && firstRider.getLastKnownLongitude().equals(secondRider.getLastKnownLongitude())) {
+                list.remove(firstRider);
+            }
+        }
+        for(RiderPosition riderPosition : list){
+            if (riderPosition.getLastKnownLatitude() != null && riderPosition.getLastKnownLongitude() != null && riderPosition.getLastKnownLatitude() != 0.0 && riderPosition.getLastKnownLongitude() != 0.0) {
+                riderPositionsString += "{lat: " + (riderPosition.getLastKnownLatitude()) +
+                        ", count: "+ count +
+                        ", lng: " + riderPosition.getLastKnownLongitude() +
+                        ", infowindow : \"<b> " + count + ". " + riderPosition.getLastLocationTime() + "</b>" + "\"" +
                         "},";
                 count++;
             }

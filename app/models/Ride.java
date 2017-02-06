@@ -56,6 +56,8 @@ public class Ride extends Model {
     private transient String formatedAcceptedAt;
     private transient String formatedRideStartedAt;
     private transient String formatedRideEndedAt;
+    private transient String customerMobileNumber;
+    private transient String riderMobileNumber;
 
     public Long getId() {
         return id;
@@ -311,5 +313,21 @@ public class Ride extends Model {
 
     public void setFreeRideDiscount(Double freeRideDiscount) {
         this.freeRideDiscount = freeRideDiscount;
+    }
+
+    public String getCustomerMobileNumber() {
+        return User.find.where().eq("id" , requestorId).findUnique().getPhoneNumber();
+    }
+
+    public void setCustomerMobileNumber(String customerMobileNumber) {
+        this.customerMobileNumber = customerMobileNumber;
+    }
+
+    public String getRiderMobileNumber() {
+        return riderMobileNumber;
+    }
+
+    public void setRiderMobileNumber(String riderMobileNumber) {
+        this.riderMobileNumber = riderMobileNumber;
     }
 }
