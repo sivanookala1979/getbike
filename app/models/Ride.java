@@ -316,7 +316,7 @@ public class Ride extends Model {
     }
 
     public String getCustomerMobileNumber() {
-        return User.find.where().eq("id" , requestorId).findUnique().getPhoneNumber();
+        return customerMobileNumber;
     }
 
     public void setCustomerMobileNumber(String customerMobileNumber) {

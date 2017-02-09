@@ -17,7 +17,6 @@ import utils.StringUtils;
 import javax.inject.Inject;
 import java.io.*;
 import java.util.*;
-import java.util.Date;
 
 import static utils.CustomCollectionUtils.first;
 
@@ -333,14 +332,7 @@ public class UserController extends BaseController {
     }
 
     private void sendSms(String generatedOtp, String phoneNumber) {
-        String message = "Dear Customer, your NETSECURE code is " + generatedOtp + ".";
-        message = message.replaceAll("%", "%25");
-        message = message.replaceAll("&", "%26");
-        //message = message.replaceAll("+", "%2B");
-        message = message.replaceAll("#", "%23");
-        message = message.replaceAll("=", "%3D");
-        message = message.replaceAll(" ", "%20");
-        String url = "http://smslane.com/vendorsms/pushsms.aspx?user=siva_nookala&password=957771&msisdn=91" + phoneNumber + "&sid=JavaMC&msg=" + message + "&fl=0&gwid=2";
+        String url = "http://123.63.33.43//blank/sms/user/urlsmstemp.php?username=Vave&pass=Vav@einf5&senderid=getbyk&dest_mobileno=" + phoneNumber + "&tempid=53733&F1=" + generatedOtp + "&response=Y";
         try {
             Process process = Runtime.getRuntime().exec("curl " + url);
             System.out.println("Process result : " + process.waitFor());
