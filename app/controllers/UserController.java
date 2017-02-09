@@ -10,6 +10,7 @@ import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
+import utils.DateUtils;
 import utils.GetBikeErrorCodes;
 import utils.NumericUtils;
 import utils.StringUtils;
@@ -357,6 +358,9 @@ public class UserController extends BaseController {
     }
 
     public Result loginOtpList() {
+        for (LoginOtp loginOtp : LoginOtp.find.all()) {
+            loginOtp.setCreatedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(loginOtp.getCreatedAt().getTime())));
+        }
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
@@ -415,6 +419,7 @@ public class UserController extends BaseController {
 
     public Result loginOtpSearch() {
         String mobileNumber = request().getQueryString("input");
+        String pageNumber = request().getQueryString("pageNumber");
         Logger.debug("HI this is mobileNumber   " + mobileNumber);
         ObjectNode objectNode = Json.newObject();
         List<LoginOtp> userList = LoginOtp.find.all();
@@ -428,19 +433,26 @@ public class UserController extends BaseController {
             }
             userList.clear();
             userList.addAll(loginOtps);
+        } else {
+            userList = LoginOtp.find.where().orderBy("id").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
+            objectNode.put("size", LoginOtp.find.all().size());
         }
         setResult(objectNode, userList);
         return ok(Json.toJson(objectNode));
     }
 
     public Result usersListSearch() {
-        String srcName = request().getQueryString("input");
-        ObjectNode objectNode = Json.newObject();
         List<User> userList = null;
-        if (srcName != null && !srcName.isEmpty()) {
-            userList = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).order("id").findList();
+        ObjectNode objectNode = Json.newObject();
+        String searchInput = request().getQueryString("input");
+        Logger.info("searchInput is " + searchInput.length());
+        String pageNumber = request().getQueryString("pageNumber");
+        if (searchInput != null && !searchInput.isEmpty() && searchInput.length() > 0) {
+            userList = User.find.where().or(Expr.like("lower(name)", "%" + searchInput.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + searchInput.toLowerCase() + "%")).order("id").findList();
+            objectNode.put("size", userList.size());
         } else {
-            userList = User.find.order("id").findList();
+            userList = User.find.where().orderBy("id").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
+            objectNode.put("size", User.find.all().size());
         }
         setResult(objectNode, userList);
         return ok(Json.toJson(objectNode));

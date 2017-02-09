@@ -653,9 +653,9 @@ public class RideController extends BaseController {
         ExpressionList<Ride> rideQuery = null;
         if (isNotNullAndEmpty(srcName)) {
             listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findIds();
-            if(listOfIds.size() == 0) {
+            if (listOfIds.size() == 0) {
                 rideQuery = Ride.find.where().or(Expr.or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds)), Expr.idEq(Long.valueOf(srcName)));
-            }else{
+            } else {
                 rideQuery = Ride.find.where().or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds));
             }
 
@@ -684,11 +684,12 @@ public class RideController extends BaseController {
                 noOfPending++;
             }
             if (ride.getRideStatus().equals(RideStatus.RideAccepted)) {
-                ride.setRiderMobileNumber(User.find.where().eq("id" , ride.getRiderId()).findUnique().getPhoneNumber());
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
                 Logger.info("Inside Ride acc");
                 noOfaccepted++;
             }
             if (ride.getRideStatus().equals(RideStatus.RideClosed)) {
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
                 Logger.info("Inside Ride clo");
                 noOfCompleted++;
             }
@@ -706,16 +707,16 @@ public class RideController extends BaseController {
         List<Ride> list = new ArrayList<>();
         for (Ride ride : listOfRides) {
             if (ride.getRequestedAt() != null) {
-                ride.setFormatedRequestAt(ride.getRequestedAt());
+                ride.setFormatedRequestAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRequestedAt().getTime())));
             }
             if (ride.getAcceptedAt() != null) {
-                ride.setFormatedAcceptedAt(ride.getAcceptedAt());
+                ride.setFormatedAcceptedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getAcceptedAt().getTime())));
             }
             if (ride.getRideStartedAt() != null) {
-                ride.setFormatedRideStartedAt(ride.getRideStartedAt());
+                ride.setFormatedRideStartedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRideStartedAt().getTime())));
             }
             if (ride.getRideEndedAt() != null) {
-                ride.setFormatedRideEndedAt(ride.getRideEndedAt());
+                ride.setFormatedRideEndedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRideEndedAt().getTime())));
             }
             if (ride.getActualDestinationAddress() != null) {
                 ride.setActualDestinationAddress(ride.getActualDestinationAddress().replaceAll(",", " "));

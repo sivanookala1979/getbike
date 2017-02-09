@@ -5,7 +5,6 @@ import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dataobject.RedeemStatus;
 import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
@@ -237,13 +236,11 @@ public class WalletController extends BaseController {
 
     public Result dateWiseFilterForRedeem() {
         String startDate = request().getQueryString("startDate");
-        Logger.info("Start date "+startDate);
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
         String redeemType = request().getQueryString("redeemType");
         String srcName = request().getQueryString("srcName");
         String walletStatus = request().getQueryString("walletStatus");
-        Logger.info("Wallet Status is "+walletStatus);
         String walletId = request().getQueryString("id");
         if ("Status ALL".equals(status) || "null".equals(status)) {
             status = null;
@@ -269,7 +266,7 @@ public class WalletController extends BaseController {
         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(redeemType) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
             listOfRedeemWallet = rideQuery.orderBy("id").findList();
         }
-        if(isNotNullAndEmpty(walletId) && isNotNullAndEmpty(walletStatus)) {
+        if (isNotNullAndEmpty(walletId) && isNotNullAndEmpty(walletStatus)) {
             if (walletStatus.equalsIgnoreCase("Reject")) {
                 Wallet wallet = Wallet.find.byId(Long.parseLong(walletId));
                 wallet.setIsAmountPaidStatus("Rejected");
@@ -280,47 +277,19 @@ public class WalletController extends BaseController {
             if (walletStatus.equalsIgnoreCase("Accept")) {
                 Wallet wallet = Wallet.find.byId(Long.parseLong(walletId));
                 wallet.setIsAmountPaidStatus("Accepted");
-                Logger.info("Walllet Status Store" + wallet.getIsAmountPaidStatus());
+                Logger.info("Wallet Status Store" + wallet.getIsAmountPaidStatus());
                 wallet.setStatusActedAt(new Date());
                 wallet.update();
-            }
-        }
-        for (Wallet wallet : listOfRedeemWallet) {
-            if (wallet.getType().equals(RedeemStatus.Raised)) {
-                Logger.info("Inside Ride Raised");
-            }
-            if (wallet.getType().equals(RedeemStatus.Accepted)) {
-                Logger.info("Inside Ride Accepted");
-            }
-            if (wallet.getType().equals(RedeemStatus.Rejected)) {
-                Logger.info("Inside Ride Rejected");
-            }
-            if (wallet.getType().equals(RedeemStatus.MobileRecharge)) {
-                Logger.info("Inside Ride MobileRecharge");
-            }
-            if (wallet.getType().equals(RedeemStatus.RedeemToWallet)) {
-                Logger.info("Inside Ride RedeemToWallet");
-            }
-            if (wallet.getType().equals(RedeemStatus.RedeemToBank)) {
-                Logger.info("Inside Ride RedeemToBank");
             }
         }
         ObjectNode objectNode = Json.newObject();
         List<Wallet> list = new ArrayList<>();
         for (Wallet wallet : listOfRedeemWallet) {
-            if (wallet.getTransactionDateTime() != null) {
-                wallet.setTransactionDateTime(new Date());
-            }
-            if (wallet.getStatusActedAt() != null) {
-                wallet.setStatusActedAt(wallet.getStatusActedAt());
-            }
-            if (wallet.getIsAmountPaidStatus() == null) {
+
+            if (!isNotNullAndEmpty(wallet.getIsAmountPaidStatus())) {
                 wallet.setIsAmountPaidStatus("Raised");
             }
-            if (wallet.getIsAmountPaidStatus() != null) {
-                wallet.setIsAmountPaidStatus(wallet.getIsAmountPaidStatus());
-            }
-            if (!wallet.getType().equalsIgnoreCase("PayUPayment") && !wallet.getType().equalsIgnoreCase("RideGiven") && !wallet.getType().equalsIgnoreCase("BonusPoints")) {
+            if (wallet.getType().equalsIgnoreCase("MobileRecharge") || wallet.getType().equalsIgnoreCase("RedeemToBank") || wallet.getType().equalsIgnoreCase("RedeemToWallet")) {
                 list.add(wallet);
             }
         }

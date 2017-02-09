@@ -1,6 +1,7 @@
 @(headers: List[String] , allUsers: List[User])
 @import views.html.custom_views._
 @main("Get Bike", "Users"){
+<html  data-ng-app="myApp">
 <style>
 .dialog_table{
 		margin-top: 100px;
@@ -40,14 +41,14 @@ element.style {
     </div>
     }
     <div class="row">
-        <div data-ng-app="myApp" data-ng-controller="ProductController">
+        <div data-ng-controller="myCtrl as data">
             <div class="col-sm-2 text-left" style="padding-bottom:10px;">
-                <input data-ng-model="input" placeholder="Search by Name / Mobile"
+                <input data-ng-model="input" ng-keyup="$event.keyCode == 13 && doSearch()" placeholder="Search by Name / Mobile"
                        style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
             </div>
             <div class="col-sm-2 text-left"
                  style="width: 200px; margin-left:20px; margin-top: 15px; border-radius: 10px;">
-                <input type="button" class="btn btn-primary" value="Search" ng-click="mySearch()"/>
+                <input type="button" class="btn btn-primary" value="Search" ng-click="doSearch()"/>
             </div>
             <div class="col-sm-12">
                 <div id="test">
@@ -90,7 +91,7 @@ element.style {
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="user in users | orderBy:sortKey:reverse">
+                        <tr dir-paginate="user in data.users | itemsPerPage:data.itemsPerPage" total-items="data.total_count">
                             <td align="center"><img ng-if="user.profileImage != null" ng-src="/{{user.profileImage}}"
                                                     width="40"/><br>{{user.id}}
                             </td>
@@ -122,22 +123,51 @@ element.style {
                         </tr>
                         </tbody>
                     </table>
+                    <div class="text-right">
+                        <dir-pagination-controls
+                                max-size="10"
+                                direction-links="true"
+                                boundary-links="true"
+                                on-page-change="data.getData(newPageNumber)" >
+                        </dir-pagination-controls>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script>
-var listViewApp = angular.module('myApp', []);
-listViewApp.controller("ProductController", function ($scope, $http) {
-    $scope.users = [];
-    $scope.editingData = {};
+var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.users = [];
     $scope.input = "";
-    $scope.sort = function(keyname){
-          $scope.sortKey = keyname;
-          $scope.reverse = !$scope.reverse;
+    vm.editingData = {};
+    vm.pageno = 1; // initialize page no to 1
+    vm.total_count = 0;
+    vm.itemsPerPage = 10; //this could be a dynamic value from a drop down
+    vm.getData = function(pageno){ // This would fetch the data on page change.
+     var url = "/usersListFilter?"+"input="+$scope.input+"&itemsPerPage="+vm.itemsPerPage+"&pageNumber="+pageno;
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.users = [];
+                vm.users = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
     };
-    $scope.mySearch = function() {
+    vm.getData(vm.pageno);
+
+    $scope.doSearch = function(){
+        if($scope.input.length == 0){
+            vm.getData(vm.pageno);
+        }
         var url = "/usersListFilter?"+"input="+$scope.input;
         var httpRequest = $http({
         method : 'GET',
@@ -145,14 +175,14 @@ listViewApp.controller("ProductController", function ($scope, $http) {
         }).success(function(data, status) {
         console.log(data);
         if(data!=null){
-        $scope.users = [];
-        $scope.users = data["result"];
+        vm.users = [];
+        vm.users = data["result"];
+        vm.total_count = data["size"];
         }
         }).error(function(arg) {
         console.log(arg);
         });
     };
-    $scope.mySearch();
 
     $scope.sort = function(keyname){
           $scope.sortKey = keyname;
@@ -162,4 +192,5 @@ listViewApp.controller("ProductController", function ($scope, $http) {
 
 
 </script>
+</html>
 }

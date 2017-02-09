@@ -34,7 +34,8 @@ th {
             <div data-ng-controller="ProductController">
                 <div class="row">
                     <div class="col-sm-3 text-left" style="padding-bottom:10px;">
-                        <input type="text" ng-model="searchText" id="searchname" placeholder="Search by Name / Mobile / Trip Id" class="form-control">
+                        <input type="text" ng-model="searchText" id="searchname" ng-keyup="$event.keyCode == 13 && doDateFilter()"
+                               placeholder="Search by Name / Mobile / Trip Id" class="form-control">
                     </div>
                     <div class="col-sm-2 text-left">
                         <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter"
@@ -161,6 +162,7 @@ th {
             $scope.sortKey = keyname;
             $scope.reverse = !$scope.reverse;
         };
+
         $scope.doDateFilter = function() {
         var url = "/rideFilter?"
                 if(!angular.isUndefined($scope.startDate)){

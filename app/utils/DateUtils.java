@@ -1,8 +1,10 @@
 package utils;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by sivanookala on 16/12/16.
@@ -44,5 +46,17 @@ public class DateUtils {
         Date date = new Date(milliseconds);
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
         return sdf.format(date);
+    }
+
+    public static Date convertUTCDateToISTDate(String utcDate) {
+        DateFormat formater = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
+        formater.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+        Date date = null;
+        try {
+            date = formater.parse(utcDate);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return date;
     }
 }

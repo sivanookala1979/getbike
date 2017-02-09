@@ -107,7 +107,7 @@ th {
                         </thead>
                         <tbody>
                         <tr ng-repeat="(index, product) in products| orderBy:sortKey:reverse" class="text-left">
-                            <td>{{product.id}}.{{product.userName}}</td>
+                            <td>{{product.userName}}</td>
                             <td>{{product.transactionDateTime | date:'medium'}}<br/>
                                 {{product.statusActedAt | date:'medium'}}
                             </td>

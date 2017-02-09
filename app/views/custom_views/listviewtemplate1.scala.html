@@ -32,7 +32,7 @@ th {
 <div class="container" id="list-view-app-id">
     <div class="row">
         <div class="@colClass text-center" style="">
-            <div data-ng-app="myApp" data-ng-controller="ProductController">
+            <div data-ng-app="myApp" data-ng-controller="ProductController as data">
                 <div class="row">
                     <div class="col-sm-2 text-left" style="padding-bottom:10px;">
                         <input data-ng-model="input" placeholder="Search Mobile Number" style="width: 200px; margin-top: 15px; border-radius: 10px;" class="form-control">
@@ -51,14 +51,14 @@ th {
                            style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;overflow: auto;">
                     <thead style="border-bottom: 1px solid grey;">
                     @for((header, searchItem) <- tableHeaders){
-                    <th ng-click="sort('@{searchItem}')">@header
+                    <th style="margin-left:5%" ng-click="sort('@{searchItem}')">@header
                         <span class="glyphicon sort-icon" ng-show="sortKey=='@{searchItem}'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                     </th>
                     }
                     <th></th>
                     </thead>
                     <tbody infinite-scroll='loadMore()'>
-                    <tr ng-repeat="(index, product) in products|orderBy:sortKey:reverse" class="text-left">
+                    <tr dir-paginate="(index, product) in data.products | itemsPerPage:data.itemsPerPage" total-items="data.total_count">
                         @for((header, feildName) <- tableHeaders) {
                             @if(header.equals("#")){
                                  <td>{{index+1}}</td>
@@ -89,7 +89,15 @@ th {
 
                     </tr>
                     </tbody>
-                </table>
+                 </table>
+                 <div class="text-right">
+                     <dir-pagination-controls
+                             max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="data.getData(newPageNumber)" >
+                     </dir-pagination-controls>
+                 </div>
                 </div>
             </div>
         </div>
@@ -98,35 +106,38 @@ th {
 </div>
 <script>
 
-    var listViewApp = angular.module('myApp', []);
-
+    var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
     listViewApp.controller("ProductController", function ($scope, $http) {
-            $scope.products = [];
-            $scope.editingData = {};
-            $scope.input = "";
-              $scope.sort = function(keyname){
-                $scope.sortKey = keyname;
-                $scope.reverse = !$scope.reverse;
-            };
-            $scope.mySearch = function() {
-                var url = "/loginOtpFilter?"+"input="+$scope.input;
-                var httpRequest = $http({
-                    method : 'GET',
-                    url : url,
-                }).success(function(data, status) {
-                    console.log(data);
-                    if(data!=null){
-                     $scope.products = [];
-                       $scope.products = data["result"];
-                    }
-                }).error(function(arg) {
-                    console.log(arg);
-                });
-            };
+        var vm = this;
+        vm.products = [];
+        $scope.input = "";
+        vm.editingData = {};
+        vm.pageno = 1;
+        vm.total_count = 0;
+        vm.itemsPerPage = 10;
+        $scope.sort = function(keyname){
+              $scope.sortKey = keyname;
+              $scope.reverse = !$scope.reverse;
+        };
+        vm.getData = function(pageno){
+           var url = "/loginOtpFilter?"+"input="+$scope.input+"&pageNumber="+pageno;
+           var httpRequest = $http({
+             method : 'GET',
+             url : url,
+           }).success(function(data, status) {
+              console.log(data);
+              if(data!=null){
+                vm.products = [];
+                vm.products = data["result"];
+                vm.total_count = data["size"];
+              }
+              }).error(function(arg) {
+               console.log(arg);
+           });
+        };
+        vm.getData(vm.pageno);
 
-            $scope.mySearch();
-
-        }); //end of angular Js
+    }); //end of angular Js
 
     </script>
 }
