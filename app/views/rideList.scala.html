@@ -122,7 +122,7 @@ th {
                         <tr ng-repeat="(index, product) in products| orderBy:sortKey:reverse" class="text-left">
                             <td>{{product.id}}</td>
                             <td>{{product.requestorName}}<br/>
-                                {{product.riderName}}
+                                <a data-ng-if="product.riderName != 'Not Provided'" target="_blank" ng-href="/riderPositions/{{product.riderId}}/10">{{product.riderName}}</a>
                             </td>
                             <td>{{product.rideStatus}}</td>
                             <td>{{product.orderDistance}}</td>

@@ -1,4 +1,4 @@
-@(userRidesLocations: String)
+@(userRidesLocations: String , id: Long)
 @import views.html.custom_views._
 <div class="container">
     <div class="row">
@@ -10,8 +10,8 @@
               /* Always set the map height explicitly to define the size of the div
                * element that contains the map. */
               #map {
-                height: 60%;
-                margin-top:10px;
+                height: 65%;
+                margin-top:16px;
               }
               /* Optional: Makes the sample page fill the window. */
               html, body {
@@ -19,6 +19,14 @@
                 margin: 0;
                 padding: 0;
               }
+              #myTable{
+                height: 180px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                margin-left:14px;
+                margin-right:12px;
+              }
+
               #floating-panel {
                 position: absolute;
                 top: 5px;
@@ -43,13 +51,31 @@
             <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         </head>
         <body>
-        <div class="col-sm-2 text-left" style="width: 200px; margin-top: 20px; border-radius: 10px;">
-            <input type="button" class="btn btn-primary" value=" Back " onclick="window.location.href='/users/usersList'" />
+        <div class="row">
+            <div style="margin-top: 20px;" class="col-sm-2 text-left">
+                <input type="button" class="btn btn-primary btn-md" value=" Back "
+                       onclick="window.location.href='/users/usersList'"/>
+            </div>
+            <div class="col-sm-6 text-center">
+                <h1 class="text-center" style="color:#4286f4;">Rider Position</h1>
+            </div>
+            <div style="margin-top: 20px;" class="col-sm-4 text-right">
+                    <button type="button" class="btn btn-primary btn-md "
+                            onclick="window.location.href='/riderPositions/@id/10'">10 Locations
+                    </button>
+                    <button type="button" class="btn btn-primary btn-md "
+                            onclick="window.location.href='/riderPositions/@id/50'">50 Locations
+                    </button>
+                    <button type="button" class="btn btn-primary btn-md "
+                            onclick="window.location.href='/riderPositions/@id/100'">100 Locations
+                    </button>
+            </div>
         </div>
-        <h1 class="text-center" style="color:#4286f4;">Rider Position</h1>
-        <div id="myTable"></div>
-        <div id="map"></div>
-        <script>
+            <div class="row">
+                <div id="myTable"></div>
+            </div>
+            <div id="map"></div>
+            <script>
                 var infowindow = new google.maps.InfoWindow();
                 var marker,map;
                 var markers_json = @Html(userRidesLocations);
@@ -81,9 +107,9 @@
                 google.maps.event.addDomListener(window, 'load', initialize);
 
                 var output = "<center><table class='table table-striped' id='riderTable'"+
-                "style='border: 1px solid lightgrey; height: 20px; width: 80%;overflow: auto;'>"+
+                "style='border: 1px solid lightgrey; height: 20px; width: 100%;overflow: auto;'>"+
                 "<thead style='border-bottom: 1px solid grey;'>"+
-                "<tr style='height: 1px;'><th>Latitude</th><th>Longitude</th><th>LocationTime</th></tr></thead>";
+                "<tr style='height: 1px;'><th>Latitude</th><th>Longitude</th><th>LocationTime</th></tr></thead><tbody>";
 
                 for (var j = 0; j < markers_json.length; j++) {
                    output += "<tr class='tr" + (j%2) + "'>";

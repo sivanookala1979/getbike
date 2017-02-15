@@ -82,7 +82,7 @@ public class DashboardController extends BaseController {
         }
         riderPositionsString += "]";
         Logger.debug("Rider position string " + riderPositionsString);
-        return ok(views.html.userRides.render(riderPositionsString));
+        return ok(views.html.userRides.render(riderPositionsString , id));
     }
 
 }
