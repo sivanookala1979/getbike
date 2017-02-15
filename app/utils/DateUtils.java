@@ -1,5 +1,7 @@
 package utils;
 
+import play.Logger;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -48,15 +50,17 @@ public class DateUtils {
         return sdf.format(date);
     }
 
-    public static Date convertUTCDateToISTDate(String utcDate) {
-        DateFormat formater = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
-        formater.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+    public static Date convertUTCDateToISTDate(String utcDate){
+        DateFormat formater= new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
+        TimeZone istTime = TimeZone.getTimeZone("IST");
+        formater.setTimeZone(istTime);
         Date date = null;
         try {
             date = formater.parse(utcDate);
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             ex.printStackTrace();
         }
         return date;
     }
+
 }

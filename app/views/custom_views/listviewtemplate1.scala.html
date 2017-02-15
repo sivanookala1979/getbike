@@ -41,63 +41,62 @@ th {
                         <input type="button" class="btn btn-primary" value="Search" ng-click="mySearch()"/>
                     </div>
                     @if(isRequired.equalsIgnoreCase("Yes")){
-                        <div class="col-sm-6 text-right" style="padding-top:10px;">
-                            <a href='@{newUrl}'><img src="@routes.Assets.versioned("images/plus.png")" width="25"></a>
-                        </div>
+                    <div class="col-sm-6 text-right" style="padding-top:10px;">
+                        <a href='@{newUrl}'><img src="@routes.Assets.versioned("images/plus.png")" width="25"></a>
+                    </div>
                     }
                 </div>
                 <div id="test">
                     <table class="table table-striped"
                            style="border-left: 1px solid lightgrey; border: 2px solid lightgrey; width: 100%;overflow: auto;">
-                    <thead style="border-bottom: 1px solid grey;">
-                    @for((header, searchItem) <- tableHeaders){
-                    <th style="margin-left:5%" ng-click="sort('@{searchItem}')">@header
-                        <span class="glyphicon sort-icon" ng-show="sortKey=='@{searchItem}'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                    </th>
-                    }
-                    <th></th>
-                    </thead>
-                    <tbody infinite-scroll='loadMore()'>
-                    <tr dir-paginate="(index, product) in data.products | itemsPerPage:data.itemsPerPage" total-items="data.total_count">
-                        @for((header, feildName) <- tableHeaders) {
-                            @if(header.equals("#")){
-                                 <td>{{index+1}}</td>
-                            }else{
-                                @if(header.equals("Edit")){
-                                    <td>
-                                        <a href="#" ng-hide="editingData[product.id]" ng-click="modify(product)"><span class="glyphicon glyphicon-edit"></span></a>
-                                        <a href="#" ng-show="editingData[product.id]" ng-click="update(product)"><span class="glyphicon glyphicon-floppy-disk"></span></a>
-                                    </td>
-                                }else{
-                                    @if(header.equals("Delete")){
-                                        <td>
-                                            <a href="#" ng-hide="deletingData[product.id]" ng-click="delete(product.id)"><span class="glyphicon glyphicon-remove"></span></a>
-                                        </td>
-                                    }else {
-                                    <td>
-                                        @if(header.equalsIgnoreCase("Created At")){
-                                            <div ng-hide="editingData[product.id]">{{product.@feildName | date:'medium'}}</div>
-                                        }else{
-                                        <div ng-hide="editingData[product.id]">{{product.@feildName}}</div>
-                                        <div ng-show="editingData[product.id]"><input type="text" ng-model="product.@feildName" /></div>
-                                        }
-                                    </td>
-                                    }
-                                }
-                            }
+                        <thead style="border-bottom: 1px solid grey;">
+                        @for((header, searchItem) <- tableHeaders){
+                        <th class="text-center" ng-click="sort('@{searchItem}')">@header
+                            <span class="glyphicon sort-icon" ng-show="sortKey=='@{searchItem}'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                        </th>
                         }
+                        </thead>
+                        <tbody infinite-scroll='loadMore()'>
+                        <tr dir-paginate="(index, product) in data.products | itemsPerPage:data.itemsPerPage" total-items="data.total_count">
+                            @for((header, feildName) <- tableHeaders) {
+                            @if(header.equals("#")){
+                            <td>{{index+1}}</td>
+                            }else{
+                            @if(header.equals("Edit")){
+                            <td>
+                                <a href="#" ng-hide="editingData[product.id]" ng-click="modify(product)"><span class="glyphicon glyphicon-edit"></span></a>
+                                <a href="#" ng-show="editingData[product.id]" ng-click="update(product)"><span class="glyphicon glyphicon-floppy-disk"></span></a>
+                            </td>
+                            }else{
+                            @if(header.equals("Delete")){
+                            <td>
+                                <a href="#" ng-hide="deletingData[product.id]" ng-click="delete(product.id)"><span class="glyphicon glyphicon-remove"></span></a>
+                            </td>
+                            }else {
+                            <td>
+                                @if(header.equalsIgnoreCase("Created At")){
+                                <div ng-hide="editingData[product.id]">{{product.@feildName | date:'medium'}}</div>
+                                }else{
+                                <div ng-hide="editingData[product.id]">{{product.@feildName}}</div>
+                                <div ng-show="editingData[product.id]"><input type="text" ng-model="product.@feildName" /></div>
+                                }
+                            </td>
+                            }
+                            }
+                            }
+                            }
 
-                    </tr>
-                    </tbody>
-                 </table>
-                 <div class="text-right">
-                     <dir-pagination-controls
-                             max-size="10"
-                             direction-links="true"
-                             boundary-links="true"
-                             on-page-change="data.getData(newPageNumber)" >
-                     </dir-pagination-controls>
-                 </div>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-right">
+                        <dir-pagination-controls
+                                max-size="10"
+                                direction-links="true"
+                                boundary-links="true"
+                                on-page-change="data.getData(newPageNumber)" >
+                        </dir-pagination-controls>
+                    </div>
                 </div>
             </div>
         </div>
@@ -125,7 +124,7 @@ th {
              method : 'GET',
              url : url,
            }).success(function(data, status) {
-              console.log(data);
+              console.log(vm.total_count , data);
               if(data!=null){
                 vm.products = [];
                 vm.products = data["result"];
@@ -136,6 +135,27 @@ th {
            });
         };
         vm.getData(vm.pageno);
+
+        $scope.mySearch = function(){
+                alert("My Search")
+                if($scope.input.length == 0){
+                    vm.getData(vm.pageno);
+                }
+                var url = "/loginOtpFilter?"+"input="+$scope.input+"&pageNumber="+vm.pageno;
+                var httpRequest = $http({
+                method : 'GET',
+                url : url,
+                }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.users = [];
+                vm.users = data["result"];
+                vm.total_count = data["size"];
+                }
+                }).error(function(arg) {
+                console.log(arg);
+            });
+        };
 
     }); //end of angular Js
 

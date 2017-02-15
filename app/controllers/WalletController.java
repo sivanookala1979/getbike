@@ -201,6 +201,18 @@ public class WalletController extends BaseController {
         return redirect("/users/usersList");
     }
 
+    public Result walletPaginationList(){
+        String walletUserId = request().getQueryString("id");
+        ObjectNode objectNode = Json.newObject();
+        String pageNumber = request().getQueryString("pageNumber");
+        List<Wallet> walletsList = Wallet.find.where().eq("user_id" , walletUserId).orderBy("transactionDateTime desc").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
+        objectNode.put("size", Wallet.find.where().eq("user_id" , walletUserId).findList().size());
+
+        setResult(objectNode, walletsList);
+        return ok(Json.toJson(objectNode));
+
+    }
+
     public Result addBonusPointsToWallet(Long userId, int amount) {
         if (isValidateSession()) {
             processAddBonusPointsToWallet(userId, amount);

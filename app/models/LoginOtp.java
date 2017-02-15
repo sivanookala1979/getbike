@@ -54,7 +54,7 @@ public class LoginOtp extends Model {
     }
 
     public String getPhoneNumber() {
-        return User.find.where().eq("id", userId).findUnique().phoneNumber;
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {

@@ -613,7 +613,8 @@ public class UserControllerTest extends BaseControllerTest {
         loginOtp.setCreatedAt(new Date());
         loginOtp.setGeneratedOtp("123456");
         loginOtp.save();
-        Result result = route(fakeRequest(GET, "/loginOtpFilter?input=8855"));
+        route(fakeRequest(GET , "/users/loginOtpList"));
+        Result result = route(fakeRequest(GET, "/loginOtpFilter?input=8855&pageNumber=1"));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(loginOtp.getGeneratedOtp(), jsonNode.findPath("generatedOtp").asText());
         assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());
@@ -626,7 +627,7 @@ public class UserControllerTest extends BaseControllerTest {
         user.setEmail("sivasri@gmail.com");
         user.setPhoneNumber("9000900022");
         user.save();
-        Result result = route(fakeRequest(GET, "/usersListFilter?input=Suda"));
+        Result result = route(fakeRequest(GET, "/usersListFilter?input=Suda&pageNumber=1"));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(user.getName(), jsonNode.findPath("name").textValue());
         assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());
@@ -640,7 +641,7 @@ public class UserControllerTest extends BaseControllerTest {
         user.setEmail("sivasri@gmail.com");
         user.setPhoneNumber("9000900022");
         user.save();
-        Result result = route(fakeRequest(GET, "/usersListFilter?input=9000"));
+        Result result = route(fakeRequest(GET, "/usersListFilter?input=9000&pageNumber=1"));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(user.getName(), jsonNode.findPath("name").textValue());
         assertEquals(user.getPhoneNumber(), jsonNode.findPath("phoneNumber").textValue());

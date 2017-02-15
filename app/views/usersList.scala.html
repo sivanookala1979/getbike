@@ -168,7 +168,7 @@ listViewApp.controller('myCtrl', function ($scope, $http) {
         if($scope.input.length == 0){
             vm.getData(vm.pageno);
         }
-        var url = "/usersListFilter?"+"input="+$scope.input;
+        var url = "/usersListFilter?"+"input="+$scope.input+"&pageNumber="+vm.pageno;
         var httpRequest = $http({
         method : 'GET',
         url : url,

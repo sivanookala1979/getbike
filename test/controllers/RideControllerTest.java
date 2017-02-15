@@ -1132,6 +1132,31 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider1);
     }
+    @Test
+    public void dateWiseFilterTESTWithHappyFlow(){
+        User user = loggedInUser();
+        user.setName("Siva");
+        user.update();
+        Ride ride = createRide(user.id);
+        Date date = new Date();
+        ride.setAcceptedAt(date);
+        ride.setSourceAddress("Kavalu , Nellore");
+        ride.setActualSourceAddress("Kavali , Nellore");
+        ride.setActualDestinationAddress("Ongole , Prakasam");
+        ride.setRiderMobileNumber("9988778899");
+        ride.setAcceptedAt(date);
+        ride.setRideStartedAt(date);
+        ride.setRideEndedAt(date);
+        ride.setOrderAmount(1000.0);
+        ride.setRequestorName("Siva");
+        ride.setRiderName("Sudarsi");
+        ride.setRideStatus(RideStatus.RideClosed);
+        ride.setRiderId(user.id);
+        ride.update();
+        Result result = route(fakeRequest(GET, "/rideFilter?startDate=2017-02-15&endDate=2017-02-15&status=ALL&srcName=" + user.getName()));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals("8282828282" , actual.findPath("riderMobileNumber").textValue());
+    }
 
     IGcmUtils gcmUtilsMock;
 
