@@ -93,7 +93,7 @@ public class UserController extends BaseController {
             loginOtp.save();
             String generatedOtp = loginOtp.getGeneratedOtp();
             String phoneNumber = user.getPhoneNumber();
-            //sendSms(generatedOtp, phoneNumber);
+            sendSms(generatedOtp, phoneNumber);
 
             result = "success";
         }
