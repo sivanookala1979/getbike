@@ -39,6 +39,8 @@ import static utils.DistanceUtils.round2;
 import static utils.GetBikeErrorCodes.*;
 import static utils.NumericUtils.increment;
 import static utils.NumericUtils.zeroIfNull;
+import static utils.SMSHelper.sendSms;
+import static utils.SMSHelper.smsPrepare;
 
 /**
  * Created by sivanookala on 21/10/16.
@@ -128,6 +130,7 @@ public class RideController extends BaseController {
                         User requestor = User.find.byId(ride.getRequestorId());
                         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                         gcmUtils.sendMessage(requestor, "Your ride is accepted by " + user.getName() + " ( " + user.getPhoneNumber() + " ) and the rider will be contacting you shortly.", "rideAccepted", ride.getId());
+                        sendSms("53732", requestor.getPhoneNumber(), "&F1=" + smsPrepare(requestor.getName()) + "&F2=" + smsPrepare(user.getName() + " (" + user.getPhoneNumber() + ")"));
                         result = SUCCESS;
                     } else {
                         errorCode = RIDE_ALLOCATED_TO_OTHERS;
@@ -282,6 +285,7 @@ public class RideController extends BaseController {
                 processFreeRide(ride, requestor, user);
                 IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
                 gcmUtils.sendMessage(requestor, "Your ride is now closed.", "rideClosed", ride.getId());
+                sendSms("53731", requestor.getPhoneNumber(), "&F1=" + ride.getTotalBill());
                 objectNode.set("ride", Json.toJson(ride));
                 result = SUCCESS;
             }
@@ -645,7 +649,7 @@ public class RideController extends BaseController {
         String endDate = request().getQueryString("endDate");
         String status = request().getQueryString("status");
         String srcName = request().getQueryString("srcName");
-        Logger.debug("Start Date is "+startDate+" End date is "+endDate);
+        Logger.debug("Start Date is " + startDate + " End date is " + endDate);
         if ("ALL".equals(status) || "null".equals(status)) {
             status = null;
         }
@@ -654,9 +658,9 @@ public class RideController extends BaseController {
         ExpressionList<Ride> rideQuery = null;
         if (isNotNullAndEmpty(srcName)) {
             listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).findIds();
-            if(listOfIds.size() == 0) {
+            if (listOfIds.size() == 0) {
                 rideQuery = Ride.find.where().or(Expr.or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds)), Expr.idEq(Long.valueOf(srcName)));
-            }else{
+            } else {
                 rideQuery = Ride.find.where().or(Expr.in("requestorId", listOfIds), Expr.in("riderId", listOfIds));
             }
 
@@ -685,12 +689,12 @@ public class RideController extends BaseController {
                 noOfPending++;
             }
             if (ride.getRideStatus().equals(RideStatus.RideAccepted)) {
-                ride.setRiderMobileNumber(User.find.where().eq("id" , ride.getRiderId()).findUnique().getPhoneNumber());
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
                 Logger.info("Inside Ride acc");
                 noOfaccepted++;
             }
             if (ride.getRideStatus().equals(RideStatus.RideClosed)) {
-                ride.setRiderMobileNumber(User.find.where().eq("id" , ride.getRiderId()).findUnique().getPhoneNumber());
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
                 Logger.info("Inside Ride clo");
                 noOfCompleted++;
             }
@@ -731,8 +735,8 @@ public class RideController extends BaseController {
             if (ride.getActualSourceAddress() != null) {
                 ride.setActualSourceAddress(ride.getActualSourceAddress().replaceAll(",", " "));
             }
-            if(ride.getRequestorId() != null){
-                ride.setCustomerMobileNumber(User.find.where().eq("id" , ride.getRequestorId()).findUnique().phoneNumber);
+            if (ride.getRequestorId() != null) {
+                ride.setCustomerMobileNumber(User.find.where().eq("id", ride.getRequestorId()).findUnique().phoneNumber);
             }
             list.add(ride);
         }

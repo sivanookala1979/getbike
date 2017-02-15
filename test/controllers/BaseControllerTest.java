@@ -43,7 +43,7 @@ public class BaseControllerTest extends WithApplication {
     protected User otherUser() {
         User user = new User();
         user.setName("Adarsh T");
-        user.setPhoneNumber("9949257729");
+        user.setPhoneNumber("9949287789");
         user.setAuthToken(UUID.randomUUID().toString());
         user.setGender('M');
         user.setValidProofsUploaded(true);

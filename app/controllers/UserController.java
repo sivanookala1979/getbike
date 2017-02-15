@@ -10,15 +10,11 @@ import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
-import utils.DateUtils;
-import utils.GetBikeErrorCodes;
-import utils.NumericUtils;
-import utils.StringUtils;
+import utils.*;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.FileOutputStream;
 import java.util.*;
-import java.util.Date;
 
 import static utils.CustomCollectionUtils.first;
 
@@ -93,7 +89,7 @@ public class UserController extends BaseController {
             loginOtp.save();
             String generatedOtp = loginOtp.getGeneratedOtp();
             String phoneNumber = user.getPhoneNumber();
-            sendSms(generatedOtp, phoneNumber);
+            sendOtpToPhoneNumber(generatedOtp, phoneNumber);
 
             result = "success";
         }
@@ -333,40 +329,13 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    private void sendSms(String generatedOtp, String phoneNumber) {
-        String message = "Dear Customer, your NETSECURE code is " + generatedOtp + ".";
-        message = message.replaceAll("%", "%25");
-        message = message.replaceAll("&", "%26");
-        //message = message.replaceAll("+", "%2B");
-        message = message.replaceAll("#", "%23");
-        message = message.replaceAll("=", "%3D");
-        message = message.replaceAll(" ", "%20");
-        String url = "http://smslane.com/vendorsms/pushsms.aspx?user=siva_nookala&password=957771&msisdn=91" + phoneNumber + "&sid=JavaMC&msg=" + message + "&fl=0&gwid=2";
-        try {
-            Process process = Runtime.getRuntime().exec("curl " + url);
-            System.out.println("Process result : " + process.waitFor());
-            OutputStream stdin = process.getOutputStream();
-            InputStream stderr = process.getErrorStream();
-            InputStream stdout = process.getInputStream();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stderr));
-
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("Stdout: " + line);
-            }
-
-
-            while ((line = reader.readLine()) != null) {
-                System.out.println("Stdout: " + line);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void sendOtpToPhoneNumber(String generatedOtp, String phoneNumber) {
+        SMSHelper.sendSms("53733", phoneNumber, "&F1=" + generatedOtp);
     }
 
+
     public Result loginOtpList() {
-        for(LoginOtp loginOtp: LoginOtp.find.all()){
+        for (LoginOtp loginOtp : LoginOtp.find.all()) {
             loginOtp.setCreatedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(loginOtp.getCreatedAt().getTime())));
         }
         if (!isValidateSession()) {
@@ -376,9 +345,9 @@ public class UserController extends BaseController {
         return ok(views.html.loginOtpList.render(loginOtpTableHeaders));
     }
 
-    private void setUserPhnumberToOtpList(){
-        for(LoginOtp loginOtp: LoginOtp.find.all()){
-            loginOtp.setPhoneNumber(User.find.where().eq("id" , loginOtp.getUserId()).findUnique().phoneNumber);
+    private void setUserPhnumberToOtpList() {
+        for (LoginOtp loginOtp : LoginOtp.find.all()) {
+            loginOtp.setPhoneNumber(User.find.where().eq("id", loginOtp.getUserId()).findUnique().phoneNumber);
             loginOtp.update();
         }
     }
@@ -440,9 +409,9 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         List<LoginOtp> userList = null;
         if (mobileNumber != null && !mobileNumber.isEmpty() && Character.isDigit(mobileNumber.charAt(0))) {
-            userList = LoginOtp.find.where().like("phoneNumber" , "%" + mobileNumber + "%").orderBy("createdAt desc").findPagedList(pgNumber - 1, 10).getList();
-            objectNode.put("size" , LoginOtp.find.where().like("phoneNumber" , "%"+mobileNumber+"%").findList().size());
-        }else {
+            userList = LoginOtp.find.where().like("phoneNumber", "%" + mobileNumber + "%").orderBy("createdAt desc").findPagedList(pgNumber - 1, 10).getList();
+            objectNode.put("size", LoginOtp.find.where().like("phoneNumber", "%" + mobileNumber + "%").findList().size());
+        } else {
             userList = LoginOtp.find.where().orderBy("createdAt desc").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
             objectNode.put("size", LoginOtp.find.all().size());
         }
@@ -455,14 +424,14 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String searchInput = request().getQueryString("input");
         String pageNumber = request().getQueryString("pageNumber");
-        if (searchInput != null && !searchInput.isEmpty() && searchInput.length() > 0 ) {
+        if (searchInput != null && !searchInput.isEmpty() && searchInput.length() > 0) {
             userList = User.find.where().or(Expr.like("lower(name)", "%" + searchInput.toLowerCase() + "%"),
                     Expr.like("lower(phoneNumber)", "%" + searchInput.toLowerCase() + "%")).order("id").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
-            objectNode.put("size" , User.find.where().or(Expr.like("lower(name)", "%" + searchInput.toLowerCase() + "%"),
+            objectNode.put("size", User.find.where().or(Expr.like("lower(name)", "%" + searchInput.toLowerCase() + "%"),
                     Expr.like("lower(phoneNumber)", "%" + searchInput.toLowerCase() + "%")).findList().size());
-        }else{
+        } else {
             userList = User.find.where().orderBy("id").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
-            objectNode.put("size" , User.find.all().size());
+            objectNode.put("size", User.find.all().size());
         }
         setResult(objectNode, userList);
         return ok(Json.toJson(objectNode));
