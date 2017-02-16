@@ -66,13 +66,11 @@ public class DashboardController extends BaseController {
             }
         }
         for (RiderPosition riderPosition : list) {
-            String date = DateUtils.convertDateMilliSecondToString(riderPosition.getLastLocationTime().getTime());
-            Date istDate = DateUtils.convertUTCDateToISTDate(date);
             if (riderPosition.getLastKnownLatitude() != null && riderPosition.getLastKnownLongitude() != null && riderPosition.getLastKnownLatitude() != 0.0 && riderPosition.getLastKnownLongitude() != 0.0) {
                 riderPositionsString += "{lat: " + (riderPosition.getLastKnownLatitude()) +
                         ", count: " + count +
                         ", lng: " + riderPosition.getLastKnownLongitude() +
-                        ", infowindow : \"<b> " + count + ". " + istDate + "</b>" + "\"" +
+                        ", infowindow : \"<b> " + count + ". " + riderPosition.getLastLocationTime() + "</b>" + "\"" +
                         "},";
                 count++;
             }

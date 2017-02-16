@@ -12,6 +12,9 @@ import java.util.TimeZone;
  * Created by sivanookala on 16/12/16.
  */
 public class DateUtils {
+    public static final String YYYYMMDD = "YYYY-MM-dd";
+    public static final String MMMDDYYYYHHMMSSA = "MMM dd yyyy hh:mm:ss a";
+
     public static Date stringToDate(String date) {
         Date dateTime = null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -44,9 +47,9 @@ public class DateUtils {
         return (newDate.getTime() - oldDate.getTime()) > timeInSeconds * 1000;
     }
 
-    public static String convertDateMilliSecondToString(long milliseconds) {
-        Date date = new Date(milliseconds);
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a");
+    public static String convertDateToString(Date userDate , String dateFormat) {
+        Date date = new Date(userDate.getTime());
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         return sdf.format(date);
     }
 

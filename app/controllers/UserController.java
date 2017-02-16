@@ -338,7 +338,7 @@ public class UserController extends BaseController {
 
     public Result loginOtpList() {
         for (LoginOtp loginOtp : LoginOtp.find.all()) {
-            loginOtp.setCreatedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(loginOtp.getCreatedAt().getTime())));
+            loginOtp.setCreatedAt(loginOtp.getCreatedAt());
         }
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());

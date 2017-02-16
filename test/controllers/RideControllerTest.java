@@ -1153,9 +1153,12 @@ public class RideControllerTest extends BaseControllerTest {
         ride.setRideStatus(RideStatus.RideClosed);
         ride.setRiderId(user.id);
         ride.update();
-        Result result = route(fakeRequest(GET, "/rideFilter?startDate=2017-02-15&endDate=2017-02-15&status=ALL&srcName=" + user.getName()));
+        Result result = route(fakeRequest(GET, "/rideFilter?startDate="+DateUtils.convertDateToString(new Date() , DateUtils.YYYYMMDD)+"&endDate="+DateUtils.convertDateToString(new Date() , DateUtils.YYYYMMDD)+"&status=ALL&srcName=" + user.getName()));
         JsonNode actual = jsonFromResult(result);
         assertEquals("8282828282" , actual.findPath("riderMobileNumber").textValue());
+        assertEquals(user.getName() , actual.findPath("riderName").textValue());
+        assertEquals(ride.getOrderAmount() , actual.findPath("orderAmount").asDouble());
+        assertEquals(ride.getRideGender() , actual.findPath("rideGender").asText().charAt(0));
     }
 
     IGcmUtils gcmUtilsMock;

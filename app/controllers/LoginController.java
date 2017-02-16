@@ -1,7 +1,6 @@
 package controllers;
 
 import models.User;
-import models.UserLogin;
 import play.Logger;
 import play.data.Form;
 import play.data.FormFactory;

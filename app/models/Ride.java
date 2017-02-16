@@ -271,32 +271,32 @@ public class Ride extends Model {
         return formatedRequestAt;
     }
 
-    public void setFormatedRequestAt(Date milliseconds) {
-        this.formatedRequestAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    public void setFormatedRequestAt(Date date) {
+        this.formatedRequestAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedAcceptedAt() {
         return formatedAcceptedAt;
     }
 
-    public void setFormatedAcceptedAt(Date milliseconds) {
-        this.formatedAcceptedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    public void setFormatedAcceptedAt(Date date) {
+        this.formatedAcceptedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedRideStartedAt() {
         return formatedRideStartedAt;
     }
 
-    public void setFormatedRideStartedAt(Date milliseconds) {
-        this.formatedRideStartedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    public void setFormatedRideStartedAt(Date date) {
+        this.formatedRideStartedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedRideEndedAt() {
         return formatedRideEndedAt;
     }
 
-    public void setFormatedRideEndedAt(Date milliseconds) {
-        this.formatedRideEndedAt = DateUtils.convertDateMilliSecondToString(milliseconds.getTime());
+    public void setFormatedRideEndedAt(Date date) {
+        this.formatedRideEndedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public boolean isFreeRide() {

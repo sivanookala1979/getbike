@@ -711,18 +711,6 @@ public class RideController extends BaseController {
         setJson(objectNode, "rideSummary", obj);
         List<Ride> list = new ArrayList<>();
         for (Ride ride : listOfRides) {
-            if (ride.getRequestedAt() != null) {
-                ride.setFormatedRequestAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRequestedAt().getTime())));
-            }
-            if (ride.getAcceptedAt() != null) {
-                ride.setFormatedAcceptedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getAcceptedAt().getTime())));
-            }
-            if (ride.getRideStartedAt() != null) {
-                ride.setFormatedRideStartedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRideStartedAt().getTime())));
-            }
-            if (ride.getRideEndedAt() != null) {
-                ride.setFormatedRideEndedAt(DateUtils.convertUTCDateToISTDate(DateUtils.convertDateMilliSecondToString(ride.getRideEndedAt().getTime())));
-            }
             if (ride.getActualDestinationAddress() != null) {
                 ride.setActualDestinationAddress(ride.getActualDestinationAddress().replaceAll(",", " "));
             }
