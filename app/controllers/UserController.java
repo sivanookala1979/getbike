@@ -294,6 +294,7 @@ public class UserController extends BaseController {
                 ex.printStackTrace();
             }
             user.setValidProofsUploaded(false);
+            SMSHelper.sendSms("54037",user.getPhoneNumber(),"&");
             user.save();
             result = SUCCESS;
         }
@@ -322,6 +323,7 @@ public class UserController extends BaseController {
                 ex.printStackTrace();
             }
             user.setValidProofsUploaded(false);
+            SMSHelper.sendSms("54037",user.getPhoneNumber(),"&");
             user.save();
             result = SUCCESS;
         }
@@ -367,6 +369,18 @@ public class UserController extends BaseController {
     public Result updateUserProofValidationApprove(Long id, Boolean isValidProofs) {
         Logger.info("Boolean is " + isValidProofs);
         User user = User.find.where().eq("id", id).findUnique();
+        if (isValidProofs){
+            IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+            gcmUtils.sendMessage(user, "Your profile is declined. Please resubmit the proofs.", "getbike", null);
+            Logger.debug("Rejected .......................");
+            SMSHelper.sendSms("54039",user.getPhoneNumber(),"&");
+        }
+        else {
+            IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
+            gcmUtils.sendMessage(user, "Your profile is successfully updated.", "getbike", null);
+            Logger.debug("Approve..........................");
+            SMSHelper.sendSms("54038",user.getPhoneNumber(),"&");
+        }
         user.setValidProofsUploaded(!isValidProofs);
         user.update();
         return redirect("/users/usersList");
