@@ -678,6 +678,18 @@ public class RideController extends BaseController {
         }
         for (Ride ride : listOfRides) {
             loadNames(ride);
+            if (ride.getRequestedAt() != null) {
+                ride.setFormatedRequestAt(ride.getRequestedAt());
+            }
+            if (ride.getAcceptedAt() != null) {
+                ride.setFormatedAcceptedAt(ride.getAcceptedAt());
+            }
+            if (ride.getRideStartedAt() != null) {
+                ride.setFormatedRideStartedAt(ride.getRideStartedAt());
+            }
+            if (ride.getRideEndedAt() != null) {
+                ride.setFormatedRideEndedAt(ride.getRideEndedAt());
+            }
             if (ride.getOrderDistance() != null) {
                 totalDistance = totalDistance + ride.getOrderDistance();
             }
