@@ -91,6 +91,7 @@ GET     /uploads/:name                          controllers.HomeController.image
 
 POST    /payUSuccess                            controllers.PaymentController.payUSuccess
 POST    /payUFailure                            controllers.PaymentController.payUFailure
+POST    /paytmCheckSumGenerator                 controllers.PaymentController.paytmCheckSumGenerator
 
 GET     /systemSettings/newSystemSettings       controllers.SystemSettingsController.newSystemSettings
 POST    /systemSettings/saveData                controllers.SystemSettingsController.saveData
