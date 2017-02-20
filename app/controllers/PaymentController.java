@@ -69,12 +69,12 @@ public class PaymentController extends BaseController {
         TreeMap<String, String> parameters = new TreeMap<String, String>();
         String merchantKey = "zxiWpvNgpfS5!rUG";
         parameters.put("MID", "VaveIn61514259730321");
-        //parameters.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
-        parameters.put("CUST_ID", "CUST23657");
-        parameters.put("TXN_AMOUNT", "1");
+        parameters.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
+        parameters.put("CUST_ID", formUrlEncoded.get("CUST_ID")[0]);
+        parameters.put("TXN_AMOUNT", formUrlEncoded.get("TXN_AMOUNT")[0]);
         parameters.put("CHANNEL_ID", "WAP");
         parameters.put("INDUSTRY_TYPE_ID", "Retail");
-        parameters.put("WEBSITE", "VaveInfosoluti");
+        parameters.put("WEBSITE", formUrlEncoded.get("WEBSITE")[0]);
         Logger.info("formUrlEncoded " + formUrlEncoded);
         try {
             String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
