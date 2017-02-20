@@ -79,6 +79,10 @@ public class PaymentController extends BaseController {
         try {
             String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
             objectNode.set("CHECKSUMHASH", Json.toJson(checkSum));
+            objectNode.set("payt_STATUS", Json.toJson("1"));
+            for (String key : parameters.keySet()) {
+                objectNode.set(key, Json.toJson(parameters.get(key)));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
