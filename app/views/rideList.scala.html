@@ -94,11 +94,11 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('requestorId')" style="width:180px;">Customer <br/> Rider
+                            <th ng-click="sort('')" style="width:180px;">Customer <br/> Rider
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='requestorId'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('rideStatus')">Rider Status
+                            <th ng-click="sort('')">Ride Status
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='rideStatus'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -106,13 +106,13 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderDistance'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('requestedAt')" style="width:190px;">Requested At
+                            <th ng-click="sort('')" style="width:190px;">Requested At
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='requestedAt'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('startLatitude')">Address</span>
+                            <th ng-click="sort('')">Address</span>
                             </th>
-                            <th ng-click="sort('totalBill')">Total Bill
+                            <th ng-click="sort('')">Total Bill
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='totalBill'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -124,7 +124,7 @@ th {
                             <td>{{product.requestorName}}<br/>
                                 <a data-ng-if="product.riderName != 'Not Provided'" target="_blank" ng-href="/riderPositions/{{product.riderId}}/10">{{product.riderName}}</a>
                             </td>
-                            <td>{{product.rideStatus}}</td>
+                            <td>{{product.rideStatus}}<br/>{{product.modeOfPayment}}</td>
                             <td>{{product.orderDistance}}</td>
                             <td>{{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.acceptedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>

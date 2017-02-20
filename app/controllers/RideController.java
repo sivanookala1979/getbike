@@ -168,6 +168,7 @@ public class RideController extends BaseController {
                     ride.setStartLongitude(startLongitude);
                     ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
                     ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+                    ride.setModeOfPayment(locationsJson.get("modeOfPayment").textValue());
                     ride.setRiderId(user.getId());
                     ride.setRideGender(user.getGender());
                     String phoneNumber = locationsJson.get("phoneNumber").textValue();
@@ -669,13 +670,13 @@ public class RideController extends BaseController {
             rideQuery = Ride.find.where();
         }
         if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).orderBy("requested_at desc").findList();
         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.eq("ride_status", status).findList();
+            listOfRides = rideQuery.eq("ride_status", status).orderBy("requested_at desc").findList();
         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("requested_at desc").findList();
         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.orderBy("id").findList();
+            listOfRides = rideQuery.orderBy("requested_at desc").findList();
         }
         for (Ride ride : listOfRides) {
             loadNames(ride);
