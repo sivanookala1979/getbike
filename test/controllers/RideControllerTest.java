@@ -48,6 +48,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -72,6 +73,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
         Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode firstJsonNode = jsonFromResult(firstResult);
         Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
@@ -92,6 +94,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
         Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode firstJsonNode = jsonFromResult(firstResult);
         Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
@@ -1196,6 +1199,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
         return route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
     }
 

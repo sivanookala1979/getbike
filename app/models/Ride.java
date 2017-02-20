@@ -50,6 +50,7 @@ public class Ride extends Model {
     boolean rideStarted = false;
     boolean freeRide = false;
     Double freeRideDiscount;
+    String modeOfPayment;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -329,5 +330,13 @@ public class Ride extends Model {
 
     public void setRiderMobileNumber(String riderMobileNumber) {
         this.riderMobileNumber = riderMobileNumber;
+    }
+
+    public String getModeOfPayment() {
+        return modeOfPayment;
+    }
+
+    public void setModeOfPayment(String modeOfPayment) {
+        this.modeOfPayment = modeOfPayment;
     }
 }

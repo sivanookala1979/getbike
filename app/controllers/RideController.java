@@ -75,6 +75,7 @@ public class RideController extends BaseController {
                 ride.setStartLongitude(startLongitude);
                 ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
                 ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
+                ride.setModeOfPayment(locationsJson.get("modeOfPayment").textValue());
                 ride.setRequestorId(user.getId());
                 ride.setRideStatus(RideRequested);
                 ride.setRequestedAt(new Date());
@@ -674,7 +675,7 @@ public class RideController extends BaseController {
         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
             listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).findList();
         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.findList();
+            listOfRides = rideQuery.orderBy("id").findList();
         }
         for (Ride ride : listOfRides) {
             loadNames(ride);
