@@ -50,8 +50,8 @@ public class Ride extends Model {
     boolean rideStarted = false;
     boolean freeRide = false;
     boolean isPaid;
-    private transient boolean isUserCustomer = false;
-    private transient boolean isUserRider = false;
+    private transient boolean userCustomer = false;
+    private transient boolean userRider = false;
     Double freeRideDiscount;
     String modeOfPayment;
     private transient String requestorName;
@@ -276,7 +276,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedRequestAt(Date date) {
-        this.formatedRequestAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
+        this.formatedRequestAt = DateUtils.convertDateToString(date, DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedAcceptedAt() {
@@ -284,7 +284,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedAcceptedAt(Date date) {
-        this.formatedAcceptedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
+        this.formatedAcceptedAt = DateUtils.convertDateToString(date, DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedRideStartedAt() {
@@ -292,7 +292,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedRideStartedAt(Date date) {
-        this.formatedRideStartedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
+        this.formatedRideStartedAt = DateUtils.convertDateToString(date, DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public String getFormatedRideEndedAt() {
@@ -300,7 +300,7 @@ public class Ride extends Model {
     }
 
     public void setFormatedRideEndedAt(Date date) {
-        this.formatedRideEndedAt = DateUtils.convertDateToString(date , DateUtils.MMMDDYYYYHHMMSSA);
+        this.formatedRideEndedAt = DateUtils.convertDateToString(date, DateUtils.MMMDDYYYYHHMMSSA);
     }
 
     public boolean isFreeRide() {
@@ -352,19 +352,18 @@ public class Ride extends Model {
     }
 
     public boolean isUserCustomer() {
-        return isUserCustomer;
+        return userCustomer;
     }
 
     public void setUserCustomer(boolean userCustomer) {
-        isUserCustomer = userCustomer;
+        this.userCustomer = userCustomer;
     }
 
     public boolean isUserRider() {
-        return isUserRider;
+        return userRider;
     }
 
     public void setUserRider(boolean userRider) {
-        isUserRider = userRider;
+        this.userRider = userRider;
     }
-
 }

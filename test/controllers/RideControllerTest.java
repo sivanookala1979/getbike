@@ -48,7 +48,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq(Ride.REQUESTOR_ID, user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -73,7 +73,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode firstJsonNode = jsonFromResult(firstResult);
         Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
@@ -94,7 +94,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result firstResult = route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode firstJsonNode = jsonFromResult(firstResult);
         Ride firstRide = Ride.find.byId(firstJsonNode.get(Ride.RIDE_ID).longValue());
@@ -123,7 +123,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("name", Json.toJson("Subbarao Vellanki"));
         requestObjectNode.set("email", Json.toJson("subbarao.vellanki@gmail.com"));
         requestObjectNode.set("gender", Json.toJson('M'));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -164,7 +164,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
         JsonNode jsonNode = jsonFromResult(result);
@@ -200,7 +200,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode hailCustomerJsonNode = jsonFromResult(result);
         assertEquals(GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS, hailCustomerJsonNode.get("errorCode").intValue());
@@ -225,7 +225,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode hailCustomerJsonNode = jsonFromResult(result);
         assertEquals(GetBikeErrorCodes.INSUFFICIENT_WALLET_AMOUNT, hailCustomerJsonNode.get("errorCode").intValue());
@@ -245,7 +245,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
         requestObjectNode.set("phoneNumber", Json.toJson("7776663334"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
         JsonNode hailCustomerJsonNode = jsonFromResult(result);
         assertEquals(GetBikeErrorCodes.RIDE_VALID_PROOFS_UPLOAD, hailCustomerJsonNode.get("errorCode").intValue());
@@ -1061,6 +1061,8 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode rideById = responseObject.get("ride");
+        assertTrue(rideById.get("userCustomer").asBoolean());
+        assertFalse(rideById.get("userRider").asBoolean());
         assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
         assertEquals(firstRide.getStartLatitude(), rideById.get("startLatitude").doubleValue());
         assertEquals(firstRide.getStartLongitude(), rideById.get("startLongitude").doubleValue());
@@ -1084,6 +1086,37 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
         JsonNode rideById = responseObject.get("ride");
+        assertTrue(rideById.get("userCustomer").asBoolean());
+        assertFalse(rideById.get("userRider").asBoolean());
+        assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
+        assertEquals(firstRide.getStartLatitude(), rideById.get("startLatitude").doubleValue());
+        assertEquals(firstRide.getStartLongitude(), rideById.get("startLongitude").doubleValue());
+        assertEquals(user.getPhoneNumber(), responseObject.get("requestorPhoneNumber").textValue());
+        assertEquals(user.getName(), responseObject.get("requestorName").textValue());
+        assertEquals("Address of " + firstRide.getStartLatitude() + "," + firstRide.getStartLongitude(), responseObject.get("requestorAddress").textValue());
+        assertEquals(rideLocations.size(), responseObject.get("rideLocations").size());
+    }
+
+    @Test
+    public void getCompleteRideByIdTESTCalledByRider() {
+        User user = loggedInUser();
+        Ride firstRide = createRide(user.getId());
+        User otherUser = otherUser();
+        firstRide.setRiderId(otherUser.getId());
+        firstRide.save();
+        List<RideLocation> rideLocations = new ArrayList<>();
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(firstRide.getId(), latlongs[i], latlongs[i + 1], i);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        Result actual = route(fakeRequest(GET, "/getCompleteRideById?" + Ride.RIDE_ID + "=" + firstRide.getId()).header("Authorization", otherUser.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode rideById = responseObject.get("ride");
+        assertFalse(rideById.get("userCustomer").asBoolean());
+        assertTrue(rideById.get("userRider").asBoolean());
         assertEquals(firstRide.getId().longValue(), rideById.get("id").longValue());
         assertEquals(firstRide.getStartLatitude(), rideById.get("startLatitude").doubleValue());
         assertEquals(firstRide.getStartLongitude(), rideById.get("startLongitude").doubleValue());
@@ -1140,8 +1173,9 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider1);
     }
+
     @Test
-    public void dateWiseFilterTESTWithHappyFlow(){
+    public void dateWiseFilterTESTWithHappyFlow() {
         User user = loggedInUser();
         user.setName("Siva");
         user.update();
@@ -1161,12 +1195,12 @@ public class RideControllerTest extends BaseControllerTest {
         ride.setRideStatus(RideStatus.RideClosed);
         ride.setRiderId(user.id);
         ride.update();
-        Result result = route(fakeRequest(GET, "/rideFilter?startDate="+DateUtils.convertDateToString(new Date() , DateUtils.YYYYMMDD)+"&endDate="+DateUtils.convertDateToString(new Date() , DateUtils.YYYYMMDD)+"&status=ALL&srcName=" + user.getName()));
+        Result result = route(fakeRequest(GET, "/rideFilter?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&status=ALL&srcName=" + user.getName()));
         JsonNode actual = jsonFromResult(result);
-        assertEquals("8282828282" , actual.findPath("riderMobileNumber").textValue());
-        assertEquals(user.getName() , actual.findPath("riderName").textValue());
-        assertEquals(ride.getOrderAmount() , actual.findPath("orderAmount").asDouble());
-        assertEquals(ride.getRideGender() , actual.findPath("rideGender").asText().charAt(0));
+        assertEquals("8282828282", actual.findPath("riderMobileNumber").textValue());
+        assertEquals(user.getName(), actual.findPath("riderName").textValue());
+        assertEquals(ride.getOrderAmount(), actual.findPath("orderAmount").asDouble());
+        assertEquals(ride.getRideGender(), actual.findPath("rideGender").asText().charAt(0));
     }
 
     IGcmUtils gcmUtilsMock;
@@ -1204,7 +1238,7 @@ public class RideControllerTest extends BaseControllerTest {
         requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
         requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
         requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
-        requestObjectNode.set("modeOfPayment" , Json.toJson("Cash"));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
         return route(fakeRequest(POST, "/getBike").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
     }
 
