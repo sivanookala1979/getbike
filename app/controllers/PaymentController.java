@@ -1,12 +1,12 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
 import play.Logger;
-import play.libs.Json;
 import play.mvc.Result;
 import views.html.payUFailure;
 import views.html.payUSuccess;
@@ -64,7 +64,7 @@ public class PaymentController extends BaseController {
 
     public Result paytmCheckSumGenerator() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
-        ObjectNode objectNode = Json.newObject();
+        TreeMap<String, String> parametersOut = new TreeMap<String, String>();
         com.paytm.merchant.CheckSumServiceHelper checkSumServiceHelper = com.paytm.merchant.CheckSumServiceHelper.getCheckSumServiceHelper();
         TreeMap<String, String> parameters = new TreeMap<String, String>();
         String merchantKey = "zxiWpvNgpfS5!rUG";
@@ -78,15 +78,16 @@ public class PaymentController extends BaseController {
         Logger.info("formUrlEncoded " + formUrlEncoded);
         try {
             String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
-            objectNode.set("CHECKSUMHASH", Json.toJson(checkSum));
-            objectNode.set("payt_STATUS", Json.toJson("1"));
+            parametersOut.put("CHECKSUMHASH", checkSum);
+            parametersOut.put("payt_STATUS", "1");
             for (String key : parameters.keySet()) {
-                objectNode.set(key, Json.toJson(parameters.get(key)));
+                parametersOut.put(key, parameters.get(key));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return ok(Json.toJson(objectNode));
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        return ok(gson.toJson(parametersOut));
     }
 
 }
