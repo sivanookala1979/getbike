@@ -49,6 +49,9 @@ public class Ride extends Model {
     String actualDestinationAddress;
     boolean rideStarted = false;
     boolean freeRide = false;
+    boolean isPaid;
+    private transient boolean isUserCustomer = false;
+    private transient boolean isUserRider = false;
     Double freeRideDiscount;
     String modeOfPayment;
     private transient String requestorName;
@@ -339,4 +342,29 @@ public class Ride extends Model {
     public void setModeOfPayment(String modeOfPayment) {
         this.modeOfPayment = modeOfPayment;
     }
+
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean paid) {
+        isPaid = paid;
+    }
+
+    public boolean isUserCustomer() {
+        return isUserCustomer;
+    }
+
+    public void setUserCustomer(boolean userCustomer) {
+        isUserCustomer = userCustomer;
+    }
+
+    public boolean isUserRider() {
+        return isUserRider;
+    }
+
+    public void setUserRider(boolean userRider) {
+        isUserRider = userRider;
+    }
+
 }

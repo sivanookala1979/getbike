@@ -544,6 +544,12 @@ public class RideController extends BaseController {
             if (rideById != null) {
                 objectNode.set("ride", Json.toJson(rideById));
                 User requestor = User.find.byId(rideById.getRequestorId());
+                if (user.getId().equals(rideById.getRequestorId())){
+                    rideById.setUserCustomer(true);
+                }
+                else if (user.getId().equals(rideById.getRiderId())){
+                    rideById.setUserRider(true);
+                }
                 objectNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
                 objectNode.set("requestorName", Json.toJson(requestor.getName()));
                 objectNode.set("requestorAddress", Json.toJson("Address of " + rideById.getStartLatitude() + "," + rideById.getStartLongitude()));
@@ -564,6 +570,12 @@ public class RideController extends BaseController {
                 objectNode.set("ride", Json.toJson(rideById));
                 User requestor = User.find.byId(rideById.getRequestorId());
                 objectNode.set("requestorPhoneNumber", Json.toJson(requestor.getPhoneNumber()));
+                if (user.getId().equals(rideById.getRequestorId())){
+                    rideById.setUserCustomer(true);
+                }
+                else if (user.getId().equals(rideById.getRiderId())){
+                    rideById.setUserRider(true);
+                }
                 objectNode.set("requestorName", Json.toJson(requestor.getName()));
                 objectNode.set("requestorAddress", Json.toJson("Address of " + rideById.getStartLatitude() + "," + rideById.getStartLongitude()));
                 objectNode.set("rideLocations", Json.toJson(RideLocation.find.where().eq("rideId", rideById.getId()).order("locationTime asc").findList()));

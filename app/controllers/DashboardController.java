@@ -24,7 +24,7 @@ public class DashboardController extends BaseController {
                 riderLocationString += "{lat: " + user.getLastKnownLatitude() +
                         ", lng: " + user.getLastKnownLongitude() +
                         ", picture: { url : \"/assets/images/small-bike.png\", width: 32, height: 32 } " +
-                        ", infowindow : \"<b>" + user.getName() + "</b> <br/>" + user.getPhoneNumber() + "\"" +
+                        ", infowindow : \"<b>" + user.getName() + "</b> <br/>" + user.getPhoneNumber() + "<br/>" + user.getLastLocationTime() + "\"" +
                         "},";
             }
         }
