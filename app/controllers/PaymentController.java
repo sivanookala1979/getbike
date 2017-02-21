@@ -22,6 +22,8 @@ import java.util.TreeMap;
  */
 public class PaymentController extends BaseController {
 
+    public static final String MERCHANT_KEY = "zxiWpvNgpfS5!rUG";
+
     public Result payUSuccess() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
         String formAsString = getFormAsString();
@@ -90,7 +92,7 @@ public class PaymentController extends BaseController {
         }
         Logger.info("formUrlEncoded " + formUrlEncoded);
         try {
-            String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum("zxiWpvNgpfS5!rUG", parameters);
+            String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(MERCHANT_KEY, parameters);
             parametersOut.put("CHECKSUMHASH", checkSum);
             parametersOut.put("payt_STATUS", "1");
             parametersOut.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
@@ -104,7 +106,45 @@ public class PaymentController extends BaseController {
     public Result paytmCheckSumVerify() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
         Logger.info("formUrlEncoded " + formUrlEncoded);
-        return ok("success");
+        Set<String> paramNames = formUrlEncoded.keySet();
+        TreeMap<String, String> parameters = new TreeMap<String, String>();
+        String paytmChecksum = "";
+        for (String paramName : paramNames) {
+            if (paramName.equals("CHECKSUMHASH")) {
+                paytmChecksum = formUrlEncoded.get(paramName)[0];
+            } else {
+                parameters.put(paramName, formUrlEncoded.get(paramName)[0]);
+            }
+        }
+        boolean isValideChecksum = false;
+        try {
+            isValideChecksum = CheckSumServiceHelper.getCheckSumServiceHelper().verifycheckSum(MERCHANT_KEY, parameters, paytmChecksum);
+            parameters.put("IS_CHECKSUM_VALID", isValideChecksum == true ? "Y" : "N");
+        } catch (Exception e) {
+            parameters.put("IS_CHECKSUM_VALID", isValideChecksum == true ? "Y" : "N");
+        }
+
+        //
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        StringBuilder outputHtml = new StringBuilder();
+        outputHtml.append("<html>");
+        outputHtml.append("<head>");
+        outputHtml.append("<meta http-equiv='Content-Type' content='text/html;charset=ISO-8859-I'>");
+        outputHtml.append("<title>Paytm</title>");
+        outputHtml.append("<script type='text/javascript'>");
+        outputHtml.append("function response(){");
+        outputHtml.append("return document.getElementById('response').value;");
+        outputHtml.append("}");
+        outputHtml.append("</script>");
+        outputHtml.append("</head>");
+        outputHtml.append("<body>");
+        outputHtml.append("Redirect back to the app<br>");
+        outputHtml.append("<form name='frm' method='post'>");
+        outputHtml.append("<input type='hidden' id='response' name='responseField' value='" + gson.toJson(parameters) + "' />");
+        outputHtml.append("</form>");
+        outputHtml.append("</body>");
+        outputHtml.append("</html>");
+        return ok(outputHtml.toString()).as("text/html");
     }
 
 }
