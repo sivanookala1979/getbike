@@ -2,17 +2,18 @@ package controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.paytm.merchant.CheckSumServiceHelper;
 import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
-import play.Logger;
 import play.mvc.Result;
 import views.html.payUFailure;
 import views.html.payUSuccess;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -64,25 +65,33 @@ public class PaymentController extends BaseController {
 
     public Result paytmCheckSumGenerator() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
-        TreeMap<String, String> parametersOut = new TreeMap<String, String>();
-        com.paytm.merchant.CheckSumServiceHelper checkSumServiceHelper = com.paytm.merchant.CheckSumServiceHelper.getCheckSumServiceHelper();
+
+        Set<String> paramNames = formUrlEncoded.keySet();
+
+
         TreeMap<String, String> parameters = new TreeMap<String, String>();
-        String merchantKey = "zxiWpvNgpfS5!rUG";
-        parameters.put("MID", "WorldP64425807474247");
-        parameters.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
-        parameters.put("CUST_ID", formUrlEncoded.get("CUST_ID")[0]);
-        parameters.put("TXN_AMOUNT", formUrlEncoded.get("TXN_AMOUNT")[0]);
-        parameters.put("CHANNEL_ID", "WAP");
-        parameters.put("INDUSTRY_TYPE_ID", "Retail");
-        parameters.put("WEBSITE", formUrlEncoded.get("WEBSITE")[0]);
-        Logger.info("formUrlEncoded " + formUrlEncoded);
-        try {
-            //String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
-            parametersOut.put("CHECKSUMHASH", "hrcuaRueHQXhzVxFzpoWedePVyA/rv7Y2Icb3Dte8404xCKx4A1k1yKQjIkbEPldp8kgm+CEuPcjkxiKt/zLgcJDgiSFqPTH8DUIXKD6BvQ=");
-            parametersOut.put("payt_STATUS", "1");
-            for (String key : parameters.keySet()) {
-                parametersOut.put(key, parameters.get(key));
+        TreeMap<String, String> parametersOut = new TreeMap<String, String>();
+
+        String paytmChecksum = "";
+        parameters.put("MID", "");
+        parameters.put("ORDER_ID", "");
+        parameters.put("INDUSTRY_TYPE_ID", "");
+        parameters.put("CHANNEL_ID", "");
+        parameters.put("TXN_AMOUNT", "");
+        parameters.put("CUST_ID", "");
+        parameters.put("WEBSITE", "");
+        for (String paramName : paramNames) {
+            String paramValue = formUrlEncoded.get(paramName)[0];
+            if (paramValue.toLowerCase().contains("refund")) {
+                continue;
             }
+            parameters.put(paramName, paramValue);
+        }
+        try {
+            String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum("zxiWpvNgpfS5!rUG", parameters);
+            parametersOut.put("CHECKSUMHASH", checkSum);
+            parametersOut.put("payt_STATUS", "1");
+            parametersOut.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
