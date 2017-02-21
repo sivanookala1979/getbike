@@ -68,7 +68,7 @@ public class PaymentController extends BaseController {
         com.paytm.merchant.CheckSumServiceHelper checkSumServiceHelper = com.paytm.merchant.CheckSumServiceHelper.getCheckSumServiceHelper();
         TreeMap<String, String> parameters = new TreeMap<String, String>();
         String merchantKey = "zxiWpvNgpfS5!rUG";
-        parameters.put("MID", "VaveIn61514259730321");
+        parameters.put("MID", "WorldP64425807474247");
         parameters.put("ORDER_ID", formUrlEncoded.get("ORDER_ID")[0]);
         parameters.put("CUST_ID", formUrlEncoded.get("CUST_ID")[0]);
         parameters.put("TXN_AMOUNT", formUrlEncoded.get("TXN_AMOUNT")[0]);
