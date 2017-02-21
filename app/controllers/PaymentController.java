@@ -77,8 +77,8 @@ public class PaymentController extends BaseController {
         parameters.put("WEBSITE", formUrlEncoded.get("WEBSITE")[0]);
         Logger.info("formUrlEncoded " + formUrlEncoded);
         try {
-            String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
-            parametersOut.put("CHECKSUMHASH", checkSum);
+            //String checkSum = checkSumServiceHelper.genrateCheckSum(merchantKey, parameters);
+            parametersOut.put("CHECKSUMHASH", "hrcuaRueHQXhzVxFzpoWedePVyA/rv7Y2Icb3Dte8404xCKx4A1k1yKQjIkbEPldp8kgm+CEuPcjkxiKt/zLgcJDgiSFqPTH8DUIXKD6BvQ=");
             parametersOut.put("payt_STATUS", "1");
             for (String key : parameters.keySet()) {
                 parametersOut.put(key, parameters.get(key));
