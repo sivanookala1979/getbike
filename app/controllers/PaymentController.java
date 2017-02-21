@@ -7,6 +7,7 @@ import dataobject.WalletEntryType;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
+import play.Logger;
 import play.mvc.Result;
 import views.html.payUFailure;
 import views.html.payUSuccess;
@@ -87,6 +88,7 @@ public class PaymentController extends BaseController {
             }
             parameters.put(paramName, paramValue);
         }
+        Logger.info("formUrlEncoded " + formUrlEncoded);
         try {
             String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum("zxiWpvNgpfS5!rUG", parameters);
             parametersOut.put("CHECKSUMHASH", checkSum);
@@ -97,6 +99,12 @@ public class PaymentController extends BaseController {
         }
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         return ok(gson.toJson(parametersOut));
+    }
+
+    public Result paytmCheckSumVerify() {
+        Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
+        Logger.info("formUrlEncoded " + formUrlEncoded);
+        return ok("success");
     }
 
 }
