@@ -119,19 +119,36 @@ public class PaymentController extends BaseController {
         try {
             isValidChecksum = CheckSumServiceHelper.getCheckSumServiceHelper().verifycheckSum(MERCHANT_KEY, parameters, paytmChecksum);
             if (isValidChecksum) {
-                PaymentOrder paymentOrder = PaymentOrder.find.where().eq("orderIdentifier", parameters.get("ORDERID")).findUnique();
-                if (paymentOrder != null) {
-                    if ("Wallet".equals(paymentOrder.getOrderType())) {
-                        Wallet wallet = new Wallet();
-                        String stringAmount = parameters.get("TXN_AMOUNT");
-                        Double walletAmount = Double.parseDouble(stringAmount);
-                        wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
-                        wallet.setUserId(paymentOrder.getUserId());
-                        wallet.setType(WalletEntryType.PAY_U_PAYMENT);
-                        wallet.setDescription("Paytm Payment with details Txn ID : " + parameters.get("TXNID") + " for Rs. " + stringAmount);
-                        wallet.setPgDetails(formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString);
-                        wallet.setTransactionDateTime(new Date());
-                        wallet.save();
+                if ("TXN_SUCCESS".equals(parameters.get("STATUS"))) {
+                    PaymentOrder paymentOrder = PaymentOrder.find.where().eq("orderIdentifier", parameters.get("ORDERID")).findUnique();
+                    String stringAmount = parameters.get("TXN_AMOUNT");
+                    Double transactionAmount = Double.parseDouble(stringAmount);
+                    if (paymentOrder != null && transactionAmount >= paymentOrder.getAmount()) {
+                        String pgDetails = formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString;
+                        String txnid = parameters.get("TXNID");
+                        paymentOrder.setStatus("Processed");
+                        paymentOrder.setResponseDateTime(new Date());
+                        paymentOrder.setPgDetails(pgDetails);
+                        paymentOrder.setTxnId(txnid);
+                        paymentOrder.save();
+                        if ("Wallet".equals(paymentOrder.getOrderType())) {
+                            Wallet wallet = new Wallet();
+                            wallet.setAmount(WalletController.convertToWalletAmount(transactionAmount));
+                            wallet.setUserId(paymentOrder.getUserId());
+                            wallet.setType(WalletEntryType.PAY_U_PAYMENT);
+                            wallet.setDescription("Paytm Payment with details Txn ID : " + txnid + " for Rs. " + stringAmount);
+                            wallet.setPgDetails(pgDetails);
+                            wallet.setTransactionDateTime(new Date());
+                            wallet.save();
+                        }
+                        if ("Ride".equals(paymentOrder.getOrderType())) {
+                            Ride ride = Ride.find.byId(paymentOrder.getRideId());
+                            if (ride != null) {
+                                ride.setPaid(true);
+                                ride.save();
+                            }
+                        }
+
                     }
                 }
             }
