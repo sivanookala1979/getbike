@@ -331,6 +331,19 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void updatePaymentStatusTESTFlow(){
+        User user= loggedInUser();
+        Ride ride = new Ride();
+        ride.setRiderId(user.id);
+        ride.setRideStatus(RideStatus.RideClosed);
+        ride.save();
+        Result actual = route(fakeRequest(GET, "/updatePaymentStatus?" + Ride.RIDE_ID + "=" + ride.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        assertTrue(Ride.find.byId(ride.getId()).isPaid());
+    }
+
+    @Test
     public void acceptRideTESTWithRideInProgress() {
         User user = loggedInUser();
         user.setRideInProgress(true);

@@ -534,6 +534,22 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result updatePaymentStatus(){
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Long rideId = getLong(Ride.RIDE_ID);
+            Ride ride = Ride.find.byId(rideId);
+            if (ride != null && user.getId().equals(ride.getRiderId())) {
+                ride.setPaid(true);
+                ride.save();
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
 
     public Result getRideById() {
         ObjectNode objectNode = Json.newObject();

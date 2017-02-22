@@ -81,6 +81,7 @@ GET     /rideLocation/performSearch             controllers.RideController.perfo
 GET     /rideLocation/performSearch/            controllers.RideController.performSearch1(label: String="")
 GET     /rideLocation/performSearch/:label      controllers.RideController.performSearch1(label: String)
 GET     /rideFilter                             controllers.RideController.dateWiseFilter
+GET     /updatePaymentStatus                    controllers.RideController.updatePaymentStatus
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
