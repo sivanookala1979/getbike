@@ -121,17 +121,24 @@ public class PaymentController extends BaseController {
         }
         boolean isValidChecksum = false;
         try {
+            Logger.info("STEP 1");
             isValidChecksum = CheckSumServiceHelper.getCheckSumServiceHelper().verifycheckSum(MERCHANT_KEY, parameters, paytmChecksum);
+            Logger.info("STEP 2");
             if (isValidChecksum) {
+                Logger.info("STEP 3");
                 if ("TXN_SUCCESS".equals(parameters.get("STATUS"))) {
+                    Logger.info("STEP 4");
                     PaymentOrder paymentOrder = PaymentOrder.find.where().eq("orderIdentifier", parameters.get("ORDERID")).findUnique();
                     if (paymentOrder == null) {
                         Logger.info("Could not find payment order for " + parameters.get("ORDERID"));
                     }
+                    Logger.info("STEP 5");
                     String stringAmount = parameters.get("TXN_AMOUNT");
                     Double transactionAmount = Double.parseDouble(stringAmount);
                     Logger.info("Transaction Amount " + transactionAmount + " Payment Order Amount " + paymentOrder.getAmount());
+                    Logger.info("STEP 6");
                     if (paymentOrder != null && transactionAmount >= paymentOrder.getAmount()) {
+                        Logger.info("STEP 7");
                         String pgDetails = formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString;
                         String txnid = parameters.get("TXNID");
                         paymentOrder.setStatus("Processed");
@@ -139,7 +146,9 @@ public class PaymentController extends BaseController {
                         paymentOrder.setPgDetails(pgDetails);
                         paymentOrder.setTxnId(txnid);
                         paymentOrder.save();
+                        Logger.info("STEP 8");
                         if ("Wallet".equals(paymentOrder.getOrderType())) {
+                            Logger.info("STEP 9");
                             Wallet wallet = new Wallet();
                             wallet.setAmount(WalletController.convertToWalletAmount(transactionAmount));
                             wallet.setUserId(paymentOrder.getUserId());
@@ -150,18 +159,27 @@ public class PaymentController extends BaseController {
                             wallet.save();
                         }
                         if ("Ride".equals(paymentOrder.getOrderType())) {
+                            Logger.info("STEP 10");
                             Ride ride = Ride.find.byId(paymentOrder.getRideId());
                             if (ride != null) {
+                                Logger.info("STEP 11");
                                 ride.setPaid(true);
                                 ride.save();
                             }
                         }
+                        Logger.info("STEP 12");
 
                     } else {
+                        Logger.info("STEP 13");
                         Logger.info("Could not process the payment order.");
                     }
+                    Logger.info("STEP 14");
+
                 }
+                Logger.info("STEP 15");
             }
+            Logger.info("STEP 16");
+
             parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
         } catch (Exception e) {
             parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
