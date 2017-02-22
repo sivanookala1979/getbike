@@ -1218,19 +1218,6 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
 
-    @NotNull
-    private Ride createRide(long rideRequestorId) {
-        Ride firstRide = new Ride();
-        firstRide.setRideStatus(RideStatus.RideRequested);
-        firstRide.setRequestedAt(new Date());
-        firstRide.setStartLongitude(22.27);
-        firstRide.setStartLatitude(97.654);
-        firstRide.setRequestorId(rideRequestorId);
-        firstRide.setRideGender('M');
-        firstRide.save();
-        GetBikeUtils.sleep(200);
-        return firstRide;
-    }
 
     private Result requestGetBike(User user, double startLatitude, double startLongitude) {
         ObjectNode requestObjectNode = Json.newObject();

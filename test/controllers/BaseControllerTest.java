@@ -2,6 +2,8 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import dataobject.RideStatus;
+import models.Ride;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +13,9 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.WithApplication;
+import utils.GetBikeUtils;
 
+import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -75,5 +79,20 @@ public class BaseControllerTest extends WithApplication {
         String resultString = contentAsString(result);
         return Json.parse(resultString);
     }
+
+    @NotNull
+    protected Ride createRide(long rideRequestorId) {
+        Ride firstRide = new Ride();
+        firstRide.setRideStatus(RideStatus.RideRequested);
+        firstRide.setRequestedAt(new Date());
+        firstRide.setStartLongitude(22.27);
+        firstRide.setStartLatitude(97.654);
+        firstRide.setRequestorId(rideRequestorId);
+        firstRide.setRideGender('M');
+        firstRide.save();
+        GetBikeUtils.sleep(200);
+        return firstRide;
+    }
+
 
 }

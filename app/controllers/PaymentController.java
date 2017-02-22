@@ -1,21 +1,22 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.paytm.merchant.CheckSumServiceHelper;
 import dataobject.WalletEntryType;
+import models.PaymentOrder;
+import models.Ride;
 import models.User;
 import models.Wallet;
 import org.jetbrains.annotations.NotNull;
 import play.Logger;
+import play.libs.Json;
 import play.mvc.Result;
 import views.html.payUFailure;
 import views.html.payUSuccess;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by sivanookala on 04/01/17.
@@ -68,14 +69,9 @@ public class PaymentController extends BaseController {
 
     public Result paytmCheckSumGenerator() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
-
         Set<String> paramNames = formUrlEncoded.keySet();
-
-
         TreeMap<String, String> parameters = new TreeMap<String, String>();
         TreeMap<String, String> parametersOut = new TreeMap<String, String>();
-
-        String paytmChecksum = "";
         parameters.put("MID", "");
         parameters.put("ORDER_ID", "");
         parameters.put("INDUSTRY_TYPE_ID", "");
@@ -106,6 +102,7 @@ public class PaymentController extends BaseController {
     public Result paytmCheckSumVerify() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
         Logger.info("formUrlEncoded " + formUrlEncoded);
+        String formAsString = getFormAsString();
         Set<String> paramNames = formUrlEncoded.keySet();
         TreeMap<String, String> parameters = new TreeMap<String, String>();
         String paytmChecksum = "";
@@ -113,15 +110,34 @@ public class PaymentController extends BaseController {
             if (paramName.equals("CHECKSUMHASH")) {
                 paytmChecksum = formUrlEncoded.get(paramName)[0];
             } else {
-                parameters.put(paramName, formUrlEncoded.get(paramName)[0]);
+                String paramValue = formUrlEncoded.get(paramName)[0];
+                Logger.info("Paytm Response Param : " + paramName + "=" + paramValue);
+                parameters.put(paramName, paramValue);
             }
         }
-        boolean isValideChecksum = false;
+        boolean isValidChecksum = false;
         try {
-            isValideChecksum = CheckSumServiceHelper.getCheckSumServiceHelper().verifycheckSum(MERCHANT_KEY, parameters, paytmChecksum);
-            parameters.put("IS_CHECKSUM_VALID", isValideChecksum == true ? "Y" : "N");
+            isValidChecksum = CheckSumServiceHelper.getCheckSumServiceHelper().verifycheckSum(MERCHANT_KEY, parameters, paytmChecksum);
+            if (isValidChecksum) {
+                PaymentOrder paymentOrder = PaymentOrder.find.where().eq("orderIdentifier", parameters.get("ORDERID")).findUnique();
+                if (paymentOrder != null) {
+                    if ("Wallet".equals(paymentOrder.getOrderType())) {
+                        Wallet wallet = new Wallet();
+                        String stringAmount = parameters.get("TXN_AMOUNT");
+                        Double walletAmount = Double.parseDouble(stringAmount);
+                        wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
+                        wallet.setUserId(paymentOrder.getUserId());
+                        wallet.setType(WalletEntryType.PAY_U_PAYMENT);
+                        wallet.setDescription("Paytm Payment with details Txn ID : " + parameters.get("TXNID") + " for Rs. " + stringAmount);
+                        wallet.setPgDetails(formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString);
+                        wallet.setTransactionDateTime(new Date());
+                        wallet.save();
+                    }
+                }
+            }
+            parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
         } catch (Exception e) {
-            parameters.put("IS_CHECKSUM_VALID", isValideChecksum == true ? "Y" : "N");
+            parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
         }
 
         //
@@ -145,6 +161,38 @@ public class PaymentController extends BaseController {
         outputHtml.append("</body>");
         outputHtml.append("</html>");
         return ok(outputHtml.toString()).as("text/html");
+    }
+
+
+    public Result generateOrderId() {
+        User user = currentUser();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        if (user != null) {
+            PaymentOrder paymentOrder = new PaymentOrder();
+            paymentOrder.setOrderIdentifier(UUID.randomUUID().toString());
+            paymentOrder.setUserId(user.getId());
+            paymentOrder.setOrderDateTime(new Date());
+            paymentOrder.setOrderType(getString("type"));
+            if ("Wallet".equals(paymentOrder.getOrderType())) {
+                paymentOrder.setAmount(getDouble("amount"));
+            }
+            if ("Ride".equals(paymentOrder.getOrderType())) {
+                Ride ride = Ride.find.byId(getLong("rideId"));
+                if (ride != null) {
+                    paymentOrder.setAmount(ride.getTotalBill());
+                    paymentOrder.setRideId(ride.getId());
+                }
+            }
+            if (paymentOrder.getAmount() != null && paymentOrder.getAmount() > 0.0) {
+                paymentOrder.setStatus("Requested");
+                paymentOrder.save();
+                result = SUCCESS;
+                setJson(objectNode, "orderIdentifier", paymentOrder.getOrderIdentifier());
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
     }
 
 }
