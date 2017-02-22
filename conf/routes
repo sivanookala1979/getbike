@@ -24,6 +24,9 @@ GET     /wallet/isAmountPaidStatusRejected/:id      controllers.WalletController
 GET     /dateWiseFilterForRedeem                    controllers.WalletController.dateWiseFilterForRedeem
 GET     /wallet/redeemWalletEntries                 controllers.WalletController.redeemWalletEntries
 GET     /wallet/walletPaginationData                controllers.WalletController.walletPaginationList
+GET     /allOrders                                  controllers.PaymentController.paymentOrders
+GET     /paymentOrdersList                          controllers.PaymentController.paymentOrdersList
+GET     /paymentOrdersListFilter                    controllers.PaymentController.dateWiseFilterForPaymentOrder
 
 GET     /allRiders                                  controllers.DashboardController.allRiders
 GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders

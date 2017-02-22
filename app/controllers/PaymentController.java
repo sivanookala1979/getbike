@@ -1,5 +1,7 @@
 package controllers;
 
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import utils.DateUtils;
 import views.html.payUFailure;
 import views.html.payUSuccess;
 
@@ -24,6 +27,7 @@ import java.util.*;
 public class PaymentController extends BaseController {
 
     public static final String MERCHANT_KEY = "zxiWpvNgpfS5!rUG";
+    public LinkedHashMap<String, String> paymentTableHeaders = getTableHeadersList(new String[]{"Order Id", "User Id", "OrderIdentifier", "Order DateTime", "OrderType", "Amount", "Description", "Status", "Response"}, new String[]{"orderId", "userId", "orderIdentifier", "orderDateTime", "orderDistance", "orderType", "amount", "description", "status", "response"});
 
     public Result payUSuccess() {
         Map<String, String[]> formUrlEncoded = request().body().asFormUrlEncoded();
@@ -211,5 +215,44 @@ public class PaymentController extends BaseController {
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
     }
+    public Result paymentOrders(){
+         return ok(views.html.paymentOrder.render(PaymentOrder.find.all()));
+    }
 
+    public Result paymentOrdersList(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.paymentOrdersList.render(paymentTableHeaders, "col-sm-12", "", "Ride", "", "", ""));
+    }
+    public Result dateWiseFilterForPaymentOrder() {
+        String startDate = request().getQueryString("startDate");
+        String endDate = request().getQueryString("endDate");
+        String status = request().getQueryString("status");
+        String srcName = request().getQueryString("srcName");
+        if ("Status ALL".equals(status) || "null".equals(status)) {
+            status = null;
+        }
+        List<PaymentOrder> paymentOrdersList = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
+        ExpressionList<PaymentOrder> rideQuery = null;
+        if (isNotNullAndEmpty(srcName)) {
+            listOfIds = User.find.where().or(Expr.like("lower(name)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(phoneNumber)", "%" + srcName.toLowerCase() + "%")).orderBy("id").findIds();
+            rideQuery = PaymentOrder.find.where().or(Expr.in("userId", listOfIds), Expr.in("userId", listOfIds));
+        } else {
+            rideQuery = PaymentOrder.find.where();
+        }
+        if (isNotNullAndEmpty(status)  && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            paymentOrdersList = rideQuery.between("order_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
+        } else if (!isNotNullAndEmpty(status)  && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            paymentOrdersList = rideQuery.between("order_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
+        } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            paymentOrdersList = rideQuery.orderBy("id").findList();
+        }
+
+        ObjectNode objectNode = Json.newObject();
+
+        setResult(objectNode, paymentOrdersList);
+        return ok(Json.toJson(objectNode));
+    }
 }

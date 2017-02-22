@@ -1,0 +1,39 @@
+@(paymentOrders: List[PaymentOrder])
+@import views.html.custom_views._
+@main("Get Bike", "Ride"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+        <div class="container">
+            <div class="panel panel-primary">
+               <table class="table table-hover">
+                    <tr bgcolor="#f2f2f2">
+                        <th>Order Id</th>
+                        <th>OrderIdentifier</th>
+                        <th>UserId</th>
+                        <th>OrderDateTime</th>
+                        <th>OrderType</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>ResponseDateTime</th>
+                    </tr>
+                   <tr>
+                  @for(paymentOrder <- paymentOrders){
+                        <td>paymentOrder.id</td>
+                        <td>paymentOrder.orderIdentifier</td>
+                        <td>paymentOrder.userId</td>
+                        <td>paymentOrder.orderDateTime</td>
+                        <td>paymentOrder.orderType</td>
+                        <td>paymentOrder.amount</td>
+                        <td>paymentOrder.description</td>
+                        <td>paymentOrder.status</td>
+                        <td>paymentOrder.responseDateTime</td>
+                   }
+                   </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+}
