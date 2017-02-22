@@ -164,7 +164,7 @@ public class WalletController extends BaseController {
     }
 
     public static double getCashTransactionsAmount(User user) {
-        List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).in("type", WalletEntryType.PAY_U_PAYMENT, WalletEntryType.MOBILE_RECHARGE, WalletEntryType.REDEEM_TO_BANK, WalletEntryType.REDEEM_TO_WALLET).findList();
+        List<Wallet> wallets = Wallet.find.where().eq("userId", user.getId()).in("type", WalletEntryType.PAY_U_PAYMENT, WalletEntryType.PAYTM_PAYMENT, WalletEntryType.MOBILE_RECHARGE, WalletEntryType.REDEEM_TO_BANK, WalletEntryType.REDEEM_TO_WALLET).findList();
         double amount = 0;
         for (Wallet wallet : wallets) {
             amount += wallet.getAmount();

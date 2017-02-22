@@ -5,6 +5,7 @@ package dataobject;
  */
 public class WalletEntryType {
     public static final String PAY_U_PAYMENT = "PayUPayment";
+    public static final String PAYTM_PAYMENT = "PaytmPayment";
     public static final String MOBILE_RECHARGE = "MobileRecharge";
     public static final String REDEEM_TO_BANK = "RedeemToBank";
     public static final String REDEEM_TO_WALLET = "RedeemToWallet";

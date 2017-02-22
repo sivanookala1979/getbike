@@ -141,7 +141,7 @@ public class PaymentController extends BaseController {
                             Wallet wallet = new Wallet();
                             wallet.setAmount(WalletController.convertToWalletAmount(transactionAmount));
                             wallet.setUserId(paymentOrder.getUserId());
-                            wallet.setType(WalletEntryType.PAY_U_PAYMENT);
+                            wallet.setType(WalletEntryType.PAYTM_PAYMENT);
                             wallet.setDescription("Paytm Payment with details Txn ID : " + txnid + " for Rs. " + stringAmount);
                             wallet.setPgDetails(pgDetails);
                             wallet.setTransactionDateTime(new Date());
