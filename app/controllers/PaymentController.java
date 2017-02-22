@@ -125,8 +125,12 @@ public class PaymentController extends BaseController {
             if (isValidChecksum) {
                 if ("TXN_SUCCESS".equals(parameters.get("STATUS"))) {
                     PaymentOrder paymentOrder = PaymentOrder.find.where().eq("orderIdentifier", parameters.get("ORDERID")).findUnique();
+                    if (paymentOrder == null) {
+                        Logger.info("Could not find payment order for " + parameters.get("ORDERID"));
+                    }
                     String stringAmount = parameters.get("TXN_AMOUNT");
                     Double transactionAmount = Double.parseDouble(stringAmount);
+                    Logger.info("Transaction Amount " + transactionAmount + " Payment Order Amount " + paymentOrder.getAmount());
                     if (paymentOrder != null && transactionAmount >= paymentOrder.getAmount()) {
                         String pgDetails = formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString;
                         String txnid = parameters.get("TXNID");
@@ -153,6 +157,8 @@ public class PaymentController extends BaseController {
                             }
                         }
 
+                    } else {
+                        Logger.info("Could not process the payment order.");
                     }
                 }
             }
@@ -215,16 +221,18 @@ public class PaymentController extends BaseController {
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
     }
-    public Result paymentOrders(){
-         return ok(views.html.paymentOrder.render(PaymentOrder.find.all()));
+
+    public Result paymentOrders() {
+        return ok(views.html.paymentOrder.render(PaymentOrder.find.all()));
     }
 
-    public Result paymentOrdersList(){
+    public Result paymentOrdersList() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.paymentOrdersList.render(paymentTableHeaders, "col-sm-12", "", "Ride", "", "", ""));
     }
+
     public Result dateWiseFilterForPaymentOrder() {
         String startDate = request().getQueryString("startDate");
         String endDate = request().getQueryString("endDate");
@@ -242,9 +250,9 @@ public class PaymentController extends BaseController {
         } else {
             rideQuery = PaymentOrder.find.where();
         }
-        if (isNotNullAndEmpty(status)  && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+        if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
             paymentOrdersList = rideQuery.between("order_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
-        } else if (!isNotNullAndEmpty(status)  && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+        } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
             paymentOrdersList = rideQuery.between("order_date_time", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
         } else if (!isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
             paymentOrdersList = rideQuery.orderBy("id").findList();
