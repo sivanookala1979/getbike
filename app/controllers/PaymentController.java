@@ -133,7 +133,7 @@ public class PaymentController extends BaseController {
                         Logger.info("Could not find payment order for " + parameters.get("ORDERID"));
                     }
                     Logger.info("STEP 5");
-                    String stringAmount = parameters.get("TXN_AMOUNT");
+                    String stringAmount = parameters.get("TXNAMOUNT");
                     Double transactionAmount = Double.parseDouble(stringAmount);
                     Logger.info("Transaction Amount " + transactionAmount + " Payment Order Amount " + paymentOrder.getAmount());
                     Logger.info("STEP 6");
@@ -182,6 +182,7 @@ public class PaymentController extends BaseController {
 
             parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
         } catch (Exception e) {
+            Logger.error(e.getMessage(), e);
             parameters.put("IS_CHECKSUM_VALID", isValidChecksum == true ? "Y" : "N");
         }
 
