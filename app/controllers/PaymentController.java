@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class PaymentController extends BaseController {
 
-    public static final String MERCHANT_KEY = "zxiWpvNgpfS5!rUG";
+    public static final String MERCHANT_KEY = "VwsvnLQvWiAzXcc!";
     public LinkedHashMap<String, String> paymentTableHeaders = getTableHeadersList(new String[]{"Order Id", "User Id", "OrderIdentifier", "Order DateTime", "OrderType", "Amount", "Description", "Status", "Response"}, new String[]{"orderId", "userId", "orderIdentifier", "orderDateTime", "orderDistance", "orderType", "amount", "description", "status", "response"});
 
     public Result payUSuccess() {
