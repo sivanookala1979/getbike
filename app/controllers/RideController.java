@@ -75,7 +75,11 @@ public class RideController extends BaseController {
                 ride.setStartLongitude(startLongitude);
                 ride.setSourceAddress(locationsJson.get("sourceAddress").textValue());
                 ride.setDestinationAddress(locationsJson.get("destinationAddress").textValue());
-                ride.setModeOfPayment(locationsJson.get("modeOfPayment").textValue());
+                if (locationsJson.has("modeOfPayment")) {
+                    ride.setModeOfPayment(locationsJson.get("modeOfPayment").textValue());
+                } else {
+                    ride.setModeOfPayment("Cash");
+                }
                 ride.setRequestorId(user.getId());
                 ride.setRideStatus(RideRequested);
                 ride.setRequestedAt(new Date());
