@@ -16,6 +16,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import utils.DateUtils;
+import utils.StringUtils;
 import views.html.payUFailure;
 import views.html.payUSuccess;
 
@@ -35,16 +36,24 @@ public class PaymentController extends BaseController {
         if (formUrlEncoded.get("udf1") != null) {
             User paymentUser = User.find.where().eq("authToken", formUrlEncoded.get("udf1")[0]).findUnique();
             if (paymentUser != null) {
-                Wallet wallet = new Wallet();
-                String stringAmount = formUrlEncoded.get("amount")[0];
-                Double walletAmount = Double.parseDouble(stringAmount);
-                wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
-                wallet.setUserId(paymentUser.getId());
-                wallet.setType(WalletEntryType.PAY_U_PAYMENT);
-                wallet.setDescription("Pay U Payment with details Txn ID : " + formUrlEncoded.get("txnid")[0] + " for Rs. " + stringAmount);
-                wallet.setPgDetails(formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString);
-                wallet.setTransactionDateTime(new Date());
-                wallet.save();
+                String udf2 = formUrlEncoded.get("udf2")[0];
+                String udf3 = formUrlEncoded.get("udf3")[0];
+                String pgDetails = formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString;
+                if ("Wallet".equals(udf2)) {
+                    Wallet wallet = new Wallet();
+                    String stringAmount = formUrlEncoded.get("amount")[0];
+                    Double walletAmount = Double.parseDouble(stringAmount);
+                    wallet.setAmount(WalletController.convertToWalletAmount(walletAmount));
+                    wallet.setUserId(paymentUser.getId());
+                    wallet.setType(WalletEntryType.PAY_U_PAYMENT);
+                    wallet.setDescription("Pay U Payment with details Txn ID : " + formUrlEncoded.get("txnid")[0] + " for Rs. " + stringAmount);
+                    wallet.setPgDetails(pgDetails);
+                    wallet.setTransactionDateTime(new Date());
+                    wallet.save();
+                }
+                if ("Ride".equals(udf2) && StringUtils.isNotNullAndEmpty(udf3)) {
+                    markRideAsPaid(Long.parseLong(udf3));
+                }
             }
         }
         return ok(payUSuccess.render(formAsString));
@@ -148,11 +157,7 @@ public class PaymentController extends BaseController {
                             wallet.save();
                         }
                         if ("Ride".equals(paymentOrder.getOrderType())) {
-                            Ride ride = Ride.find.byId(paymentOrder.getRideId());
-                            if (ride != null) {
-                                ride.setPaid(true);
-                                ride.save();
-                            }
+                            markRideAsPaid(paymentOrder.getRideId());
                         }
 
                     } else {
@@ -187,6 +192,14 @@ public class PaymentController extends BaseController {
         outputHtml.append("</body>");
         outputHtml.append("</html>");
         return ok(outputHtml.toString()).as("text/html");
+    }
+
+    private void markRideAsPaid(Long rideId) {
+        Ride ride = Ride.find.byId(rideId);
+        if (ride != null) {
+            ride.setPaid(true);
+            ride.save();
+        }
     }
 
 
