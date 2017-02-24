@@ -17,22 +17,20 @@
                         <th>Status</th>
                         <th>ResponseDateTime</th>
                     </tr>
-
-                  @for(paymentOrder <- paymentOrders){
+                   @for(paymentOrder <- paymentOrders){
                    <tr style="overflow:auto;" >
-                        <td>@paymentOrder.id</td>
-                        <td>@paymentOrder.orderIdentifier</td>
-                        <td>@paymentOrder.userId</td>
-                        <td>@paymentOrder.orderDateTime</td>
-                        <td>@paymentOrder.orderType</td>
-                        <td>@paymentOrder.amount</td>
-                        <td>@paymentOrder.description</td>
-                        <td>@paymentOrder.status</td>
-                        <td>@paymentOrder.responseDateTime</td>
+                       <td>@paymentOrder.getId()</td>
+                       <td>@paymentOrder.getOrderIdentifier()</td>
+                       <td>@paymentOrder.getUserId()</td>
+                       <td>@paymentOrder.getOrderDateTime()</td>
+                       <td>@paymentOrder.getOrderType()</td>
+                       <td>@paymentOrder.getAmount()</td>
+                       <td>@paymentOrder.getDescription()</td>
+                       <td>@paymentOrder.getStatus()</td>
+                       <td>@paymentOrder.getResponseDateTime()</td>
                    </tr>
                    }
-
-                </table>
+               </table>
             </div>
 
         </div>
