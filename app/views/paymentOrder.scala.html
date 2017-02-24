@@ -17,19 +17,21 @@
                         <th>Status</th>
                         <th>ResponseDateTime</th>
                     </tr>
-                   <tr>
+
                   @for(paymentOrder <- paymentOrders){
-                        <td>paymentOrder.id</td>
-                        <td>paymentOrder.orderIdentifier</td>
-                        <td>paymentOrder.userId</td>
-                        <td>paymentOrder.orderDateTime</td>
-                        <td>paymentOrder.orderType</td>
-                        <td>paymentOrder.amount</td>
-                        <td>paymentOrder.description</td>
-                        <td>paymentOrder.status</td>
-                        <td>paymentOrder.responseDateTime</td>
-                   }
+                   <tr style="overflow:auto;" >
+                        <td>@paymentOrder.id</td>
+                        <td>@paymentOrder.orderIdentifier</td>
+                        <td>@paymentOrder.userId</td>
+                        <td>@paymentOrder.orderDateTime</td>
+                        <td>@paymentOrder.orderType</td>
+                        <td>@paymentOrder.amount</td>
+                        <td>@paymentOrder.description</td>
+                        <td>@paymentOrder.status</td>
+                        <td>@paymentOrder.responseDateTime</td>
                    </tr>
+                   }
+
                 </table>
             </div>
 
