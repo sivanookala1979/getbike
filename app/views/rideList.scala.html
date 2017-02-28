@@ -124,7 +124,7 @@ th {
                             <td>{{product.requestorName}}<br/>
                                 <a data-ng-if="product.riderName != 'Not Provided'" target="_blank" ng-href="/riderPositions/{{product.riderId}}/10">{{product.riderName}}</a>
                             </td>
-                            <td>{{product.rideStatus}}<br/>{{product.modeOfPayment}}</td>
+                            <td>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}</td>
                             <td>{{product.orderDistance}}</td>
                             <td>{{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.acceptedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>

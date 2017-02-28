@@ -52,7 +52,7 @@ public class PaymentController extends BaseController {
                     wallet.save();
                 }
                 if ("Ride".equals(udf2) && StringUtils.isNotNullAndEmpty(udf3)) {
-                    markRideAsPaid(Long.parseLong(udf3));
+                    markRideAsPaid(Long.parseLong(udf3),WalletEntryType.PAY_U_PAYMENT);
                 }
             }
         }
@@ -157,7 +157,7 @@ public class PaymentController extends BaseController {
                             wallet.save();
                         }
                         if ("Ride".equals(paymentOrder.getOrderType())) {
-                            markRideAsPaid(paymentOrder.getRideId());
+                            markRideAsPaid(paymentOrder.getRideId(),WalletEntryType.PAYTM_PAYMENT);
                         }
 
                     } else {
@@ -194,11 +194,18 @@ public class PaymentController extends BaseController {
         return ok(outputHtml.toString()).as("text/html");
     }
 
-    private void markRideAsPaid(Long rideId) {
+    private void markRideAsPaid(Long rideId, String walletEntryType) {
         Ride ride = Ride.find.byId(rideId);
         if (ride != null) {
             ride.setPaid(true);
             ride.save();
+            Wallet wallet = new Wallet();
+            wallet.setUserId(ride.getRiderId());
+            wallet.setAmount(WalletController.convertToWalletAmount(ride.getTotalBill()));
+            wallet.setTransactionDateTime(new Date());
+            wallet.setDescription("Points from "+walletEntryType+" with Trip TD : "+ride.getId()+" for Rs. "+ride.getTotalBill());
+            wallet.setType(walletEntryType);
+            wallet.save();
         }
     }
 

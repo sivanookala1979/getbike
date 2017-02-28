@@ -718,6 +718,12 @@ public class RideController extends BaseController {
             if (ride.getAcceptedAt() != null) {
                 ride.setFormatedAcceptedAt(ride.getAcceptedAt());
             }
+            if (ride.isPaid()){
+                ride.setRidePaymentStatus("Success");
+            }
+            else {
+                ride.setRidePaymentStatus("Pending");
+            }
             if (ride.getRideStartedAt() != null) {
                 ride.setFormatedRideStartedAt(ride.getRideStartedAt());
             }

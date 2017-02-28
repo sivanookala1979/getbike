@@ -62,6 +62,7 @@ public class Ride extends Model {
     private transient String formatedRideEndedAt;
     private transient String customerMobileNumber;
     private transient String riderMobileNumber;
+    private transient String ridePaymentStatus;
 
     public Long getId() {
         return id;
@@ -365,5 +366,13 @@ public class Ride extends Model {
 
     public void setUserRider(boolean userRider) {
         this.userRider = userRider;
+    }
+
+    public String getRidePaymentStatus() {
+        return ridePaymentStatus;
+    }
+
+    public void setRidePaymentStatus(String ridePaymentStatus) {
+        this.ridePaymentStatus = ridePaymentStatus;
     }
 }
