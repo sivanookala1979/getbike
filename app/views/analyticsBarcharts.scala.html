@@ -1,0 +1,86 @@
+@main("Get Bike", "Analytics"){
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<div data-ng-controller="container">
+</div>
+
+<div  id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<script>
+    var listViewApp = angular.module("myApp", []);
+    listViewApp.controller("container", function ($scope, $http, $filter) {
+            $scope.products = [];
+            $scope.rideSummary = [];
+        $scope.weeklyAnalytics = function() {
+        var url = "/analyticslist?"
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.products = [];
+                     $scope.products = data["result"];
+                     $scope.rideSummary = data["rideSummary"];
+                    Highcharts.chart('container', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'getbike Weekly Analytics'
+                        },
+                        subtitle: {
+                            text: $scope.rideSummary.Dates[0]+'  To  '+$scope.rideSummary.Dates[6]
+                        },
+                        xAxis: {
+                            categories: $scope.rideSummary.Dates,
+                            title: {
+                                text: 'Dates'
+                            },
+                        },
+                        yAxis: {
+                            title: {
+                                text: ''
+                            },
+                        },
+                        plotOptions: {
+                            column: {
+                                marker: {
+                                    radius: 4,
+                                    lineColor: '#666666',
+                                    lineWidth: 1
+                                },
+                                dataLabels: {
+                                    enabled: true
+                                },
+                                enableMouseTracking: true
+                            }
+                        },legend: {
+                                    enabled: true
+                        },
+                        series: [{
+                            name: 'Number of Requested Rides',
+                            data: $scope.rideSummary.numberOfRideslist
+                        },{
+                            name: 'Number of Canceled Rides',
+                            data: $scope.rideSummary.noOfCancellist
+                        },{
+                            name: 'Number of Completed Rides',
+                            data: $scope.rideSummary.noOfCompletedlist
+                        },{
+                            name: 'Number of Pending Rides',
+                            data: $scope.rideSummary.noOfPendinglist
+                        }]
+                    });
+
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+        $scope.weeklyAnalytics();
+  //end of angular Js
+});
+</script>
+}

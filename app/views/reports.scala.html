@@ -1,0 +1,154 @@
+@import views.html.custom_views._
+@main("Get Bike", "Reports"){
+<style type="text/css">
+    .Table
+    {
+        display: table;
+    }
+    .Title
+    {
+        display: table-caption;
+        text-align: center;
+        font-weight: bold;
+        font-size: larger;
+
+    }
+    .Heading
+    {
+        display: table-row;
+        font-weight: bold;
+        text-align: center;
+        background-color: #f9f9f9;
+        padding-top: 10px;
+        padding-bottom: 10px;
+
+    }
+    .Row
+    {
+        display: table-row;
+    }
+    .Cell
+    {
+        display: table-cell;
+        border: solid;
+        border-width: thin;
+        padding-left:  4px;
+        padding-right: 4px;
+    }
+</style>
+<div class="row">
+        <div class="col-sm-12">
+            <div data-ng-controller="ProductController">
+                    <h2>Weekly Summary Report</h2>
+                    <div class="Table">
+                        <div class="Heading">
+                            <div class="Cell">
+                                <p>Date</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Number Of rides</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Accepted Rides</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Pending Rides</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Cancel Rides</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Completed Rides</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Distance</p>
+                            </div>
+                            <div class="Cell">
+                                <p>Total Bill Amount</p>
+                            </div>
+                        </div>
+                        <div class="Row" ng-repeat=" n in [1,2,3,4,5,6,7]">
+                            <div class="Cell">
+                                <p>{{rideSummary.Dates[$index]| date:'MMM d yyyy':'IST'}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.numberOfRideslist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.noOfacceptedlist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.noOfPendinglist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.noOfCancellist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.noOfCompletedlist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.totalDistancelist[$index]}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p>{{rideSummary.totalAmountlist[$index]}}</p>
+                            </div>
+                        </div>
+                        <div class="Row" style="background-color:black;">
+                            <div class="Cell">
+                                 <b><p style="color:white;">ToTal </p></b>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.numberOfRidesForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.acceptedRidesForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.pendingRidesForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.cancelRidesForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.completedRidesForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.totalDistanceForWeek}}</p>
+                            </div>
+                            <div class="Cell">
+                                <p style="color:white;">{{rideSummary.totalAmountForWeek}}</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+<script src="@routes.Assets.versioned("javascripts/FileSaver.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/json-export-excel.js")" type="text/javascript"></script>
+<script>
+    var listViewApp = angular.module("myApp", ["ngJsonExportExcel"]);
+    listViewApp.controller("ProductController", function ($scope, $http, $filter) {
+            $scope.products = [];
+            $scope.rideSummary = [];
+        $scope.doDateFilter = function() {
+        var url = "/analyticslist?"
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data, status) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.products = [];
+                       $scope.products = data["result"];
+                       $scope.rideSummary = data["rideSummary"];
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+        $scope.doDateFilter();
+  }); //end of angular Js
+</script>
+}

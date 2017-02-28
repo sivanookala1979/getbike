@@ -41,21 +41,27 @@
      <div class="row">
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-             <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+             <li class="active"><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
               <li><a href="/users/usersList"><span class="glyphicon glyphicon-user"></span> Users</a></li>
               <li><a href="/ride/rideList"><span class="glyphicon glyphicon-fire"></span>  Rides </a></li>
               <li><a href="/users/loginOtpList"><span class="glyphicon glyphicon-envelope"></span> OTPs</a></li>
               <li><a href="/allRiders"><span class="glyphicon glyphicon-globe"></span> Rider Locations</a></li>
               <li><a href="/systemSettings/systemSettingList"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
               <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event</a></li>
-              <li><a href="/allOrders"><span class="fa fa-inr"></span> Payment Orders</a></li>
-              <li><a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Orders2</a></li>
+              <li><a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a></li>
             <li class="dropdown">
               <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">User Maintenance<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="/user/userMaintenance">Create NewUser</a></li>
                 <li><a href=" /user/changepassword">Change Password</a></li>
               </ul>-->
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-equalizer"> Analytics<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/analytics"><span class="glyphicon glyphicon-equalizer"></span> Weekly Amount</a></li>
+                <li><a href="/analytics/analyticBar"><span class="glyphicon glyphicon-equalizer"></span> Weekly Rides</a></li>
+              </ul>
             </li>
         </ul>
       </div>
@@ -75,11 +81,11 @@
     <script type="text/javascript">
     @if(adminRole.equalsIgnoreCase("Admin") ){
      jQuery(function ($) {
-        $('li.dropdown').show()
+        $('li.dropdown2').show()
      });
      }else{
         jQuery(function ($) {
-          $('li.dropdown').hide()
+          $('li.dropdown2').hide()
         });
      }
     </script>

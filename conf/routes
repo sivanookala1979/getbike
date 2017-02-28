@@ -4,6 +4,7 @@
 
 # An example controller showing a sample home page
 GET     /                                           controllers.LoginController.login
+GET     /home                                       controllers.HomeController.homeScreen
 POST    /user/loginUserDetails                      controllers.LoginController.loginUserDetails
 GET     /user/logout                                controllers.LoginController.logout
 GET     /user/userMaintenance                       controllers.LoginController.createNewUser
@@ -27,6 +28,12 @@ GET     /wallet/walletPaginationData                controllers.WalletController
 GET     /allOrders                                  controllers.PaymentController.paymentOrders
 GET     /paymentOrdersList                          controllers.PaymentController.paymentOrdersList
 GET     /paymentOrdersListFilter                    controllers.PaymentController.dateWiseFilterForPaymentOrder
+GET     /analytics                                  controllers.AnalyticsController.analytics
+GET     /analyticslist                              controllers.AnalyticsController.weeklyAnalytics
+GET     /analytics/analyticBar                      controllers.AnalyticsController.analyticsFilter
+GET     /reports                                    controllers.AnalyticsController.reportData
+
+
 
 GET     /allRiders                                  controllers.DashboardController.allRiders
 GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders

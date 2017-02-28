@@ -1,5 +1,7 @@
 package controllers;
 
+import models.Ride;
+import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.index;
@@ -38,5 +40,5 @@ public class HomeController extends Controller {
             return notFound(imageFile.getAbsoluteFile());
         }
     }
-
+    public Result homeScreen(){return ok(views.html.home.render(User.find.all(), Ride.find.all()));}
 }

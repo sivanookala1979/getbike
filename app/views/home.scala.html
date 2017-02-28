@@ -1,0 +1,81 @@
+@(user: List[User],ride: List[Ride])
+@main("Get Bike", "Home"){
+<head>
+    <style>
+     .panel-default > .panel-heading-custom{
+      background-image: none;
+      background-color: #dae9fe;
+      color: #1464F4;
+      }
+      .panel-default > .panel-heading-custom2{
+       background-image: none;
+       background-color: #dae9fe;
+       color: #1464F4;
+        }
+      .panel-default > .panel-heading-custom3{
+       background-image: none;
+       background-color: #dae9fe;
+       color: #1464F4;
+       }
+       h1.panel-title {
+          font-size: 36px;
+       }
+       .panel-body {
+        font-size: 18px;
+        color:#1464F4;
+       }
+       .btn-block {
+        padding: 0px 0px;
+        font-size: 18px;
+        border-radius: 3px;
+        }
+        .btn-primary {
+         background-color: #1464F4;
+        }
+</style>
+</head>
+<body>
+<div class="col-xs-12" style="height:50px;"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-offset-1 col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading panel-heading-custom">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="pull-right" style="margin-top: 0;"><span class="glyphicon glyphicon-cog"></div>
+                                    <div class="pull-left" style="margin-top: 0;">Dev</div>
+                                </div>
+                            </div>
+                            <h1 class="panel-title text-center">getbike Test</h1>
+                        </div>
+                        <div class="panel-body text-center">
+                            Date : @(new Date().format("dd-MMM-YYYY"))<hr>
+                            <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='http://test.getbike.co.in'">Login</button>
+                            <font size="2" color="6E6E6E">Login For Getbike Test Env.</font>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-offset-1 col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading panel-heading-custom2">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="pull-right" style="margin-top: 0;"><span class="glyphicon glyphicon-cog"></div>
+                                    <div class="pull-left" style="margin-top: 0;">Prod</div>
+                                </div>
+                            </div>
+
+                            <h1 class="panel-title text-center" >getbike Prod</h1>
+                        </div>
+                        <div class="panel-body text-center">
+                            Date : @(new Date().format("dd-MMM-YYYY"))<hr>
+                            @user.length &nbsp;&nbsp;&nbsp;&nbsp;@ride.length<br>
+                            <font size="2" color="6E6E6E"><b>Users</b></font>&nbsp;&nbsp;&nbsp;&nbsp;<font size="2" color="#6E6E6E"><b>Rides</b></font>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
