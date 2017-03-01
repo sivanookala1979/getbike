@@ -44,7 +44,7 @@ public class LoginController extends BaseController {
                 session("admin", uniqueUser.getRole());
             }
             session("User", user.getEmail());
-            return redirect("/users/usersList");
+            return redirect("/home");
         } else {
             flash("error", "Invalid Username/Password !");
             return badRequest(views.html.login.render(userForm));
