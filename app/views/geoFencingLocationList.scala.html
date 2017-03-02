@@ -1,0 +1,60 @@
+@main("Get Bike", "Ride"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="text-right">
+                    <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/geoFencinglocations'">Add New GeoLocation</button>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+                <table class="table table-striped">
+                    <tr bgcolor="#f2f2f2">
+                        <th>Id</th>
+                        <th>latitude</th>
+                        <th>longitude</th>
+                        <th>radius</th>
+                        <th>addressArea</th>
+                    </tr>
+                    <tr dir-paginate="location in data.locations | itemsPerPage:data.itemsPerPage"
+                        total-items="data.total_count">
+                        <td>{{location.id}}</td>
+                        <td>{{location.latitude}}</td>
+                        <td>{{location.longitude}}</td>
+                        <td>{{location.radius}}</td>
+                        <td>{{location.addressArea}}</td>
+                    </tr>
+                </table>
+            </div>
+    </div>
+    </div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.locations = [];
+    vm.pageno = 1;
+    vm.total_count = 0;
+    vm.itemsPerPage = 10;
+    vm.getData = function(pageno){
+     var url = "/fencingLocations?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.locations = [];
+                vm.locations = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData(vm.pageno);
+});
+</script>
+}

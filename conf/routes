@@ -89,6 +89,11 @@ GET     /rideLocation/performSearch/            controllers.RideController.perfo
 GET     /rideLocation/performSearch/:label      controllers.RideController.performSearch1(label: String)
 GET     /rideFilter                             controllers.RideController.dateWiseFilter
 GET     /updatePaymentStatus                    controllers.RideController.updatePaymentStatus
+GET     /geoFencingAreaValidation               controllers.RideController.geoFencingAreaValidation
+GET     /geoFencinglocations                    controllers.RideController.addGeoFencingLocation
+POST    /saveFencinglocations                   controllers.RideController.saveGeoFencingLocation
+GET     /fencingLocations                       controllers.RideController.viewGeoFencingLocation
+GET     /allFencinglocations                    controllers.RideController.getAllGeoFencingLocations
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)

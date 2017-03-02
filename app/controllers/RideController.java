@@ -10,14 +10,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
 import dataobject.WalletEntryType;
-import models.Ride;
-import models.RideLocation;
-import models.User;
-import models.Wallet;
+import models.*;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.json.simple.JSONObject;
 import play.Logger;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
@@ -26,6 +25,7 @@ import play.mvc.BodyParser;
 import play.mvc.Result;
 import utils.*;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -627,6 +627,51 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result geoFencingAreaValidation() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            Double userLatitude = getDouble("latitude");
+            Double userLongitude = getDouble("longitude");
+            List<GeoFencingLocation> allGeoFencingLocations = GeoFencingLocation.find.all();
+            if (allGeoFencingLocations.size() > 0){
+                for (GeoFencingLocation geoFencingLocationList :allGeoFencingLocations){
+                    GeoFencingLocation geoFencingLocation= GeoFencingLocation.find.byId(geoFencingLocationList.getId());
+                    double geoLatitude = geoFencingLocation.getLatitude();
+                    double geoLongitude = geoFencingLocation.getLongitude();
+                    int radius = geoFencingLocation.getRadius();
+                    double distance = getDistanceFromLatLngInKm(userLatitude,userLongitude,geoLatitude,geoLongitude);
+                    if (distance < radius ){
+                        result = SUCCESS;
+                    }
+                }
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public double getDistanceFromLatLngInKm(double userLatitude,double userLongitude,double geoLatitude,double geoLongitude) {
+        int radius = 6371; // Radius of the earth in km
+
+        double dLat = deg2rad(geoLatitude-userLatitude);
+        double dLon = deg2rad(geoLongitude-userLongitude);
+        double a =
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(deg2rad(userLatitude)) * Math.cos(deg2rad(geoLatitude)) *
+                                Math.sin(dLon/2) * Math.sin(dLon/2)
+                ;
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return radius * c; // Distance in km
+    }
+
+    public double deg2rad(double deg) {
+        return deg * (Math.PI/180);
+    }
+
+
     private double noise(Double latitude, double factor) {
 
         return latitude * ((1 - factor) + (factor * 2 * Math.random()));
@@ -836,5 +881,44 @@ public class RideController extends BaseController {
             }
         }).thenRun(system::terminate);
     }
+
+    public  Result addGeoFencingLocation(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.geoFencingLocation.render());
+    }
+    @Inject
+    FormFactory formFactory;
+    public Result saveGeoFencingLocation(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        GeoFencingLocation location =new GeoFencingLocation();
+        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        location.setAddressArea(dynamicForm.get("addressArea"));
+        location.setLatitude(Double.parseDouble(dynamicForm.get("latitude")));
+        location.setLongitude(Double.parseDouble(dynamicForm.get("longitude")));
+        location.setRadius(Integer.parseInt(dynamicForm.get("radius")));
+        location.save();
+        return redirect("/allFencinglocations");
+    }
+    public Result viewGeoFencingLocation(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        ObjectNode objectNode = Json.newObject();
+        List<GeoFencingLocation> location = GeoFencingLocation.find.all();
+        objectNode.put("size", Wallet.find.all().size());
+        setResult(objectNode, location);
+        return ok(Json.toJson(objectNode));
+    }
+    public Result getAllGeoFencingLocations(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.geoFencingLocationList.render());
+    }
+
 
 }

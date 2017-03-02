@@ -57,16 +57,19 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
+                            <th ng-click="sort('')">Name / Mobile Number
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='orderDateTime'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
                             <th ng-click="sort('orderIdentifier')">Order Identifier
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderIdentifier'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-
-                            <th ng-click="sort('')">Order / Response DateTime
+                            <th ng-click="sort('')">Order Time / Response Time
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderDateTime'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('')">OrderType
+                            <th ng-click="sort('')">Order Type / Ride Id
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderType'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -74,10 +77,7 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='amount'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('')" style="width:190px;">Description
-                                <span class="glyphicon sort-icon" ng-show="sortKey=='description'"
-                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                            </th>
+
                             <th ng-click="sort('')">Status
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='status'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
@@ -87,12 +87,12 @@ th {
                         <tbody>
                         <tr ng-repeat="(index, paymentOrder) in paymentOrders| orderBy:sortKey:reverse" class="text-left">
                             <td>{{paymentOrder.id}} <br>{{paymentOrder.userId}}</td>
+                            <td>{{paymentOrder.userName}} <br>{{paymentOrder.userMobileNumber}}</td>
                             <td>{{paymentOrder.orderIdentifier}}</td>
                             <td>{{paymentOrder.orderDateTime | date:'MMM d yyyy h:mm:ss a':'IST'}} <br>
                                 {{paymentOrder.responseDateTime | date:'MMM d yyyy h:mm:ss a':'IST'}} </td>
-                            <td>{{paymentOrder.orderType}}</td>
+                            <td>{{paymentOrder.orderType}} <br> {{paymentOrder.rideId}}</td>
                             <td>{{paymentOrder.amount}}</td>
-                            <td>{{paymentOrder.description}}</td>
                             <td>{{paymentOrder.status}}</td>
                          </tr>
                         </tbody>
@@ -145,7 +145,7 @@ th {
                     console.log(arg);
                 });
         };
-
+        $scope.doDateFilter();
   }); //end of angular Js
 </script>
 }

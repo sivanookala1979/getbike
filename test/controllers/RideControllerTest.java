@@ -4,10 +4,7 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
-import models.Ride;
-import models.RideLocation;
-import models.User;
-import models.Wallet;
+import models.*;
 import mothers.RideLocationMother;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -1148,6 +1145,85 @@ public class RideControllerTest extends BaseControllerTest {
         System.out.println(responseObject.get("riders").toString());
         assertEquals(5, responseObject.get("riders").size());
     }
+
+    @Test
+    public void geoFencingAreaValidationTestFlowForSuccess(){
+        User user = loggedInUser();
+        GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
+        geoFencingAreaValidation.setAddressArea("Ammerpet");
+        geoFencingAreaValidation.setLatitude(17.437548);
+        geoFencingAreaValidation.setLongitude(78.446867);
+        geoFencingAreaValidation.setRadius(5);
+        geoFencingAreaValidation.save();
+        GetBikeUtils.sleep(200);
+        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.438899&longitude=78.441460").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+    }
+
+    @Test
+    public void geoFencingAreaValidationTestFlowForFailure(){
+        User user = loggedInUser();
+        GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
+        geoFencingAreaValidation.setAddressArea("Ammerpet");
+        geoFencingAreaValidation.setLatitude(17.437548);
+        geoFencingAreaValidation.setLongitude(78.446867);
+        geoFencingAreaValidation.setRadius(3);
+        geoFencingAreaValidation.save();
+        GetBikeUtils.sleep(200);
+        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.485091&longitude=78.363907").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("failure", responseObject.get("result").textValue());
+    }
+
+    @Test
+    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForSuccess(){
+        User user = loggedInUser();
+        GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
+        geoFencingAreaValidation.setAddressArea("outer ring road");
+        geoFencingAreaValidation.setLatitude(17.352736);
+        geoFencingAreaValidation.setLongitude(78.690407);
+        geoFencingAreaValidation.setRadius(5);
+        geoFencingAreaValidation.save();
+        GetBikeUtils.sleep(200);
+        GeoFencingLocation geoFencingAreaValidation1 = new GeoFencingLocation();
+        geoFencingAreaValidation1.setAddressArea("Ammerpet");
+        geoFencingAreaValidation1.setLatitude(17.437548);
+        geoFencingAreaValidation1.setLongitude(78.446867);
+        geoFencingAreaValidation1.setRadius(5);
+        geoFencingAreaValidation1.save();
+        GetBikeUtils.sleep(200);
+        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.438899&longitude=78.441460").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+    }
+
+    @Test
+    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForFailure(){
+        User user = loggedInUser();
+        GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
+        geoFencingAreaValidation.setAddressArea("outer ring road");
+        geoFencingAreaValidation.setLatitude(17.352736);
+        geoFencingAreaValidation.setLongitude(78.690407);
+        geoFencingAreaValidation.setRadius(5);
+        geoFencingAreaValidation.save();
+        GetBikeUtils.sleep(200);
+        GeoFencingLocation geoFencingAreaValidation1 = new GeoFencingLocation();
+        geoFencingAreaValidation1.setAddressArea("Ammerpet");
+        geoFencingAreaValidation1.setLatitude(17.437548);
+        geoFencingAreaValidation1.setLongitude(78.446867);
+        geoFencingAreaValidation1.setRadius(3);
+        geoFencingAreaValidation1.save();
+        GetBikeUtils.sleep(200);
+        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.485091&longitude=78.363907").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("failure", responseObject.get("result").textValue());
+    }
+
 
     @Test
     public void getRideByIdTESTWithInvalidRideId() {

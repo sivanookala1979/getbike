@@ -26,6 +26,9 @@ public class PaymentOrder extends Model {
     Date responseDateTime;
     @Column(length = 4096)
     String pgDetails;
+    private transient String userName;
+    private transient String userMobileNumber;
+
     public static Finder<Long, PaymentOrder> find = new Finder<Long, PaymentOrder>(PaymentOrder.class);
 
     public Long getId() {
@@ -123,4 +126,21 @@ public class PaymentOrder extends Model {
     public void setOrderIdentifier(String orderIdentifier) {
         this.orderIdentifier = orderIdentifier;
     }
+
+    public String getUserName() {
+        return User.find.byId(getUserId()).name;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserMobileNumber() {
+        return User.find.byId(getUserId()).phoneNumber;
+    }
+
+    public void setUserMobileNumber(String userMobileNumber) {
+        this.userMobileNumber = userMobileNumber;
+    }
+
 }
