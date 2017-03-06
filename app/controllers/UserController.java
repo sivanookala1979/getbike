@@ -340,9 +340,6 @@ public class UserController extends BaseController {
         for (LoginOtp loginOtp : LoginOtp.find.all()) {
             loginOtp.setCreatedAt(loginOtp.getCreatedAt());
         }
-        if (!isValidateSession()) {
-            return redirect(routes.LoginController.login());
-        }
         setUserPhnumberToOtpList();
         return ok(views.html.loginOtpList.render(loginOtpTableHeaders));
     }

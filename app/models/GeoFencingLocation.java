@@ -3,6 +3,8 @@ package models;
 import com.avaje.ebean.Model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -12,6 +14,7 @@ import javax.persistence.Id;
 public class GeoFencingLocation extends Model {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.SEQUENCE)
     Long id;
     Double latitude;
     Double longitude;

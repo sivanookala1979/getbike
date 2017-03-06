@@ -1,86 +1,42 @@
-@(systemSettingsForm : Form[models.SystemSettings], pageType: String)
-
-@import helper._
-@import views.html.custom_views._
-
-@systemSettingsId = @{session.get("systemSettingsId")}
 @main("Get Bike", "New System Settings"){
-<script>
-    $(document).ready(function(){
-        $("#cancelButton").on('click', function(){
-            location.href="/systemSettings/systemSettingList";
-        });
-        $("#saveButton").on('click', function(){
-                var jsonResponse = tableToJson();
-                $.ajax({
-                             type : "POST",
-                             dataType: "json",
-                             url : "@routes.SystemSettingsController.saveData()",
-                             contentType: "application/json; charset=utf-8",
-                             data: JSON.stringify(jsonResponse),
-                             success : function(result) {
-                                console.log(result);
-                                if(result.success = "success"){
-                                    location.href="/systemSettings/systemSettingList";
-                                }else{
-                                    location.href="/systemSettings/newSystemSetting";
-                                }
-                             },
-                             error : function() {
-                                 location.href="/systemSettings/newSystemSetting";
-                                 return false;
-                             }
-                 });
-        });
 
-    });
+<div class="container text-center">
 
-    function tableToJson(){
-            var rowData ={};
-            var key = document.getElementById("key").value;
-            var value = document.getElementById("value").value;
-            rowData["key"] = key;
-            rowData["value"] = value;
-        return rowData;
-    }
-
-</script>
-<div class="container">
-    @if(flash.containsKey("error")) {
-    <div class="well">
-        <div id="error-message" class="text-danger">
-            @flash.get("error")
-        </div>
-    </div>
-    }
-    <div class="row"  style="margin-top:2px; margin: 0px;">
-        <div class="row text-center">
-            <div class="col-sm-4">
-                @text(systemSettingsForm("key"),
-                label = "",
-                placeholder = "Key",
-                help = "",
-                labelClass="",
-                textClass="col-sm-12 text-left")
+    <form class="well form-horizontal" action="@routes.SystemSettingsController.saveNewSystemSetting()" method="post"  id="contact_form">
+        <fieldset>
+            <!-- Form Name -->
+            <legend >SystemSettings !</legend>
+            <!-- Text input-->
+            <div class="form-group">
+                <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
+                        <input  name="key" placeholder="Key" class="form-control"  type="text" required >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-eye-open"></i></span>
+                        <input  name="value" placeholder="Value" class="form-control"  type="text" required >
+                    </div>
+                </div>
             </div>
-            <div class="col-sm-4">
-                @text(systemSettingsForm("value"),
-                label = "",
-                placeholder = "Value",
-                help = "",
-                labelClass="",
-                textClass="col-sm-12 text-left")
+            <!-- Text area -->
+            <div class="form-group">
+                <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
+                        <textarea class="form-control" name="description" placeholder=" Description For Key"></textarea>
+                    </div>
+                </div>
             </div>
-            <button type="button" id="cancelButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-                Cancel
-            </button>
-            <button type="button" id="saveButton" style="margin-left:1px; width: 100px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-                Save
-            </button>
-        </div>
+            <!-- Button -->
+            <div class="form-group">
+                <div class="col-lg-2 col-lg-offset-3">
+                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Save</button>
+                </div>
+                <div class="col-lg-2 col-lg-offset-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="window.location='/systemSettings/all';"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
 
-        </div>
-    </div>
-</div>
-</div>
 }

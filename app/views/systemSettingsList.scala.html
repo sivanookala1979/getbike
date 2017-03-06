@@ -1,3 +1,60 @@
-@(tableHeaders: LinkedHashMap[String, String])
-@import views.html.custom_views._
-@listviewtemplate1(header="System Settings", colClass="col-sm-12 column", tableHeaders=tableHeaders, isRequired = "Yes", newUrl = "/systemSettings/newSystemSettings", searchUrl="/systemSettings/performSearch/", editUrl ="/systemSettings/editSystemSetting/", deleteUrl="/systemSettings/deleteSystemSetting/")
+
+@main("Get Bike", "SystemSettings"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="text-right">
+                    <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/systemSettings/new'">New SystemSetting</button>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <table class="table table-striped">
+                <tr bgcolor="#f2f2f2">
+                    <th>Id</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Update</th>
+                </tr>
+                <tr ng-repeat="setting in data.settings">
+                    <td>{{setting.id}}</td>
+                    <td>{{setting.key}}</td>
+                    <td>{{setting.value}}</td>
+                    <td>{{setting.description}}</td>
+                    <td><a href="/systemSettings/edit/{{setting.id}}"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;&nbsp;<a href="/systemSettings/delete/{{setting.id}}"><i class="glyphicon glyphicon-remove"></i></a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.settings = [];
+    vm.pageno = 1;
+    vm.total_count = 0;
+    vm.itemsPerPage = 10;
+    vm.getData = function(pageno){
+     var url = "/systemSettings/getAllSystemSettings?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.settings = [];
+                vm.settings = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData(vm.pageno);
+});
+</script>
+}

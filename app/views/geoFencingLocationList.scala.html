@@ -1,4 +1,4 @@
-@main("Get Bike", "Ride"){
+@main("Get Bike", "GeoLocations"){
 <div data-ng-app="myApp">
     <div data-ng-controller="myCtrl as data">
         <div class="row">
@@ -12,18 +12,19 @@
                 <table class="table table-striped">
                     <tr bgcolor="#f2f2f2">
                         <th>Id</th>
-                        <th>latitude</th>
-                        <th>longitude</th>
-                        <th>radius</th>
-                        <th>addressArea</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Radius</th>
+                        <th>Address Area</th>
+                        <th>Update</th>
                     </tr>
-                    <tr dir-paginate="location in data.locations | itemsPerPage:data.itemsPerPage"
-                        total-items="data.total_count">
+                    <tr ng-repeat="location in data.locations">
                         <td>{{location.id}}</td>
                         <td>{{location.latitude}}</td>
                         <td>{{location.longitude}}</td>
                         <td>{{location.radius}}</td>
                         <td>{{location.addressArea}}</td>
+                        <td><a href="/editGeoFencinglocations/{{location.id}}"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;&nbsp;<a href="/deleteGeoFencinglocations/{{location.id}}"><i class="glyphicon glyphicon-remove"></i></a></td>
                     </tr>
                 </table>
             </div>

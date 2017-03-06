@@ -42,14 +42,10 @@
                         <td>{{user.operator}}</td>
                         <td>{{user.circle}}</td>
                         <td>{{user.walletName}}</td>
-                        <div data-ng-if="user.type === 'MobileRecharge' || user.type  === 'RedeemToBank' || user.type === 'RedeemToWallet' ">
-                            <td style="width:8%" data-ng-if="user.isAmountPaidStatus == 'Raised'">{{isAmountPaidStatus}}<br>
+                        <td data-ng-if="(user.type == 'MobileRecharge' || user.type  == 'RedeemToBank' || user.type == 'RedeemToWallet') && user.isAmountPaidStatus == 'Raised' ">{{isAmountPaidStatus}}
                                 <img src="@routes.Assets.versioned("images/accept.png")" width="15"><a href="/wallet/isAmountPaidStatusAccepted/{{user.id}}">Accept</a>
-                                <br><img src="@routes.Assets.versioned("images/reject.png")"
-                                width="15"><a href="/wallet/isAmountPaidStatusRejected/{{user.id}}">Reject</a>
-                        </div>
-                        <td data-ng-if="user.isAmountPaidStatus !='Raised'">{{user.isAmountPaidStatus}}<br>
-                        </td>
+                                <br><img src="@routes.Assets.versioned("images/reject.png")"width="15"><a href="/wallet/isAmountPaidStatusRejected/{{user.id}}">Reject</a>
+                        <td data-ng-if="user.isAmountPaidStatus !='Raised'">{{user.isAmountPaidStatus}}<br></td>
                         <td>{{user.statusActedAt | date:'medium'}}</td>
                     </tr>
                 </table>

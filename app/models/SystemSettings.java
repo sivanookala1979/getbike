@@ -16,6 +16,7 @@ public class SystemSettings extends Model {
 
     private String key;
     private String value;
+    private String description;
 
     public static Finder<Long , SystemSettings> find = new Finder<Long, SystemSettings>(SystemSettings.class);
 
@@ -37,5 +38,13 @@ public class SystemSettings extends Model {
 
     public String toString(){
         return "key--->"+this.key+" value->"+this.value;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

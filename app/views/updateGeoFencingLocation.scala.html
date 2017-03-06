@@ -1,14 +1,23 @@
-@main("Get Bike", "New GeoLocation"){
-    <form class="well form-horizontal" action="@routes.RideController.saveGeoFencingLocation() " method="POST"  id="contact_form">
+@(geoFencingLocation: GeoFencingLocation)
+@import views.html.custom_views._
+@main("Get Bike", "Update GeoLocation"){
+    <form class="well form-horizontal" action="@routes.RideController.updateGeoFencinglocations()" method="GET"  id="contact_form">
         <fieldset>
             <!-- Form Name -->
-            <legend align="center">GeoLocations !</legend>
+            <legend align="center">Update GeoLocations !</legend>
             <!-- Text input-->
             <div class="form-group">
                 <div class="col-md-8 col-md-offset-2 inputGroupContainer">
                     <div class="input-group">
+                        <input  name="id"  class="form-control" type="hidden" value="@geoFencingLocation.getId()" readonly >
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                    <div class="input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe" aria-hidden="true">Address :</i></span>
-                        <input id="autocomplete" name="addressArea" placeholder="Enter your address" class="form-control" onFocus="geolocate()" type="text" required>
+                        <input id="autocomplete" name="addressArea" placeholder="Enter your address" class="form-control" onFocus="geolocate()" type="text" value="@geoFencingLocation.getAddressArea()">
                     </div>
                 </div>
             </div>
@@ -16,9 +25,9 @@
                 <div class="col-md-8 col-md-offset-2 inputGroupContainer">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe" aria-hidden="true">Lat :</i></span>
-                        <input  name="latitude" placeholder="lat" class="form-control"  id="lat" required >
+                        <input  name="latitude" placeholder="lat" class="form-control"  id="lat" value="@geoFencingLocation.getLatitude()">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe" aria-hidden="true">Long :</i></span>
-                        <input  name="longitude" placeholder="lng" class="form-control" id="long" required>
+                        <input  name="longitude" placeholder="lng" class="form-control" id="long" value="@geoFencingLocation.getLongitude()">
                     </div>
                 </div>
             </div>
@@ -27,14 +36,14 @@
                 <div class="col-md-8 col-md-offset-2 inputGroupContainer">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-pencil">Radius :</i></span>
-                        <input type="number" class="form-control" name="radius" placeholder=" Radius" required> </input>
+                        <input type="number" class="form-control" name="radius" placeholder=" Radius" value="@geoFencingLocation.getRadius()"> </input>
                     </div>
                 </div>
             </div>
             <!-- Button -->
             <div class="form-group">
                 <div class="col-lg-2 col-lg-offset-3">
-                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Save</button>
+                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Update </button>
                 </div>
                 <div class="col-lg-2 col-lg-offset-2">
                     <button type="button" class="btn btn-primary btn-block" onclick="window.location='/allFencinglocations';"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>

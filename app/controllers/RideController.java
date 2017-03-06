@@ -911,7 +911,7 @@ public class RideController extends BaseController {
             return redirect(routes.LoginController.login());
         }
         ObjectNode objectNode = Json.newObject();
-        List<GeoFencingLocation> location = GeoFencingLocation.find.all();
+        List<GeoFencingLocation> location = GeoFencingLocation.find.orderBy("id").findList();
         objectNode.put("size", GeoFencingLocation.find.all().size());
         setResult(objectNode, location);
         return ok(Json.toJson(objectNode));
@@ -921,6 +921,40 @@ public class RideController extends BaseController {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.geoFencingLocationList.render());
+    }
+    public Result editGeoFencinglocations(Long id) {
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        GeoFencingLocation geoFencingLocation = GeoFencingLocation.find.byId(id);
+        return ok(views.html.updateGeoFencingLocation.render(geoFencingLocation));
+    }
+
+    public Result updateGeoFencinglocations(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        DynamicForm requestData=formFactory.form().bindFromRequest();
+        String geoId = requestData.get("id");
+        String addressArea = requestData.get("addressArea");
+        String latitude = requestData.get("latitude");
+        String longitude = requestData.get("longitude");
+        String radius = requestData.get("radius");
+        GeoFencingLocation geoFencingLocation = GeoFencingLocation.find.byId(Long.valueOf(geoId));
+        geoFencingLocation.setAddressArea(addressArea);
+        geoFencingLocation.setLatitude(Double.parseDouble(latitude));
+        geoFencingLocation.setLongitude(Double.parseDouble(longitude));
+        geoFencingLocation.setRadius(Integer.parseInt(radius));
+        geoFencingLocation.update();
+        return redirect("/allFencinglocations");
+    }
+    public Result deleteGeoFencinglocations(Long id){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        GeoFencingLocation geoFencingLocation = GeoFencingLocation.find.byId(id);
+        geoFencingLocation.delete();
+        return redirect("/allFencinglocations");
     }
 
     public Result addOfflineTrip(){
