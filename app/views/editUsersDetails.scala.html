@@ -59,6 +59,36 @@
         </div>
 
         <div class="form-group">
+            <label for="accountNumber" class="col-sm-3 control-label">Account Number</label>
+            <div class="col-sm-6">
+                <input type="text" id="accountNumber" name="accountNumber" placeholder="Account Number" value="@user.getAccountNumber()" class="form-control" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="bankName" class="col-sm-3 control-label">Bank Name</label>
+            <div class="col-sm-6">
+                <input type="text" id="bankName" name="bankName" placeholder="Bank Name" value="@user.getBankName()" class="form-control" readonly>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="branchName" class="col-sm-3 control-label">Branch Name</label>
+            <div class="col-sm-6">
+                <input type="text" id="branchName" name="branchName" placeholder="Branch Name" value="@user.getBranchName()" class="form-control" readonly>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="ifscCode" class="col-sm-3 control-label">IFSC code</label>
+            <div class="col-sm-6">
+                <input type="text" id="ifscCode" name="ifscCode" placeholder="IFSC code" value="@user.getIfscCode()" class="form-control" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
             <div class="col-sm-4 col-sm-offset-2">
                 <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Submit</button>
             </div>

@@ -46,6 +46,10 @@ import static utils.SMSHelper.smsPrepare;
  * Created by sivanookala on 21/10/16.
  */
 public class RideController extends BaseController {
+
+    @Inject
+    FormFactory formFactory;
+
     final static double MAX_DISTANCE_IN_KILOMETERS = 10.0;
     public static final double MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE = 200.0;
     public static final double FREE_RIDE_MAX_DISCOUNT = 50.0;
@@ -888,8 +892,7 @@ public class RideController extends BaseController {
         }
         return ok(views.html.geoFencingLocation.render());
     }
-    @Inject
-    FormFactory formFactory;
+
     public Result saveGeoFencingLocation(){
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
@@ -909,7 +912,7 @@ public class RideController extends BaseController {
         }
         ObjectNode objectNode = Json.newObject();
         List<GeoFencingLocation> location = GeoFencingLocation.find.all();
-        objectNode.put("size", Wallet.find.all().size());
+        objectNode.put("size", GeoFencingLocation.find.all().size());
         setResult(objectNode, location);
         return ok(Json.toJson(objectNode));
     }
@@ -920,5 +923,46 @@ public class RideController extends BaseController {
         return ok(views.html.geoFencingLocationList.render());
     }
 
+    public Result addOfflineTrip(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.addOfflineTrip.render());
+    }
+
+    public Result saveOfflineTrip(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        Ride ride = new Ride();
+        ride.setRiderMobileNumber(dynamicForm.get("riderMobileNumber"));
+        ride.setCustomerMobileNumber(dynamicForm.get("customerMobileNumber"));
+        ride.setActualSourceAddress(dynamicForm.get("actualSourceAddress"));
+        ride.setActualDestinationAddress(dynamicForm.get("actualDestinationAddress"));
+        ride.setOrderDistance(Double.parseDouble(dynamicForm.get("orderDistance")));
+        ride.setTotalBill(Double.parseDouble(dynamicForm.get("totalBill")));
+        ride.setStartLatitude(17.3850);
+        ride.setStartLongitude(78.4867);
+        ride.setModeOfPayment("Cash-Offline trip");
+        ride.setRideStatus(RideStatus.RideClosed);
+        ride.setPaid(true);
+        User riderUser=User.find.where().eq("phoneNumber",dynamicForm.get("riderMobileNumber")).findUnique();
+        if (riderUser!=null){
+            ride.setRiderId(riderUser.getId());
+            ride.setRiderName(riderUser.getName());
+        }
+        User customerUser=User.find.where().eq("phoneNumber",dynamicForm.get("customerMobileNumber")).findUnique();
+        if (customerUser != null){
+            ride.setRequestorId(customerUser.getId());
+            ride.setRequestorName(customerUser.getName());
+        }
+        ride.setRequestedAt(new Date());
+        ride.setAcceptedAt(new Date());
+        ride.setRideStartedAt(new Date());
+        ride.setRideEndedAt(new Date());
+        ride.save();
+        return redirect("/ride/rideList");
+    }
 
 }

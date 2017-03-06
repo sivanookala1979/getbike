@@ -33,9 +33,9 @@ th {
         <div class="col-sm-12">
             <div data-ng-controller="ProductController">
                 <div class="row">
-                    <div class="col-sm-3 text-left" style="padding-bottom:10px;">
+                    <div class="col-sm-2 text-left" style="padding-bottom:10px;">
                         <input type="text" ng-model="searchText" id="searchname" ng-keyup="$event.keyCode == 13 && doDateFilter()"
-                               placeholder="Search by Name / Mobile / Trip Id" class="form-control">
+                               placeholder="Name/Mobile/Trip Id" class="form-control">
                     </div>
                     <div class="col-sm-2 text-left">
                         <select name="manualrecfilter" ng-options="choice for choice in manualrecfilter"
@@ -51,11 +51,14 @@ th {
                     <div class="col-sm-2 text-left">
                         <input ng-model="endDate" type="date" placeholder="" required class="form-control"/>
                     </div>
-                    <div class="col-sm-2 text-left" style="width:130px">
+                    <div class="col-sm-1 text-left" style="width:130px">
                         <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
                     </div>
-                    <div class="col-sm-1 text-left">
+                    <div class="col-sm-1  text-left">
                         <button ng-json-export-excel data="products" report-fields="{id: 'Trip Id', requestorName: 'Customer Name',customerMobileNumber: 'Customer Phone Number', riderName: 'Rider Name', riderMobileNumber: 'Rider Mobile Number' , rideStatus: 'Ride Status',orderDistance: 'Order Distance',formatedRequestAt: 'Requested  At',formatedAcceptedAt: 'Accepted  At', formatedRideStartedAt: 'Ride Started At',formatedRideEndedAt: 'Ride Ended At',startLatitude: 'Start Latitude',startLongitude: 'Start Longitude',sourceAddress: 'Source Address',destinationAddress: 'Destination Address',actualSourceAddress: 'Actual Source Address',actualDestinationAddress: 'Actual Destination Address',totalBill: 'TotalBill' }" filename="'RidesData'" class="btn btn-primary">Export</button>
+                    </div>
+                    <div class="col-sm-1 col-sm-offset-0 text-left" style="width:130px">
+                        <button type="button" class="btn btn-primary" onclick="window.location='/addOfflineTrip'">Add Trip</button>
                     </div>
 
                     @if(isRequired.equalsIgnoreCase("Yes")){
@@ -124,7 +127,7 @@ th {
                             <td>{{product.requestorName}}<br/>
                                 <a data-ng-if="product.riderName != 'Not Provided'" target="_blank" ng-href="/riderPositions/{{product.riderId}}/10">{{product.riderName}}</a>
                             </td>
-                            <td>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}</td>
+                            <td>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}<br/><b data-ng-if="product.freeRide == true">Free Ride</b></td>
                             <td>{{product.orderDistance}}</td>
                             <td>{{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.acceptedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>

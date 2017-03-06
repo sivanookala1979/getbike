@@ -1,0 +1,76 @@
+@main("Get Bike", "New System Settings"){
+<form class="well form-horizontal" action="@routes.RideController.saveOfflineTrip() " method="POST"  id="contact_form">
+    <fieldset>
+        <!-- Form Name -->
+        <legend align="center">Add Offline Trip !</legend>
+        <!-- Text input-->
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Rider Mobile Number :</span>
+                    <input  name="riderMobileNumber" placeholder="Rider Mobile Number" class="form-control"  id="riderMobileNumber" required >
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Customer Mobile Number :</span>
+                    <input  name="customerMobileNumber" placeholder="Customer Mobile Number" class="form-control"  id="customerMobileNumber" required >
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Source Address :</span>
+                    <input  name="actualSourceAddress" placeholder="Source Address" class="form-control"  id="autocomplete" required >
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Destination Address :</span>
+                    <input  name="actualDestinationAddress" placeholder="Destination Address" class="form-control"  id="autocomplete2" required >
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Distance :</span>
+                    <input  name="orderDistance" placeholder="Distance" class="form-control"  id="orderDistance" required >
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-2 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon">Amount   :</span>
+                    <input  name="totalBill" placeholder="Amount" class="form-control"  id="totalBill" required >
+                </div>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+            <div class="col-lg-2 col-lg-offset-3">
+                <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Save</button>
+            </div>
+            <div class="col-lg-2 col-lg-offset-2">
+                <button type="button" class="btn btn-primary btn-block" onclick="window.location='/ride/rideList'"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+</div>
+<script src="@routes.Assets.versioned("javascripts/autoCompleteMap.js")" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxqQEvtdEtl6dDIvG7vcm6QTO45Si0FZs&libraries=places&callback=initAutocomplete"
+        async defer></script>
+}

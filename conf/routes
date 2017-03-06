@@ -94,6 +94,8 @@ GET     /geoFencinglocations                    controllers.RideController.addGe
 POST    /saveFencinglocations                   controllers.RideController.saveGeoFencingLocation
 GET     /fencingLocations                       controllers.RideController.viewGeoFencingLocation
 GET     /allFencinglocations                    controllers.RideController.getAllGeoFencingLocations
+GET     /addOfflineTrip                         controllers.RideController.addOfflineTrip
+POST    /saveOfflineTrip                        controllers.RideController.saveOfflineTrip
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
