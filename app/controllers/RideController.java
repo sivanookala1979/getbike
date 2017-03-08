@@ -640,8 +640,10 @@ public class RideController extends BaseController {
             Double userLongitude = getDouble("longitude");
             List<GeoFencingLocation> allGeoFencingLocations = GeoFencingLocation.find.all();
             if (allGeoFencingLocations.size() > 0){
+                List<GeoFencingLocation> locationArrayList = new ArrayList<>();
                 for (GeoFencingLocation geoFencingLocationList :allGeoFencingLocations){
                     GeoFencingLocation geoFencingLocation= GeoFencingLocation.find.byId(geoFencingLocationList.getId());
+                    locationArrayList.add(geoFencingLocation);
                     double geoLatitude = geoFencingLocation.getLatitude();
                     double geoLongitude = geoFencingLocation.getLongitude();
                     int radius = geoFencingLocation.getRadius();
@@ -649,6 +651,7 @@ public class RideController extends BaseController {
                     if (distance < radius ){
                         result = SUCCESS;
                     }
+                    objectNode.set("locations", Json.toJson(locationArrayList));
                 }
             }
         }
