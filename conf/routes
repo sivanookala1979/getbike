@@ -32,7 +32,7 @@ GET     /analytics                                  controllers.AnalyticsControl
 GET     /analyticslist                              controllers.AnalyticsController.weeklyAnalytics
 GET     /analytics/analyticBar                      controllers.AnalyticsController.analyticsFilter
 GET     /reports                                    controllers.AnalyticsController.reportData
-
+GET     /wallet/notificationsUpdate                 controllers.WalletController.notificationsUpdate
 
 
 GET     /allRiders                                  controllers.DashboardController.allRiders

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
+import utils.DateUtils;
 import utils.GetBikeUtils;
 
 import java.util.Date;
@@ -478,6 +479,77 @@ public class WalletControllerTest extends BaseControllerTest {
         walletAmount.setType(WalletEntryType.PAY_U_PAYMENT);
         walletAmount.save();
         return walletAmount;
+    }
+    @Test
+    public void dateWiseFilterForRedeemEventRedeemToBankTESTWithHappyFlow(){
+        User user = loggedInUser();
+        user.setName("Wahid");
+        user.update();
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.id);
+        wallet.setUserName(user.name);
+        wallet.setTransactionDateTime(new Date());
+        wallet.setStatusActedAt(new Date());
+        wallet.setType(REDEEM_TO_BANK);
+        wallet.setAmount(-100.0);
+        wallet.setNotificationSeen(false);
+        wallet.setDescription("Transfer Rs.100.0 To your Given Bank Account");
+        wallet.setMobileNumber("9960862529");
+        wallet.save();
+        Result result = route(fakeRequest(GET, "/dateWiseFilterForRedeem?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&status=StatusALL&redeemType=TypeALL&srcName=" + user.getName()));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals("9960862529", actual.findPath("mobileNumber").textValue());
+        assertEquals(wallet.getUserName(),actual.findPath("userName").asText());
+        assertEquals(wallet.getType(),actual.findPath("type").asText());
+        assertEquals(wallet.getAmount(),actual.findPath("amount").asDouble());
+    }
+    @Test
+    public void dateWiseFilterForRedeemEventRedeemToWalletTESTWithHappyFlow(){
+        User user = loggedInUser();
+        user.setName("Wahid");
+        user.update();
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.id);
+        wallet.setUserName(user.name);
+        wallet.setTransactionDateTime(new Date());
+        wallet.setStatusActedAt(new Date());
+        wallet.setType(REDEEM_TO_WALLET);
+        wallet.setAmount(-100.0);
+        wallet.setWalletName("PayTm");
+        wallet.setDescription("Transfer Rs.100.0 To your PayTm Wallet");
+        wallet.setMobileNumber("9960862529");
+        wallet.setNotificationSeen(false);
+        wallet.save();
+        Result result = route(fakeRequest(GET, "/dateWiseFilterForRedeem?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&status=StatusALL&redeemType=TypeALL&srcName=" + user.getName()));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals("9960862529", actual.findPath("mobileNumber").textValue());
+        assertEquals(wallet.getUserName(),actual.findPath("userName").asText());
+        assertEquals(wallet.getType(),actual.findPath("type").asText());
+        assertEquals(wallet.getAmount(),actual.findPath("amount").asDouble());
+        assertEquals(wallet.getWalletName(),actual.findPath("walletName").asText());
+    }
+    @Test
+    public void dateWiseFilterForRedeemEventRechargeTESTWithHappyFlow(){
+        User user = loggedInUser();
+        user.setName("Wahid");
+        user.update();
+        Wallet wallet = new Wallet();
+        wallet.setUserId(user.id);
+        wallet.setUserName(user.name);
+        wallet.setTransactionDateTime(new Date());
+        wallet.setStatusActedAt(new Date());
+        wallet.setType(MOBILE_RECHARGE);
+        wallet.setAmount(-100.0);
+        wallet.setDescription("Recharged amount of Rs. 100.0 for your mobile number 9960862529");
+        wallet.setMobileNumber("9960862529");
+        wallet.setNotificationSeen(false);
+        wallet.save();
+        Result result = route(fakeRequest(GET, "/dateWiseFilterForRedeem?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&status=StatusALL&redeemType=TypeALL&srcName=" + user.getName()));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals("9960862529", actual.findPath("mobileNumber").textValue());
+        assertEquals(wallet.getUserName(),actual.findPath("userName").asText());
+        assertEquals(wallet.getType(),actual.findPath("type").asText());
+        assertEquals(wallet.getAmount(),actual.findPath("amount").asDouble());
     }
 
 }

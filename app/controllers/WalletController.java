@@ -45,6 +45,7 @@ public class WalletController extends BaseController {
                 wallet.setAmount(-convertToWalletAmount(amount));
                 wallet.setDescription("Recharged amount of Rs. " + amount + " for your mobile number " + wallet.getMobileNumber());
                 wallet.setTransactionDateTime(new Date());
+                wallet.setNotificationSeen(false);
                 wallet.save();
                 result = SUCCESS;
             }
@@ -71,6 +72,7 @@ public class WalletController extends BaseController {
                 wallet.setDescription("Transfer Rs." + amount + " To your" + wallet.getWalletName() + " Wallet");
                 wallet.setTransactionDateTime(new Date());
                 wallet.setType(WalletEntryType.REDEEM_TO_WALLET);
+                wallet.setNotificationSeen(false);
                 wallet.save();
                 result = SUCCESS;
             }
@@ -95,6 +97,7 @@ public class WalletController extends BaseController {
                 wallet.setDescription("Transfer Rs." + amount + " To your Given Bank Account");
                 wallet.setTransactionDateTime(new Date());
                 wallet.setType(WalletEntryType.REDEEM_TO_BANK);
+                wallet.setNotificationSeen(false);
                 wallet.save();
                 result = SUCCESS;
             }
@@ -254,10 +257,10 @@ public class WalletController extends BaseController {
         String srcName = request().getQueryString("srcName");
         String walletStatus = request().getQueryString("walletStatus");
         String walletId = request().getQueryString("id");
-        if ("Status ALL".equals(status) || "null".equals(status)) {
+        if ("StatusALL".equals(status) || "null".equals(status)) {
             status = null;
         }
-        if ("Type ALL".equals(redeemType) || "null".equals(redeemType)) {
+        if ("TypeALL".equals(redeemType) || "null".equals(redeemType)) {
             redeemType = null;
         }
         List<Wallet> listOfRedeemWallet = new ArrayList<>();
@@ -304,6 +307,10 @@ public class WalletController extends BaseController {
             if (wallet.getType().equalsIgnoreCase("MobileRecharge") || wallet.getType().equalsIgnoreCase("RedeemToBank") || wallet.getType().equalsIgnoreCase("RedeemToWallet")) {
                 list.add(wallet);
             }
+            if (!wallet.isNotificationSeen()){
+                wallet.setNotificationSeen(true);
+                wallet.update();
+            }
         }
         setResult(objectNode, list);
         return ok(Json.toJson(objectNode));
@@ -318,5 +325,13 @@ public class WalletController extends BaseController {
             }
         }
         return ok(views.html.redeemEventDetails.render(walletTableHearder, "col-sm-12", "", "Wallet", "", "", ""));
+    }
+    public  Result notificationsUpdate(){
+        ObjectNode objectNode = Json.newObject();
+        List <Wallet>walletList = Wallet.find.where().eq("notificationSeen",false).findList();
+        int count = walletList.size();
+        objectNode.put("notificationSeenCount",count);
+        setResult(objectNode, walletList);
+        return ok(Json.toJson(objectNode));
     }
 }

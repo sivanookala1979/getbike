@@ -46,7 +46,7 @@
               <li><a href="/ride/rideList"><span class="glyphicon glyphicon-fire"></span>  Rides </a></li>
               <li><a href="/users/loginOtpList"><span class="glyphicon glyphicon-envelope"></span> OTPs</a></li>
               <li><a href="/allRiders"><span class="glyphicon glyphicon-globe"></span> Rider Locations</a></li>
-              <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event</a></li>
+              <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"></span></a></li>
               <li><a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a></li>
             <li class="dropdown">
               <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">User Maintenance<b class="caret"></b></a>
@@ -92,3 +92,14 @@
     </script>
     </body>
 </html>
+<script>
+     window.onload = function() {
+       $.get("/wallet/notificationsUpdate" , function(data){
+       var count = 0;
+       count = data["notificationSeenCount"];
+       if(count>0){
+       document.getElementById("notificationId").innerHTML = count;
+       }
+       });
+     };
+</script>

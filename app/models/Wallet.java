@@ -26,6 +26,7 @@ public class Wallet extends Model {
     String walletName;
     String isAmountPaidStatus;
     Date   statusActedAt;
+    boolean notificationSeen;
     public transient String userName;
     @Column(length = 4096)
     String pgDetails;
@@ -141,5 +142,13 @@ public class Wallet extends Model {
 
     public void setStatusActedAt(Date statusActedAt) {
         this.statusActedAt = statusActedAt;
+    }
+
+    public boolean isNotificationSeen() {
+        return notificationSeen;
+    }
+
+    public void setNotificationSeen(boolean notificationSeen) {
+        this.notificationSeen = notificationSeen;
     }
 }
