@@ -67,12 +67,31 @@
         </ul>
       </div>
     <div class="navbar navbar-inverse" role="navigation">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <!--  Display three horizontal lines when navbar collapsed. -->
-          <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-        </button>
-        <span class="navbar-brand" style="color:white">@header</span>
-         <span class="navbar-brand" style="color:white; float:right;">@user: <a href="@routes.LoginController.logout"> Logout <span class="glyphicon glyphicon-off"></span></a></span>
+    <div class= "row" style="margin:0px">
+   <div class="col-sm-4 col-xs-6"><span class="navbar-brand" style="color:white">@header</span></div>
+    <div class="col-sm-4 col-xs-6 text-right">
+    <div>
+     <div class="dropdown menu-bar" style="padding-top:5px">
+                    <button class="dropbtn"> <span class="glyphicon glyphicon-menu-hamburger"></span></button>
+              <div class="dropdown-content" style="right:0px;">
+              <a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a>
+              <a href="/users/usersList"><span class="glyphicon glyphicon-user"></span> Users</a>
+              <a href="/ride/rideList"><span class="glyphicon glyphicon-fire"></span>  Rides </a>
+              <a href="/users/loginOtpList"><span class="glyphicon glyphicon-envelope"></span> OTPs</a>
+              <a href="/allRiders"><span class="glyphicon glyphicon-globe"></span> Rider Locations</a>
+              <a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"></span></a>
+              <a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a>
+              <a href="/allFencinglocations"><span class="glyphicon glyphicon-globe"></span> Geo Locations</a>
+              <a href="/systemSettings/all"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+              <a href="/analytics"><span class="glyphicon glyphicon-equalizer"></span> Weekly Amount</a>
+              <a href="/analytics/analyticBar"><span class="glyphicon glyphicon-equalizer"></span> Weekly Rides</a>
+              </div>
+               </div>
+       </div>
+       </div>
+    <div class="col-sm-4">
+    <span class="navbar-brand" style="color:white; float:right;">@user: <a href="@routes.LoginController.logout"> Logout <span class="glyphicon glyphicon-off"></span></a></span>
+    </div>
     </div>
     </div>
        @* And here's where we render the `Html` object containing
