@@ -99,6 +99,9 @@ POST    /saveOfflineTrip                        controllers.RideController.saveO
 GET     /editGeoFencinglocations/:id             controllers.RideController.editGeoFencinglocations(id: Long)
 GET     /updateGeoFencinglocations              controllers.RideController.updateGeoFencinglocations
 GET     /deleteGeoFencinglocations/:id          controllers.RideController.deleteGeoFencinglocations(id:Long)
+POST    /userRequestFromNonGeoFencingLocation   controllers.RideController.userRequestFromNonGeoFencingLocation
+GET     /viewNonGeoFencingLocations             controllers.RideController.viewNonGeoFencingLocations
+GET     /allNonGeoFencingLocations              controllers.RideController.allNonGeoFencingLocations
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)

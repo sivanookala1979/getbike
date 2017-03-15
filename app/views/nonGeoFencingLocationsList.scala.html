@@ -1,0 +1,52 @@
+
+@main("Get Bike", "NonGeoFencingLocation"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+        <div class="container">
+            <table class="table table-striped">
+                <tr bgcolor="#f2f2f2">
+                    <th>Id</th>
+                    <th>Mobile Number</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Address</th>
+                    <th>Requested At</th>
+                </tr>
+                <tr ng-repeat="setting in data.settings">
+                    <td>{{setting.id}}</td>
+                    <td>{{setting.mobileNumber}}</td>
+                    <td>{{setting.latitude}}</td>
+                    <td>{{setting.longitude}}</td>
+                    <td>{{setting.addressArea}}</td>
+                    <td>{{setting.requestedAt | date:'medium'}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', []);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.settings = [];
+    vm.getData = function(){
+     var url = "/viewNonGeoFencingLocations?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.settings = [];
+                vm.settings = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData();
+});
+</script>
+}

@@ -1340,4 +1340,16 @@ public class RideControllerTest extends BaseControllerTest {
         assertTrue("Could not find user " + searchUser.getId(), found);
     }
 
+    @Test
+    public void userRequestFromNonGeoFEncingLocationTestFlow() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("latitude",Json.toJson(78.2587255));
+        requestObjectNode.set("longitude",Json.toJson(17.28954255));
+        requestObjectNode.set("addressArea", Json.toJson("Pullareddy Nagar, Kavali"));
+        Result result = route(fakeRequest(POST, "/userRequestFromNonGeoFencingLocation").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
 }

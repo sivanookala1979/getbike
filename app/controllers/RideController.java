@@ -1002,4 +1002,33 @@ public class RideController extends BaseController {
         return redirect("/ride/rideList");
     }
 
+    public Result userRequestFromNonGeoFencingLocation() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            JsonNode locationsJson = request().body().asJson();
+            NonGeoFencingLocation nonGeoFencingLocation = new NonGeoFencingLocation();
+            nonGeoFencingLocation.setMobileNumber(user.getPhoneNumber());
+            nonGeoFencingLocation.setLatitude(locationsJson.get("latitude").doubleValue());
+            nonGeoFencingLocation.setLongitude(locationsJson.get("longitude").doubleValue());
+            nonGeoFencingLocation.setAddressArea(locationsJson.get("addressArea").textValue());
+            nonGeoFencingLocation.setRequestedAt(new Date());
+            nonGeoFencingLocation.save();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result viewNonGeoFencingLocations() {
+        ObjectNode objectNode = Json.newObject();
+        List<NonGeoFencingLocation> nonGeoFencingLocations = NonGeoFencingLocation.find.all();
+        setResult(objectNode,nonGeoFencingLocations);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result allNonGeoFencingLocations() {
+        return ok(views.html.nonGeoFencingLocationsList.render());
+    }
 }
