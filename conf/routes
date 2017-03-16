@@ -119,6 +119,14 @@ POST    /paytmCheckSumGenerator                 controllers.PaymentController.pa
 POST    /paytmCheckSumVerify                    controllers.PaymentController.paytmCheckSumVerify
 GET     /generateOrderId                        controllers.PaymentController.generateOrderId
 
+GET     /promotion/add                           controllers.PromotionalBannerController.addPromotionalBanner
+POST    /promotion/upload                        controllers.PromotionalBannerController.uploadPromotionalBanner
+GET     /promotion/getPromotions                 controllers.PromotionalBannerController.getAllPromotionBanner
+GET     /allPromotion                            controllers.PromotionalBannerController.promotionBannerList
+GET     /promotion/delete/:id                     controllers.PromotionalBannerController.deletePromotionalBanner(id:Long)
+GET     /promotion/apply/:id                     controllers.PromotionalBannerController.applyPromotionalBanner(id:Long)
+
+
 GET     /systemSettings/getAllSystemSettings    controllers.SystemSettingsController.getAllSystemSettings
 GET     /systemSettings/all                     controllers.SystemSettingsController.allSystemSettings
 GET     /systemSettings/new                     controllers.SystemSettingsController.addNewSystemSetting

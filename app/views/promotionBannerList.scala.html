@@ -1,0 +1,75 @@
+
+@main("Get Bike", "Promotions"){
+<style>
+.btn.outline {
+	background: none;
+	padding: 12px 22px;
+}
+.btn-primary.outline {
+	border: 2px solid #0099cc;
+	color: #0099cc;
+}
+</style>
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-primary btn-md " onclick="window.location.href='/promotion/add'">New Promotion Banner</button>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-striped">
+                <tr bgcolor="#f2f2f2">
+                    <th>Id</th>
+                    <th>Promotions Url</th>
+                    <th>Image (Hdpi / Ldpi / Mdpi / Xhdpi / Xxhdpi)</th>
+                    <th>Promotion Status</th>
+                    <th>Delete</th>
+                </tr>
+                <tr ng-repeat="promotion in data.promotions">
+                    <td>{{promotion.id}}</td>
+                    <td>{{promotion.promotionsURL}}</td>
+                    <td><img ng-src="{{getImagePath(promotion.hdpiPromotionalBanner)}}" width="42" height="42"/> &nbsp;&nbsp;<img ng-src="{{getImagePath(promotion.ldpiPromotionalBanner)}}" width="42" height="42"/>&nbsp;&nbsp;
+                        <img ng-src="{{getImagePath(promotion.mdpiPromotionalBanner)}}" width="42" height="42"/>&nbsp;&nbsp;<img ng-src="{{getImagePath(promotion.xhdpiPromotionalBanner)}}" width="42" height="42"/>&nbsp;&nbsp;
+                        <img ng-src="{{getImagePath(promotion.xxhdpiPromotionalBanner)}}" width="42" height="42"/></td>
+                    <td class="case" data-ng-if="promotion.showThisBanner == true">Applied<img src="@routes.Assets.versioned("images/accept.png")"width="15" height="15"><a href="/promotion/apply/{{promotion.id}}">Apply</a></td>
+                    <td class="case" data-ng-if="promotion.showThisBanner != true">Rejected<img src="@routes.Assets.versioned("images/reject.png")"width="15" height="15"><a href="/promotion/apply/{{promotion.id}}">Apply</a></td>
+                    <td><a href="/promotion/delete/{{promotion.id}}"><i class="glyphicon glyphicon-remove"></i></a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', []);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.promotions = [];
+    vm.getData = function(){
+     var url = "/promotion/getPromotions?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.promotions = [];
+                vm.promotions = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData();
+
+    $scope.getImagePath = function(imageName) {
+    return "uploads/" + imageName;
+    };
+
+});
+</script>
+}

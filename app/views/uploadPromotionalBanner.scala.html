@@ -1,0 +1,213 @@
+@main("Get Bike", "Promotional Banner"){
+<style>
+    .form-control, .thumbnail {
+    border-radius: 2px;
+}
+.btn-info {
+    background-color: #1081F4;
+    width: 100%;
+    height: 100%;
+}
+
+/* File Upload */
+.fake-shadow {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+}
+.fileUpload #logo-id,#logo-id1,#logo-id2,#logo-id3,#logo-id4 {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 33px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+.img-preview,.img-preview1,.img-preview2 ,.img-preview3 ,.img-preview4  {
+     height: 150px;
+     width: 100%;
+}
+</style>
+<div class="container">
+    <legend align="center"> Add Promotional Banner Images !</legend>
+    <form action="@routes.PromotionalBannerController.uploadPromotionalBanner()" method="POST" enctype="multipart/form-data">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-2 col-md-offset-1">
+                    <div class="form-group">
+                        <div class="main-img-preview">
+                            <img class="thumbnail img-preview" src="@routes.Assets.versioned("images/add.png")" title="Preview Logo">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <div class="fileUpload btn btn-info fake-shadow">
+                                    <span><i class="glyphicon glyphicon-upload"></i>  HDPI Image</span>
+                                    <input id="logo-id" name="hdpiImage" type="file" class="attachment_upload">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-0.5">
+                    <div class="form-group">
+                        <div class="main-img-preview">
+                            <img class="thumbnail img-preview1" src="@routes.Assets.versioned("images/add.png")" title="Preview Logo">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <div class="fileUpload btn btn-info fake-shadow">
+                                    <span><i class="glyphicon glyphicon-upload"></i> LDPI Image</span>
+                                    <input id="logo-id1" name="ldpiImage" type="file" class="attachment_upload2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-0.5">
+                    <div class="form-group">
+                        <div class="main-img-preview">
+                            <img class="thumbnail img-preview2" src="@routes.Assets.versioned("images/add.png")" title="Preview Logo">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <div class="fileUpload btn btn-info fake-shadow">
+                                    <span><i class="glyphicon glyphicon-upload"></i> MDPI Image</span>
+                                    <input id="logo-id2" name="mdpiImage" type="file" class="attachment_upload">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-0.5">
+                    <div class="form-group">
+                        <div class="main-img-preview">
+                            <img class="thumbnail img-preview3" src="@routes.Assets.versioned("images/add.png")" title="Preview Logo">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <div class="fileUpload btn btn-info fake-shadow">
+                                    <span><i class="glyphicon glyphicon-upload"></i> XHDPI Image</span>
+                                    <input id="logo-id3" name="xhdpiImage" type="file" class="attachment_upload">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-0.5">
+                    <div class="form-group">
+                        <div class="main-img-preview">
+                            <img class="thumbnail img-preview4" src="@routes.Assets.versioned("images/add.png")" title="Preview Logo">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <div class="fileUpload btn btn-info fake-shadow">
+                                    <span><i class="glyphicon glyphicon-upload"></i> XXHDPI Image</span>
+                                    <input id="logo-id4" name="xxhdpiImage" type="file" class="attachment_upload">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+             <div class="row">
+                 <div class="form-group">
+                     <div class="col-md-4 col-md-offset-2 inputGroupContainer">
+                         <div class="input-group">
+                             <span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
+                             <input class="form-control" name="url" placeholder="Enter Promotion Url" required> </input>
+                         </div>
+                     </div>
+                     <div class="col-lg-2 col-lg-offset-0.5">
+                         <button type="submit" class="btn btn-info btn-block"><span class="glyphicon glyphicon-ok-sign"></span></span> Add Promotions</button>
+                     </div>
+                     <div class="col-lg-2 col-lg-offset-0.5">
+                         <button type="button" class="btn btn-info btn-block" onclick="window.location='';"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>
+                     </div>
+                 </div>
+             </div>
+        </fieldset>
+    </form>
+</div>
+<script>
+    $(document).ready(function() {
+    var image = document.getElementById('logo-id');
+    var image2 = document.getElementById('logo-id2');
+    image.className = 'attachment_upload';
+    image2.className = 'attachment_upload2';
+    image.onchange = function() {
+        document.getElementById('fakeUploadLogo').value = this.value.substring(12);
+    };
+    image2.onchange = function() {
+        document.getElementById('fakeUploadLogo').value = this.value.substring(12);
+    };
+
+    // Source: http://stackoverflow.com/a/4459419/6396981
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.img-preview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function readURL1(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.img-preview1').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function readURL2(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.img-preview2').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function readURL3(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.img-preview3').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function readURL4(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.img-preview4').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#logo-id").change(function() {
+        readURL(this);
+    });
+    $("#logo-id1").change(function() {
+        readURL1(this);
+    });
+    $("#logo-id2").change(function() {
+        readURL2(this);
+    });
+    $("#logo-id3").change(function() {
+        readURL3(this);
+    });
+    $("#logo-id4").change(function() {
+        readURL4(this);
+    });
+});
+</script>
+}

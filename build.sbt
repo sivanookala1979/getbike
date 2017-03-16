@@ -11,7 +11,9 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "org.mockito" % "mockito-core" % "2.2.22",
-  "com.google.code.gson" % "gson" % "1.7.1"
+  "com.google.code.gson" % "gson" % "1.7.1",
+  "commons-io" % "commons-io" % "2.4",
+  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4"
 )
 
 jacoco.settings

@@ -26,7 +26,7 @@ public class Wallet extends Model {
     String walletName;
     String isAmountPaidStatus;
     Date   statusActedAt;
-    boolean notificationSeen;
+    boolean notificationSeen = true;
     public transient String userName;
     @Column(length = 4096)
     String pgDetails;
