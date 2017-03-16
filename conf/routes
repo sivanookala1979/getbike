@@ -125,6 +125,7 @@ GET     /promotion/getPromotions                 controllers.PromotionalBannerCo
 GET     /allPromotion                            controllers.PromotionalBannerController.promotionBannerList
 GET     /promotion/delete/:id                     controllers.PromotionalBannerController.deletePromotionalBanner(id:Long)
 GET     /promotion/apply/:id                     controllers.PromotionalBannerController.applyPromotionalBanner(id:Long)
+GET     /promotion/sendPromotion                 controllers.PromotionalBannerController.sendPromotionalBannerWithUrl
 
 
 GET     /systemSettings/getAllSystemSettings    controllers.SystemSettingsController.getAllSystemSettings
