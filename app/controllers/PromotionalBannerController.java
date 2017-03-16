@@ -124,4 +124,32 @@ public class PromotionalBannerController extends BaseController {
         return redirect("/allPromotion");
 
     }
+
+    public Result sendPromotionalBannerWithUrl() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        String imageResolution = getString("resolution");
+        List<PromotionsBanner> promotionsBanners = PromotionsBanner.find.all();
+        for (PromotionsBanner promotionsBanner: promotionsBanners) {
+            if (promotionsBanner.getShowThisBanner().equals(true)){
+                switch (imageResolution){
+                    case "hdpi" : objectNode.put("hdpi",promotionsBanner.getHdpiPromotionalBanner());
+                        break;
+                    case "ldpi" : objectNode.put("ldpi",promotionsBanner.getLdpiPromotionalBanner());
+                        break;
+                    case "mdpi" : objectNode.put("mdpi",promotionsBanner.getMdpiPromotionalBanner());
+                        break;
+                    case "xhdpi" : objectNode.put("xhdpi",promotionsBanner.getXhdpiPromotionalBanner());
+                        break;
+                    case "xxhdpi" : objectNode.put("xxhdpi",promotionsBanner.getXxhdpiPromotionalBanner());
+                        break;
+                    default: System.out.println("NO images found for promotional banner!");
+                }
+                objectNode.put("promotionsURL",promotionsBanner.getPromotionsURL());
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
 }
