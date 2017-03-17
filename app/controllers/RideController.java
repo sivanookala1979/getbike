@@ -50,7 +50,7 @@ public class RideController extends BaseController {
     @Inject
     FormFactory formFactory;
 
-    final static double MAX_DISTANCE_IN_KILOMETERS = 10.0;
+    final static double MAX_DISTANCE_IN_KILOMETERS = 6.0;
     public static final double MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE = 200.0;
     public static final double FREE_RIDE_MAX_DISCOUNT = 50.0;
 
