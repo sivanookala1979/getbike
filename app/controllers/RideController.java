@@ -56,6 +56,7 @@ public class RideController extends BaseController {
 
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId", "requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
+    public LinkedHashMap<String, String> nonGeoLocationTableHeaders = getTableHeadersList(new String[]{"Id", "Mobile Number", "Latitude", "Longitude", "Address", "Requested At"}, new String[]{"id", "mobileNumber", "latitude", "longitude", "addressArea", "requestedAt"});
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
@@ -1021,14 +1022,38 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    public Result viewNonGeoFencingLocations() {
+    public Result dateWiseFilterForNonGeoFencingLocations() {
+
+        String startDate = request().getQueryString("startDate");
+        String endDate = request().getQueryString("endDate");
+        String srcNumber = request().getQueryString("srcNumber");
+        List<NonGeoFencingLocation> nonGeoFencingLocationList = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
+        ExpressionList<NonGeoFencingLocation>nonGeoeLoactionQuery = null;
+
+        if (isNotNullAndEmpty(srcNumber)) {
+            listOfIds = NonGeoFencingLocation.find.where().or(Expr.like("lower(mobileNumber)", "%" + srcNumber.toLowerCase() + "%"), Expr.like("lower(mobileNumber)", "%" + srcNumber.toLowerCase() + "%")).orderBy("id").findIds();
+            nonGeoeLoactionQuery = NonGeoFencingLocation.find.where().or(Expr.in("id", listOfIds), Expr.in("id", listOfIds));
+        } else {
+            nonGeoeLoactionQuery = NonGeoFencingLocation.find.where();
+        }
+        if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            nonGeoFencingLocationList = nonGeoeLoactionQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id").findList();
+        } else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            nonGeoFencingLocationList = nonGeoeLoactionQuery.orderBy("id").findList();
+        }
+
         ObjectNode objectNode = Json.newObject();
-        List<NonGeoFencingLocation> nonGeoFencingLocations = NonGeoFencingLocation.find.all();
-        setResult(objectNode,nonGeoFencingLocations);
+
+        setResult(objectNode, nonGeoFencingLocationList);
         return ok(Json.toJson(objectNode));
     }
 
     public Result allNonGeoFencingLocations() {
-        return ok(views.html.nonGeoFencingLocationsList.render());
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.nonGeoFencingLocationsList.render(nonGeoLocationTableHeaders, "col-sm-12", "", "NonGeoLocation", "", "", ""));
+
     }
 }

@@ -100,7 +100,7 @@ GET     /editGeoFencinglocations/:id             controllers.RideController.edit
 GET     /updateGeoFencinglocations              controllers.RideController.updateGeoFencinglocations
 GET     /deleteGeoFencinglocations/:id          controllers.RideController.deleteGeoFencinglocations(id:Long)
 POST    /userRequestFromNonGeoFencingLocation   controllers.RideController.userRequestFromNonGeoFencingLocation
-GET     /viewNonGeoFencingLocations             controllers.RideController.viewNonGeoFencingLocations
+GET     /filterNonGeoFencingLocation            controllers.RideController.dateWiseFilterForNonGeoFencingLocations
 GET     /allNonGeoFencingLocations              controllers.RideController.allNonGeoFencingLocations
 
 

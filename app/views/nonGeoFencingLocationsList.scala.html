@@ -1,52 +1,139 @@
+@(tableHeaders: LinkedHashMap[String, String] , colClass: String ="col-sm-12", isRequired: String ="", header: String="NonGeoLocation" ,newUrl: String ="", editUrl: String = "", deleteUrl: String ="")
+@import views.html.custom_views._
+@main("Get Bike", "NonGeoLocation"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
 
-@main("Get Bike", "NonGeoFencingLocation"){
-<div data-ng-app="myApp">
-    <div data-ng-controller="myCtrl as data">
-        <div class="container">
-            <table class="table table-striped">
-                <tr bgcolor="#f2f2f2">
-                    <th>Id</th>
-                    <th>Mobile Number</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Address</th>
-                    <th>Requested At</th>
-                </tr>
-                <tr ng-repeat="setting in data.settings">
-                    <td>{{setting.id}}</td>
-                    <td>{{setting.mobileNumber}}</td>
-                    <td>{{setting.latitude}}</td>
-                    <td>{{setting.longitude}}</td>
-                    <td>{{setting.addressArea}}</td>
-                    <td>{{setting.requestedAt | date:'medium'}}</td>
-                </tr>
-            </table>
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+
+</style>
+<script src="@routes.Assets.versioned("javascripts/FileSaver.js")" type="text/javascript"></script>
+<div class="container" id="list-view-app-id">
+    <div class="row">
+        <div class="col-sm-12">
+            <div data-ng-controller="NonGeoLocationController">
+                <div class="row">
+                    <div class="col-sm-3 text-left" style="padding-bottom:10px;">
+                        <input type="text" ng-model="searchText" id="searchname" ng-keyup="$event.keyCode == 13 && doDateFilter()"
+                               placeholder="Search by Mobile Number" class="form-control">
+                    </div>
+
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="startDate" type="date" placeholder="" required class="form-control"/>
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <input ng-model="endDate" type="date" placeholder="" required class="form-control"/>
+                    </div>
+                    <div class="col-sm-2  text-left" style="width:130px" style="float: right;">
+                        <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
+                    </div>
+                   </div>
+
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border: 1px solid lightgrey; width: 100%;overflow: auto;">
+                        <thead style="border-bottom: 1px solid grey;">
+                        <tr>
+                            <th ng-click="sort('id')">Id
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')"> Mobile Number
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='mobileNumber'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Latitude
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='latitude'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Longitude
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='longitude'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Address
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='address'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')" style="width:190px;">Requested At
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='amount'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(index, location) in locations| orderBy:sortKey:reverse" class="text-left">
+                            <td>{{location.id}}</td>
+                            <td>{{location.mobileNumber}}</td>
+                            <td>{{location.latitude}}</td>
+                            <td>{{location.longitude}}</td>
+                            <td>{{location.addressArea}}</td>
+                            <td>{{location.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}</td>
+                         </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
+
     </div>
 </div>
 </div>
 <script>
-var listViewApp = angular.module('myApp', []);
-listViewApp.controller('myCtrl', function ($scope, $http) {
-    var vm = this;
-    vm.settings = [];
-    vm.getData = function(){
-     var url = "/viewNonGeoFencingLocations?";
-        var httpRequest = $http({
-            method : 'GET',
-            url : url,
-            }).success(function(data, status) {
-                console.log(data);
-                if(data!=null){
-                vm.settings = [];
-                vm.settings = data["result"];
-                vm.total_count = data["size"];
-            }
-        }).error(function(arg) {
-        console.log(arg);
-        });
-    };
-    vm.getData();
-});
+    var listViewApp = angular.module("myApp", []);
+    listViewApp.controller("NonGeoLocationController", function ($scope, $http, $filter) {
+            $scope.locations = [];
+            $scope.startDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
+            $scope.endDate = $filter("date")(Date.now(), 'yyyy-MM-dd');
+        $scope.sort = function(keyname){
+            $scope.sortKey = keyname;
+            $scope.reverse = !$scope.reverse;
+        };
+
+        $scope.doDateFilter = function() {
+        var url = "/filterNonGeoFencingLocation?"
+                if(!angular.isUndefined($scope.startDate)){
+                    url+="startDate="+$scope.startDate;
+                }
+                if(!angular.isUndefined($scope.endDate)){
+                    url+="&endDate="+$scope.endDate;
+                }
+                if(!angular.isUndefined($scope.searchText)){
+                     url+="&srcNumber="+$scope.searchText;
+                }
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.locations = [];
+                     $scope.locations = data["result"];
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+        $scope.doDateFilter();
+  }); //end of angular Js
 </script>
 }

@@ -1291,6 +1291,43 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(ride.getOrderAmount(), actual.findPath("orderAmount").asDouble());
         assertEquals(ride.getRideGender(), actual.findPath("rideGender").asText().charAt(0));
     }
+    @Test
+    public void dateWiseFilterForNonGeoFencingLocationsWithEmptyDateTESTWithHappyFlow() {
+        User user = loggedInUser();
+        user.setName("Wahid");
+        user.update();
+        NonGeoFencingLocation location = new NonGeoFencingLocation();
+        Date date = new Date();
+        location.setMobileNumber("8801682566");
+        location.setAddressArea("Kavali , Nellore");
+        location.setLatitude(78.2587255);
+        location.setLongitude(17.28954255);
+        location.setRequestedAt(date);
+        location.save();
+        Result result = route(fakeRequest(GET, "/filterNonGeoFencingLocation?startDate=" + "" + "&endDate=" + ""));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals(1, actual.size());
+    }
+    @Test
+    public void dateWiseFilterForNonGeoFencingLocationsTESTWithHappyFlow() {
+        User user = loggedInUser();
+        user.setName("Wahid");
+        user.update();
+        NonGeoFencingLocation location = new NonGeoFencingLocation();
+        Date date = new Date();
+        location.setMobileNumber("8801682567");
+        location.setAddressArea("Kavali , Nellore");
+        location.setLatitude(78.2587255);
+        location.setLongitude(17.28954255);
+        location.setRequestedAt(date);
+        location.save();
+        Result result = route(fakeRequest(GET, "/filterNonGeoFencingLocation?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD)+"&srcNumber=" + location.getMobileNumber()));
+        JsonNode actual = jsonFromResult(result);
+        assertEquals("8801682567", actual.findPath("mobileNumber").textValue());
+        assertEquals(location.getLatitude(), actual.findPath("latitude").asDouble());
+        assertEquals(location.getLongitude(), actual.findPath("longitude").asDouble());
+        assertEquals(location.getAddressArea(), actual.findPath("addressArea").textValue());
+    }
 
     IGcmUtils gcmUtilsMock;
 
