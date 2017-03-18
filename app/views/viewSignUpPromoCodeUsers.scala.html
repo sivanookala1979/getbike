@@ -1,0 +1,126 @@
+@(tableHeaders: LinkedHashMap[String, String] , colClass: String ="col-sm-12", isRequired: String ="", header: String="NonGeoLocation" ,newUrl: String ="", editUrl: String = "", deleteUrl: String ="")
+@import views.html.custom_views._
+@main("Get Bike", "SignUpPromoCodeUsers"){
+<style>
+.dialog_table{
+		margin-top: 100px;
+}
+
+.ui-widget-header {
+    border: 1px solid #dddddd;
+    background: #0081B5;
+    color: #333333;
+    font-weight: bold;
+}
+.ui-widget-content a {
+    color: #23527c;
+}
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
+
+th {
+    cursor:pointer;
+}
+
+</style>
+<script src="@routes.Assets.versioned("javascripts/FileSaver.js")" type="text/javascript"></script>
+<div class="container" id="list-view-app-id">
+    <div class="row">
+        <div class="col-sm-12">
+            <div data-ng-controller="promoCodeController">
+                <div class="row">
+                    <div class="col-sm-3 text-left" style="padding-bottom:10px;">
+                        <input type="text" ng-model="searchText" id="srcName" ng-keyup="$event.keyCode == 13 && doDateFilter()"
+                               placeholder="Enter Promo Code" class="form-control">
+                    </div>
+
+                    <div class="col-sm-2  text-left" style="width:130px" style="float: right;">
+                        <input type="button" class="btn btn-primary" value="Search" ng-click="doDateFilter()"/>
+                    </div>
+                   </div>
+                   <div id="flashId" style="color:red"></div><label for="lengthId">count :</label><div id="lengthId" name="lengthId"></div>
+
+                <div id="test">
+                    <table class="table table-striped"
+                           style="border: 1px solid lightgrey; width: 100%;overflow: auto;">
+                        <thead style="border-bottom: 1px solid grey;">
+                        <tr>
+                            <th ng-click="sort('id')">Id
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Promo code used
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='PromoCodeUsed'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')"> Mobile Number
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='mobileNumber'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+                            <th ng-click="sort('')">Name
+                                <span class="glyphicon sort-icon" ng-show="sortKey=='name'"
+                                      ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                            </th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(index, promoCode) in promoCodes| orderBy:sortKey:reverse" class="text-left">
+                            <td>{{promoCode.id}}</td>
+                            <td>{{promoCode.signupPromoCode}}</td>
+                            <td>{{promoCode.phoneNumber}}</td>
+                            <td>{{promoCode.name}}</td>
+                         </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+<script>
+    var listViewApp = angular.module("myApp", []);
+    listViewApp.controller("promoCodeController", function ($scope, $http, $filter) {
+            $scope.promoCodes = [];
+            $scope.sort = function(keyname){
+                $scope.sortKey = keyname;
+                $scope.reverse = !$scope.reverse;
+            };
+        $scope.doDateFilter = function() {
+        var url = "/users/SearchForPromoCode?"
+                if(!angular.isUndefined($scope.startDate)){
+                    url+="startDate="+$scope.startDate;
+                }
+                if(!angular.isUndefined($scope.endDate)){
+                    url+="&endDate="+$scope.endDate;
+                }
+                if(!angular.isUndefined($scope.searchText)){
+                     url+="&srcName="+$scope.searchText;
+                }
+                var httpRequest = $http({
+                    method : 'GET',
+                    url : url,
+                }).success(function(data) {
+                    console.log(data);
+                    if(data!=null){
+                     $scope.promoCodes = [];
+                     $scope.promoCodes = data["result"];
+                     if($scope.promoCodes.length == 0){
+                        document.getElementById("flashId").innerHTML = 'Enter the Search For Promo code !';
+                        }else document.getElementById("flashId").innerHTML = '';
+                        document.getElementById("lengthId").innerHTML = $scope.promoCodes.length;
+                    }
+                }).error(function(arg) {
+                    console.log(arg);
+                });
+        };
+        $scope.doDateFilter();
+  }); //end of angular Js
+</script>
+}

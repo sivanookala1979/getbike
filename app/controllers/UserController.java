@@ -1,6 +1,7 @@
 package controllers;
 
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -29,6 +30,7 @@ public class UserController extends BaseController {
     FormFactory formFactory;
 
     public LinkedHashMap<String, String> loginOtpTableHeaders = getTableHeadersList(new String[]{"", "", "#", "User Id", "Mobile Number", "OTP", "Created At"}, new String[]{"", "", "id", "userId", "phoneNumber", "generatedOtp", "createdAt"});
+    public LinkedHashMap<String, String> signUpPromoCodeTableHeaders = getTableHeadersList(new String[]{"Id", "Promo Code Used", "Mobile Number", "Name"}, new String[]{"id", "signupPromoCode", "phoneNumber", "name"});
 
     public Result index() {
         return ok(views.html.userIndex.render(User.find.all(), Ride.find.all(), RideLocation.find.all(), LoginOtp.find.all()));
@@ -487,7 +489,37 @@ public class UserController extends BaseController {
         user.setGender(gender.charAt(0));
         user.setPhoneNumber(mobileNumber);
         user.setEmail(email);
+        user.setPromoCode(requestData.get("promoCode"));
         user.update();
         return redirect("/users/usersList");
     }
+    public Result SearchForPromoCodeLogins() {
+
+        String srcName = request().getQueryString("srcName");
+        System.out.print("Name ------------."+srcName);
+        List<User> userList = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
+        ExpressionList<User> userExpressionList = null;
+
+        if (isNotNullAndEmpty(srcName)) {
+            listOfIds = User.find.where().or(Expr.like("lower(signupPromoCode)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(signupPromoCode)", "%" + srcName.toLowerCase() + "%")).orderBy("id").findIds();
+            userExpressionList = User.find.where().or(Expr.in("id", listOfIds), Expr.in("id", listOfIds));
+            userList = userExpressionList.orderBy("id").findList();
+        } else if(!isNotNullAndEmpty(srcName)){
+            flash("Enter the search For Promo code !");
+        }
+        ObjectNode objectNode = Json.newObject();
+        setResult(objectNode, userList);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result viewSignUpPromoCodeLogins() {
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.viewSignUpPromoCodeUsers.render(signUpPromoCodeTableHeaders, "col-sm-12", "", "PromoCode", "", "", ""));
+
+    }
+
+
 }

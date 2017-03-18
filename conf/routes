@@ -63,6 +63,8 @@ GET     /userSpecialPrice/:id                   controllers.UserController.userS
 GET     /updateSpecialPrice                     controllers.UserController.updateUserDetailsWithSpecialPrice
 GET     /editUserDetails/:id                    controllers.UserController.editUserDetails(id: Long)
 GET     /updateUserDetail                       controllers.UserController.updateUserDetail
+GET     /users/SearchForPromoCode               controllers.UserController.SearchForPromoCodeLogins
+GET     /users/viewSignUpPromoCode              controllers.UserController.viewSignUpPromoCodeLogins
 
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer
