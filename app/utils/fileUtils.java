@@ -12,10 +12,10 @@ import java.util.UUID;
  */
 public class fileUtils {
 
-    public static String fileUpload(Http.MultipartFormData.FilePart<File> file, String url) {
+    public static String fileUpload(Http.MultipartFormData.FilePart<File> file) {
         String fileName = "";
         if (file != null) {
-            fileName = url + "-" + UUID.randomUUID() + file.getFilename();
+            fileName = UUID.randomUUID()+"-" + file.getFilename();
             File destFile = (File) file.getFile();
             try {
                 FileUtils.moveFile(destFile, new File("public/uploads/", fileName));

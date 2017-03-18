@@ -35,11 +35,11 @@ public class PromotionalBannerController extends BaseController {
             if (body == null) {
                 return badRequest("Invalid request, required is POST with enctype=multipart/form-data.");
             }
-            String hdpiImage = fileUtils.fileUpload(body.getFile("hdpiImage"), promotionUrl);
-            String ldpiImage = fileUtils.fileUpload(body.getFile("ldpiImage"), promotionUrl);
-            String mdpiImage = fileUtils.fileUpload(body.getFile("mdpiImage"), promotionUrl);
-            String xhdpiImage = fileUtils.fileUpload(body.getFile("xhdpiImage"), promotionUrl);
-            String xxhdpiImage = fileUtils.fileUpload(body.getFile("xxhdpiImage"), promotionUrl);
+            String hdpiImage = fileUtils.fileUpload(body.getFile("hdpiImage"));
+            String ldpiImage = fileUtils.fileUpload(body.getFile("ldpiImage"));
+            String mdpiImage = fileUtils.fileUpload(body.getFile("mdpiImage"));
+            String xhdpiImage = fileUtils.fileUpload(body.getFile("xhdpiImage"));
+            String xxhdpiImage = fileUtils.fileUpload(body.getFile("xxhdpiImage"));
             bannerFile.setPromotionsURL(promotionUrl);System.out.println("Url ---->" + promotionUrl);
             bannerFile.setHdpiPromotionalBanner(hdpiImage);System.out.println("File ---->" + hdpiImage);
             bannerFile.setLdpiPromotionalBanner(ldpiImage);System.out.println("File ---->" + ldpiImage);
