@@ -521,5 +521,28 @@ public class UserController extends BaseController {
 
     }
 
+    public Result checkTutorialCompletedStatus() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            if (user.isAppTutorialStatus()){
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result storeTutorialCompletedStatus(){
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            user.setAppTutorialStatus(true);
+            user.update();
+            result = SUCCESS;
+        }
+        return ok(result);
+    }
 
 }

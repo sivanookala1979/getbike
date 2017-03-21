@@ -58,6 +58,7 @@ public class User extends Model {
     Integer freeRidesEarned;
     Integer freeRidesSpent;
     String appVersion;
+    boolean appTutorialStatus;
 
 
     public String getName() {
@@ -382,5 +383,13 @@ public class User extends Model {
 
     public void setAppVersion(String appVersion) {
         this.appVersion = appVersion;
+    }
+
+    public boolean isAppTutorialStatus() {
+        return appTutorialStatus;
+    }
+
+    public void setAppTutorialStatus(boolean appTutorialStatus) {
+        this.appTutorialStatus = appTutorialStatus;
     }
 }

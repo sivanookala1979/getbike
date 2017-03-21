@@ -648,6 +648,50 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(user.getEmail(), jsonNode.findPath("email").textValue());
     }
 
+    @Test
+    public void checkTutorialCompletedStatusTestFlow() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("9191606091");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure",jsonNode.get("result").textValue());
+        user.setAppTutorialStatus(true);
+        user.update();
+        Result result1=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode1 = jsonFromResult(result1);
+        assertEquals("success",jsonNode1.get("result").textValue());
+    }
+
+    @Test
+    public void checkTutorialCompletedStatusTestFlowForFailure() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("9191609191");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure",jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void storeTutorialCompletedStatusTestFlow() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("9191606060");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure",jsonNode.get("result").textValue());
+        Result result1=route(fakeRequest(GET,"/users/storeTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        Result result2=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode2 = jsonFromResult(result2);
+        assertEquals("success",jsonNode2.get("result").textValue());
+    }
 
     @Test
     public void userSpecialPriceTESTWithHappyFlow() {
