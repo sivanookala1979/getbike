@@ -535,6 +535,7 @@ public class UserController extends BaseController {
     }
 
     public Result storeTutorialCompletedStatus(){
+        ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
         if (user != null){
@@ -542,7 +543,8 @@ public class UserController extends BaseController {
             user.update();
             result = SUCCESS;
         }
-        return ok(result);
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
     }
 
 }

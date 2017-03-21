@@ -688,9 +688,11 @@ public class UserControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("failure",jsonNode.get("result").textValue());
         Result result1=route(fakeRequest(GET,"/users/storeTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
-        Result result2=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
-        JsonNode jsonNode2 = jsonFromResult(result2);
+        JsonNode jsonNode2 = jsonFromResult(result1);
         assertEquals("success",jsonNode2.get("result").textValue());
+        Result result2=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode3 = jsonFromResult(result2);
+        assertEquals("success",jsonNode3.get("result").textValue());
     }
 
     @Test
