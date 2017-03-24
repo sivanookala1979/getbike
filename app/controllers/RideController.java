@@ -692,7 +692,7 @@ public class RideController extends BaseController {
     }
 
     public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude, char gender) {
-        return User.find.where().eq("isRideInProgress", false).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
+        return User.find.where().eq("isRideInProgress", false).eq("validProofsUploaded", true).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
                 ") ) * cos( radians( last_known_latitude ) ) " +
                 "   * cos( radians(last_known_longitude) - radians(" + longitude +
                 ")) + sin(radians(" + latitude + ")) " +

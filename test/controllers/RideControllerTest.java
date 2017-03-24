@@ -260,6 +260,7 @@ public class RideControllerTest extends BaseControllerTest {
         otherUser.setLastKnownLatitude(startLatitude);
         otherUser.setLastKnownLongitude(startLongitude);
         otherUser.setGender('M');
+        otherUser.setValidProofsUploaded(true);
         otherUser.save();
         when(gcmUtilsMock.sendMessage(eq(Collections.singletonList(otherUser)), contains("A new ride request with ride Id "), eq("newRide"), anyLong())).thenReturn(true);
         Result result = requestGetBike(user, startLatitude, startLongitude);
@@ -1237,7 +1238,11 @@ public class RideControllerTest extends BaseControllerTest {
     public void getRelevantRidersTESTHappyFlow() {
         User user = loggedInUser();
         User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(true);
+        rider1.update();
         User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
         List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
         assertEquals(2, actual.size());
         cAssertHasUser(actual, rider1);
@@ -1248,7 +1253,11 @@ public class RideControllerTest extends BaseControllerTest {
     public void getRelevantRidersTESTWhenAwayFromUser() {
         User user = loggedInUser();
         User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(true);
+        rider1.update();
         User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
         List<User> actual = RideController.getRelevantRiders(user.getId(), 53.45, 66.78, user.getGender());
         assertEquals(0, actual.size());
     }
@@ -1257,10 +1266,46 @@ public class RideControllerTest extends BaseControllerTest {
     public void getRelevantRidersTESTWhenOneNearAndOneAway() {
         User user = loggedInUser();
         User rider1 = createRider(23.47, 56.79);
+        rider1.setValidProofsUploaded(true);
+        rider1.update();
         User rider2 = createRider(53.45, 66.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
         List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider1);
+    }
+
+    @Test
+    public void getRelevantRiderWithOneValidProofsUploadedTestFlow() {
+        User user = loggedInUser();
+        User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(false);
+        rider1.update();
+        User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        assertEquals(1, actual.size());
+        cAssertHasUser(actual, rider2);
+    }
+
+    @Test
+    public void getRelevantRiderWithTwoValidProofsUploadedTestFlow() {
+        User user = loggedInUser();
+        User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(false);
+        rider1.update();
+        User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
+        User rider3 = createRider(23.45, 56.78);
+        rider3.setValidProofsUploaded(true);
+        rider3.update();
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        assertEquals(2, actual.size());
+        cAssertHasUser(actual, rider2);
+        cAssertHasUser(actual, rider3);
     }
 
     @Test
