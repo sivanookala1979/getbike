@@ -696,6 +696,62 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getDriverAvailabilityTEstFlowForSuccess() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("1231606060");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.setDriverAvailability(true);
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success",jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void getDriverAvailabilityTEstFlowForFailure() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("1231606060");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("failure",jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void makeDriverAvailabilityTrueTestFlow() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("1231606060");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/makeDriverAvailabilityTrue").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success",jsonNode.get("result").textValue());
+        Result result1=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode1 = jsonFromResult(result1);
+        assertEquals("success",jsonNode1.get("result").textValue());
+    }
+
+    @Test
+    public void makeDriverAvailabilityFalseTestFlow() {
+        User user = new User();
+        user.setName("ramkoti martha");
+        user.setPhoneNumber("1241606060");
+        user.setAuthToken(UUID.randomUUID().toString());
+        user.setDriverAvailability(true);
+        user.save();
+        Result result=route(fakeRequest(GET,"/users/makeDriverAvailabilityFalse").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success",jsonNode.get("result").textValue());
+        Result result1=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode1 = jsonFromResult(result1);
+        assertEquals("failure",jsonNode1.get("result").textValue());
+    }
+
+    @Test
     public void userSpecialPriceTESTWithHappyFlow() {
 
     }

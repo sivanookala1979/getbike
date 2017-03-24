@@ -547,4 +547,43 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result getDriverAvailabilityStatus() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            if (user.isDriverAvailability()) {
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result makeDriverAvailabilityTrue() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            user.setDriverAvailability(true);
+            user.update();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result makeDriverAvailabilityFalse() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null){
+            user.setDriverAvailability(false);
+            user.update();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 }

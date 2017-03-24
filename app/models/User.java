@@ -59,6 +59,7 @@ public class User extends Model {
     Integer freeRidesSpent;
     String appVersion;
     boolean appTutorialStatus;
+    boolean driverAvailability;
 
 
     public String getName() {
@@ -391,5 +392,13 @@ public class User extends Model {
 
     public void setAppTutorialStatus(boolean appTutorialStatus) {
         this.appTutorialStatus = appTutorialStatus;
+    }
+
+    public boolean isDriverAvailability() {
+        return driverAvailability;
+    }
+
+    public void setDriverAvailability(boolean driverAvailability) {
+        this.driverAvailability = driverAvailability;
     }
 }

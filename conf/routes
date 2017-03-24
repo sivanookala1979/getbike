@@ -67,6 +67,9 @@ GET     /users/SearchForPromoCode               controllers.UserController.Searc
 GET     /users/viewSignUpPromoCode              controllers.UserController.viewSignUpPromoCodeLogins
 GET     /users/checkTutorialCompletedStatus     controllers.UserController.checkTutorialCompletedStatus
 GET     /users/storeTutorialCompletedStatus     controllers.UserController.storeTutorialCompletedStatus
+GET     /users/makeDriverAvailabilityTrue       controllers.UserController.makeDriverAvailabilityTrue
+GET     /users/makeDriverAvailabilityFalse      controllers.UserController.makeDriverAvailabilityFalse
+GET     /users/getDriverAvailabilityStatus      controllers.UserController.getDriverAvailabilityStatus
 
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer
