@@ -119,6 +119,7 @@ element.style {
                             <td><a href="/userSpecialPrice/{{user.id}}">SPrice</a>
                             </td>
                             <td><a href="/riderPositions/{{user.id}}/10">Rider Positions</a>
+                                <br/><a ng-if="user.vendor == true" href="/addParcel?vendorId={{user.id}}">Add Parcel</a>
                             </td>
                         </tr>
                         </tbody>

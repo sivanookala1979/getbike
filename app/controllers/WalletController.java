@@ -204,12 +204,12 @@ public class WalletController extends BaseController {
         return redirect("/users/usersList");
     }
 
-    public Result walletPaginationList(){
+    public Result walletPaginationList() {
         String walletUserId = request().getQueryString("id");
         ObjectNode objectNode = Json.newObject();
         String pageNumber = request().getQueryString("pageNumber");
-        List<Wallet> walletsList = Wallet.find.where().eq("user_id" , walletUserId).orderBy("transactionDateTime desc").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
-        objectNode.put("size", Wallet.find.where().eq("user_id" , walletUserId).findList().size());
+        List<Wallet> walletsList = Wallet.find.where().eq("user_id", walletUserId).orderBy("transactionDateTime desc").findPagedList(Integer.parseInt(pageNumber) - 1, 10).getList();
+        objectNode.put("size", Wallet.find.where().eq("user_id", walletUserId).findList().size());
 
         setResult(objectNode, walletsList);
         return ok(Json.toJson(objectNode));
@@ -307,7 +307,7 @@ public class WalletController extends BaseController {
             if (wallet.getType().equalsIgnoreCase("MobileRecharge") || wallet.getType().equalsIgnoreCase("RedeemToBank") || wallet.getType().equalsIgnoreCase("RedeemToWallet")) {
                 list.add(wallet);
             }
-            if (!wallet.isNotificationSeen()){
+            if (!wallet.isNotificationSeen()) {
                 wallet.setNotificationSeen(true);
                 wallet.update();
             }
@@ -326,11 +326,13 @@ public class WalletController extends BaseController {
         }
         return ok(views.html.redeemEventDetails.render(walletTableHearder, "col-sm-12", "", "Wallet", "", "", ""));
     }
-    public  Result notificationsUpdate(){
+
+    public Result notificationsUpdate() {
+        // TODO : WHAT IS THIS. THIS IS NOT GOOD. How is it linked to the user.
         ObjectNode objectNode = Json.newObject();
-        List <Wallet>walletList = Wallet.find.where().eq("notificationSeen",false).findList();
+        List<Wallet> walletList = Wallet.find.where().eq("notificationSeen", false).findList();
         int count = walletList.size();
-        objectNode.put("notificationSeenCount",count);
+        objectNode.put("notificationSeenCount", count);
         setResult(objectNode, walletList);
         return ok(Json.toJson(objectNode));
     }

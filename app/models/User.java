@@ -60,6 +60,8 @@ public class User extends Model {
     String appVersion;
     boolean appTutorialStatus;
     boolean driverAvailability;
+    boolean primeRider;
+    boolean vendor;
 
 
     public String getName() {
@@ -400,5 +402,21 @@ public class User extends Model {
 
     public void setDriverAvailability(boolean driverAvailability) {
         this.driverAvailability = driverAvailability;
+    }
+
+    public boolean isPrimeRider() {
+        return primeRider;
+    }
+
+    public void setPrimeRider(boolean primeRider) {
+        this.primeRider = primeRider;
+    }
+
+    public boolean isVendor() {
+        return vendor;
+    }
+
+    public void setVendor(boolean vendor) {
+        this.vendor = vendor;
     }
 }

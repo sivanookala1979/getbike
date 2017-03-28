@@ -1056,4 +1056,33 @@ public class RideController extends BaseController {
         return ok(views.html.nonGeoFencingLocationsList.render(nonGeoLocationTableHeaders, "col-sm-12", "", "NonGeoLocation", "", "", ""));
 
     }
+
+    public Result addParcel(){
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.addParcel.render(getString("vendorId")));
+    }
+
+
+    public Result saveParcel() {
+        if (!isValidateSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        Ride ride = new Ride();
+        ride.setRequestorId(Long.parseLong(dynamicForm.get("vendorId")));
+        ride.setSourceAddress(dynamicForm.get("sourceAddress"));
+        ride.setParcelPickupNumber(dynamicForm.get("pickupMobileNumber"));
+        ride.setDestinationAddress(dynamicForm.get("destinationAddress"));
+        ride.setParcelDropoffNumber(dynamicForm.get("dropoffMobileNumber"));
+        ride.setStartLatitude(Double.parseDouble(dynamicForm.get("sourceLatitude")));
+        ride.setStartLongitude(Double.parseDouble(dynamicForm.get("sourceLongitude")));
+        ride.setRideStatus(RideStatus.RideRequested);
+        ride.setModeOfPayment("Cash");
+        ride.setRequestedAt(new Date());
+        ride.setRideType("Parcel");
+        ride.save();
+        return redirect("/ride/rideList");
+    }
 }

@@ -54,6 +54,11 @@ public class Ride extends Model {
     private transient boolean userRider = false;
     Double freeRideDiscount;
     String modeOfPayment;
+    String rideType;
+    String parcelPickupNumber;
+    String parcelDropoffNumber;
+    String parcelPickupImageName;
+    String parcelDropoffImageName;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -374,5 +379,45 @@ public class Ride extends Model {
 
     public void setRidePaymentStatus(String ridePaymentStatus) {
         this.ridePaymentStatus = ridePaymentStatus;
+    }
+
+    public String getRideType() {
+        return rideType;
+    }
+
+    public void setRideType(String rideType) {
+        this.rideType = rideType;
+    }
+
+    public String getParcelPickupNumber() {
+        return parcelPickupNumber;
+    }
+
+    public void setParcelPickupNumber(String parcelPickupNumber) {
+        this.parcelPickupNumber = parcelPickupNumber;
+    }
+
+    public String getParcelDropoffNumber() {
+        return parcelDropoffNumber;
+    }
+
+    public void setParcelDropoffNumber(String parcelDropoffNumber) {
+        this.parcelDropoffNumber = parcelDropoffNumber;
+    }
+
+    public String getParcelPickupImageName() {
+        return parcelPickupImageName;
+    }
+
+    public void setParcelPickupImageName(String parcelPickupImageName) {
+        this.parcelPickupImageName = parcelPickupImageName;
+    }
+
+    public String getParcelDropoffImageName() {
+        return parcelDropoffImageName;
+    }
+
+    public void setParcelDropoffImageName(String parcelDropoffImageName) {
+        this.parcelDropoffImageName = parcelDropoffImageName;
     }
 }

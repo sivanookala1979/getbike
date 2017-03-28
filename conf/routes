@@ -103,7 +103,9 @@ GET     /fencingLocations                       controllers.RideController.viewG
 GET     /allFencinglocations                    controllers.RideController.getAllGeoFencingLocations
 GET     /addOfflineTrip                         controllers.RideController.addOfflineTrip
 POST    /saveOfflineTrip                        controllers.RideController.saveOfflineTrip
-GET     /editGeoFencinglocations/:id             controllers.RideController.editGeoFencinglocations(id: Long)
+GET     /addParcel                              controllers.RideController.addParcel
+POST    /saveParcel                             controllers.RideController.saveParcel
+GET     /editGeoFencinglocations/:id            controllers.RideController.editGeoFencinglocations(id: Long)
 GET     /updateGeoFencinglocations              controllers.RideController.updateGeoFencinglocations
 GET     /deleteGeoFencinglocations/:id          controllers.RideController.deleteGeoFencinglocations(id:Long)
 POST    /userRequestFromNonGeoFencingLocation   controllers.RideController.userRequestFromNonGeoFencingLocation

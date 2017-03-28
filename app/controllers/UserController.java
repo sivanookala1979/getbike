@@ -484,12 +484,16 @@ public class UserController extends BaseController {
         String email = requestData.get("email");
         String mobileNumber = requestData.get("mobileNumber");
         String gender = requestData.get("gender");
+        boolean primeRider = "on".equals(requestData.get("primeRider"));
+        boolean vendor = "on".equals(requestData.get("vendor"));
         User user = User.find.byId(Long.valueOf(userId));
         user.setName(name);
         user.setGender(gender.charAt(0));
         user.setPhoneNumber(mobileNumber);
         user.setEmail(email);
         user.setPromoCode(requestData.get("promoCode"));
+        user.setPrimeRider(primeRider);
+        user.setVendor(vendor);
         user.update();
         return redirect("/users/usersList");
     }

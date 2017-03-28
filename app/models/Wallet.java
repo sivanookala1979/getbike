@@ -129,7 +129,8 @@ public class Wallet extends Model {
     }
 
     public String getUserName() {
-        return User.find.byId(getUserId()).name;
+        //TODO This is not good coding. Please stop finding in the model.
+        return "";
     }
 
     public void setUserName(String userName) {
