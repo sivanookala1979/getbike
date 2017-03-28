@@ -1243,7 +1243,7 @@ public class RideControllerTest extends BaseControllerTest {
         User rider2 = createRider(23.45, 56.78);
         rider2.setValidProofsUploaded(true);
         rider2.update();
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
         assertEquals(2, actual.size());
         cAssertHasUser(actual, rider1);
         cAssertHasUser(actual, rider2);
@@ -1258,7 +1258,7 @@ public class RideControllerTest extends BaseControllerTest {
         User rider2 = createRider(23.45, 56.78);
         rider2.setValidProofsUploaded(true);
         rider2.update();
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 53.45, 66.78, user.getGender());
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 53.45, 66.78, user.getGender(), false);
         assertEquals(0, actual.size());
     }
 
@@ -1271,7 +1271,7 @@ public class RideControllerTest extends BaseControllerTest {
         User rider2 = createRider(53.45, 66.78);
         rider2.setValidProofsUploaded(true);
         rider2.update();
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider1);
     }
@@ -1285,7 +1285,7 @@ public class RideControllerTest extends BaseControllerTest {
         User rider2 = createRider(23.45, 56.78);
         rider2.setValidProofsUploaded(true);
         rider2.update();
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
         assertEquals(1, actual.size());
         cAssertHasUser(actual, rider2);
     }
@@ -1302,10 +1302,29 @@ public class RideControllerTest extends BaseControllerTest {
         User rider3 = createRider(23.45, 56.78);
         rider3.setValidProofsUploaded(true);
         rider3.update();
-        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender());
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
         assertEquals(2, actual.size());
         cAssertHasUser(actual, rider2);
         cAssertHasUser(actual, rider3);
+    }
+
+    @Test
+    public void getRelevantRidersTESTWithOnlyPrimeRiders() {
+        User user = loggedInUser();
+        User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(false);
+        rider1.update();
+        User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.setPrimeRider(true);
+        rider2.update();
+        User rider3 = createRider(23.45, 56.78);
+        rider3.setValidProofsUploaded(true);
+        rider3.setPrimeRider(false);
+        rider3.update();
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), true);
+        assertEquals(1, actual.size());
+        cAssertHasUser(actual, rider2);
     }
 
     @Test

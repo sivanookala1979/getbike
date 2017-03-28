@@ -54,7 +54,7 @@ public class Ride extends Model {
     private transient boolean userRider = false;
     Double freeRideDiscount;
     String modeOfPayment;
-    String rideType;
+    String rideType = "Ride";
     String parcelPickupNumber;
     String parcelDropoffNumber;
     String parcelPickupImageName;

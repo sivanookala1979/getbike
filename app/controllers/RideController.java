@@ -96,7 +96,7 @@ public class RideController extends BaseController {
             user.save();
             result = SUCCESS;
             setJson(objectNode, Ride.RIDE_ID, ride.getId());
-            publishRideDetails(user, ride);
+            publishRideDetails(user, ride, false);
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
@@ -547,7 +547,7 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    public Result updatePaymentStatus(){
+    public Result updatePaymentStatus() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
@@ -636,20 +636,20 @@ public class RideController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             Double userLatitude = getDouble("latitude");
             Double userLongitude = getDouble("longitude");
             List<GeoFencingLocation> allGeoFencingLocations = GeoFencingLocation.find.all();
-            if (allGeoFencingLocations.size() > 0){
+            if (allGeoFencingLocations.size() > 0) {
                 List<GeoFencingLocation> locationArrayList = new ArrayList<>();
-                for (GeoFencingLocation geoFencingLocationList :allGeoFencingLocations){
-                    GeoFencingLocation geoFencingLocation= GeoFencingLocation.find.byId(geoFencingLocationList.getId());
+                for (GeoFencingLocation geoFencingLocationList : allGeoFencingLocations) {
+                    GeoFencingLocation geoFencingLocation = GeoFencingLocation.find.byId(geoFencingLocationList.getId());
                     locationArrayList.add(geoFencingLocation);
                     double geoLatitude = geoFencingLocation.getLatitude();
                     double geoLongitude = geoFencingLocation.getLongitude();
                     int radius = geoFencingLocation.getRadius();
-                    double distance = getDistanceFromLatLngInKm(userLatitude,userLongitude,geoLatitude,geoLongitude);
-                    if (distance < radius ){
+                    double distance = getDistanceFromLatLngInKm(userLatitude, userLongitude, geoLatitude, geoLongitude);
+                    if (distance < radius) {
                         result = SUCCESS;
                     }
                     objectNode.set("locations", Json.toJson(locationArrayList));
@@ -660,23 +660,22 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    public double getDistanceFromLatLngInKm(double userLatitude,double userLongitude,double geoLatitude,double geoLongitude) {
+    public double getDistanceFromLatLngInKm(double userLatitude, double userLongitude, double geoLatitude, double geoLongitude) {
         int radius = 6371; // Radius of the earth in km
 
-        double dLat = deg2rad(geoLatitude-userLatitude);
-        double dLon = deg2rad(geoLongitude-userLongitude);
+        double dLat = deg2rad(geoLatitude - userLatitude);
+        double dLon = deg2rad(geoLongitude - userLongitude);
         double a =
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                         Math.cos(deg2rad(userLatitude)) * Math.cos(deg2rad(geoLatitude)) *
-                                Math.sin(dLon/2) * Math.sin(dLon/2)
-                ;
+                                Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return radius * c; // Distance in km
     }
 
     public double deg2rad(double deg) {
-        return deg * (Math.PI/180);
+        return deg * (Math.PI / 180);
     }
 
 
@@ -686,13 +685,17 @@ public class RideController extends BaseController {
     }
 
 
-    private void publishRideDetails(User user, Ride ride) {
+    private void publishRideDetails(User user, Ride ride, boolean onlyPrimeRiders) {
         IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
-        gcmUtils.sendMessage(getRelevantRiders(user.getId(), ride.getStartLatitude(), ride.getStartLongitude(), user.getGender()), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
+        gcmUtils.sendMessage(getRelevantRiders(user.getId(), ride.getStartLatitude(), ride.getStartLongitude(), user.getGender(), onlyPrimeRiders), "A new ride request with ride Id " + ride.getId() + " is active.", "newRide", ride.getId());
     }
 
-    public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude, char gender) {
-        return User.find.where().eq("isRideInProgress", false).eq("validProofsUploaded", true).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
+    public static List<User> getRelevantRiders(Long currentId, Double latitude, Double longitude, char gender, boolean onlyPrimeRiders) {
+        ExpressionList<User> relevantRiders = User.find.where().eq("isRideInProgress", false);
+        if (onlyPrimeRiders) {
+            relevantRiders = relevantRiders.eq("primeRider", true);
+        }
+        return relevantRiders.eq("validProofsUploaded", true).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
                 ") ) * cos( radians( last_known_latitude ) ) " +
                 "   * cos( radians(last_known_longitude) - radians(" + longitude +
                 ")) + sin(radians(" + latitude + ")) " +
@@ -771,10 +774,9 @@ public class RideController extends BaseController {
             if (ride.getAcceptedAt() != null) {
                 ride.setFormatedAcceptedAt(ride.getAcceptedAt());
             }
-            if (ride.isPaid()){
+            if (ride.isPaid()) {
                 ride.setRidePaymentStatus("Success");
-            }
-            else {
+            } else {
                 ride.setRidePaymentStatus("Pending");
             }
             if (ride.getRideStartedAt() != null) {
@@ -890,19 +892,19 @@ public class RideController extends BaseController {
         }).thenRun(system::terminate);
     }
 
-    public  Result addGeoFencingLocation(){
+    public Result addGeoFencingLocation() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.geoFencingLocation.render());
     }
 
-    public Result saveGeoFencingLocation(){
+    public Result saveGeoFencingLocation() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        GeoFencingLocation location =new GeoFencingLocation();
-        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        GeoFencingLocation location = new GeoFencingLocation();
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
         location.setAddressArea(dynamicForm.get("addressArea"));
         location.setLatitude(Double.parseDouble(dynamicForm.get("latitude")));
         location.setLongitude(Double.parseDouble(dynamicForm.get("longitude")));
@@ -910,7 +912,8 @@ public class RideController extends BaseController {
         location.save();
         return redirect("/allFencinglocations");
     }
-    public Result viewGeoFencingLocation(){
+
+    public Result viewGeoFencingLocation() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
@@ -920,12 +923,14 @@ public class RideController extends BaseController {
         setResult(objectNode, location);
         return ok(Json.toJson(objectNode));
     }
-    public Result getAllGeoFencingLocations(){
+
+    public Result getAllGeoFencingLocations() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.geoFencingLocationList.render());
     }
+
     public Result editGeoFencinglocations(Long id) {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
@@ -934,11 +939,11 @@ public class RideController extends BaseController {
         return ok(views.html.updateGeoFencingLocation.render(geoFencingLocation));
     }
 
-    public Result updateGeoFencinglocations(){
+    public Result updateGeoFencinglocations() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        DynamicForm requestData=formFactory.form().bindFromRequest();
+        DynamicForm requestData = formFactory.form().bindFromRequest();
         String geoId = requestData.get("id");
         String addressArea = requestData.get("addressArea");
         String latitude = requestData.get("latitude");
@@ -952,7 +957,8 @@ public class RideController extends BaseController {
         geoFencingLocation.update();
         return redirect("/allFencinglocations");
     }
-    public Result deleteGeoFencinglocations(Long id){
+
+    public Result deleteGeoFencinglocations(Long id) {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
@@ -961,18 +967,18 @@ public class RideController extends BaseController {
         return redirect("/allFencinglocations");
     }
 
-    public Result addOfflineTrip(){
+    public Result addOfflineTrip() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.addOfflineTrip.render());
     }
 
-    public Result saveOfflineTrip(){
+    public Result saveOfflineTrip() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
         Ride ride = new Ride();
         ride.setRiderMobileNumber(dynamicForm.get("riderMobileNumber"));
         ride.setCustomerMobileNumber(dynamicForm.get("customerMobileNumber"));
@@ -985,13 +991,13 @@ public class RideController extends BaseController {
         ride.setModeOfPayment("Cash-Offline trip");
         ride.setRideStatus(RideStatus.RideClosed);
         ride.setPaid(true);
-        User riderUser=User.find.where().eq("phoneNumber",dynamicForm.get("riderMobileNumber")).findUnique();
-        if (riderUser!=null){
+        User riderUser = User.find.where().eq("phoneNumber", dynamicForm.get("riderMobileNumber")).findUnique();
+        if (riderUser != null) {
             ride.setRiderId(riderUser.getId());
             ride.setRiderName(riderUser.getName());
         }
-        User customerUser=User.find.where().eq("phoneNumber",dynamicForm.get("customerMobileNumber")).findUnique();
-        if (customerUser != null){
+        User customerUser = User.find.where().eq("phoneNumber", dynamicForm.get("customerMobileNumber")).findUnique();
+        if (customerUser != null) {
             ride.setRequestorId(customerUser.getId());
             ride.setRequestorName(customerUser.getName());
         }
@@ -1007,7 +1013,7 @@ public class RideController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             JsonNode locationsJson = request().body().asJson();
             NonGeoFencingLocation nonGeoFencingLocation = new NonGeoFencingLocation();
             nonGeoFencingLocation.setMobileNumber(user.getPhoneNumber());
@@ -1029,7 +1035,7 @@ public class RideController extends BaseController {
         String srcNumber = request().getQueryString("srcNumber");
         List<NonGeoFencingLocation> nonGeoFencingLocationList = new ArrayList<>();
         List<Object> listOfIds = new ArrayList<>();
-        ExpressionList<NonGeoFencingLocation>nonGeoeLoactionQuery = null;
+        ExpressionList<NonGeoFencingLocation> nonGeoeLoactionQuery = null;
 
         if (isNotNullAndEmpty(srcNumber)) {
             listOfIds = NonGeoFencingLocation.find.where().or(Expr.like("lower(mobileNumber)", "%" + srcNumber.toLowerCase() + "%"), Expr.like("lower(mobileNumber)", "%" + srcNumber.toLowerCase() + "%")).orderBy("id").findIds();
@@ -1057,7 +1063,7 @@ public class RideController extends BaseController {
 
     }
 
-    public Result addParcel(){
+    public Result addParcel() {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
@@ -1069,7 +1075,7 @@ public class RideController extends BaseController {
         if (!isValidateSession()) {
             return redirect(routes.LoginController.login());
         }
-        DynamicForm dynamicForm =formFactory.form().bindFromRequest();
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
         Ride ride = new Ride();
         ride.setRequestorId(Long.parseLong(dynamicForm.get("vendorId")));
         ride.setSourceAddress(dynamicForm.get("sourceAddress"));
@@ -1083,6 +1089,8 @@ public class RideController extends BaseController {
         ride.setRequestedAt(new Date());
         ride.setRideType("Parcel");
         ride.save();
+        User vendor = User.find.byId(ride.getRequestorId());
+        publishRideDetails(vendor, ride, true);
         return redirect("/ride/rideList");
     }
 }
