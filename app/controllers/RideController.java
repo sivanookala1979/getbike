@@ -26,6 +26,7 @@ import play.mvc.Result;
 import utils.*;
 
 import javax.inject.Inject;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -1104,4 +1105,33 @@ public class RideController extends BaseController {
         publishRideDetails(vendor, ride, true);
         return redirect("/ride/rideList");
     }
+
+
+    public Result storeParcelBillPhoto() {
+        JsonNode userJson = request().body().asJson();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            Ride parcelRide = Ride.find.byId(userJson.get("rideId").longValue());
+            if (parcelRide != null && "Parcel".equals(parcelRide.getRideType()) && user.getId().equals(parcelRide.getRiderId())) {
+                String encodedImageData = userJson.get("imageData").textValue();
+                byte[] decoded = Base64.getDecoder().decode(encodedImageData);
+                try {
+                    String imagePath = "uploads/" + parcelRide.getId() + "-delproof-" + UUID.randomUUID() + ".png";
+                    FileOutputStream fileOutputStream = new FileOutputStream("public/" + imagePath);
+                    fileOutputStream.write(decoded);
+                    fileOutputStream.close();
+                    parcelRide.setParcelDropoffImageName(imagePath);
+                    parcelRide.save();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                result = SUCCESS;
+            }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
 }

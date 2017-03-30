@@ -14,6 +14,7 @@ import play.mvc.Result;
 import play.twirl.api.Content;
 import utils.*;
 
+import java.io.File;
 import java.util.*;
 
 import static controllers.RideController.FREE_RIDE_MAX_DISCOUNT;
@@ -1489,6 +1490,30 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals("success", jsonNode.get("result").textValue());
     }
+
+    @Test
+    public void storeParcelBillPhotoTESTHappyFlow() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRideType("Parcel");
+        ride.setRiderId(user.getId());
+        ride.save();
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("imageData", "aGVsbG8gaGVsbG8gaGVsbG8=");
+        objectNode.put("rideId", ride.getId());
+        Result result = route(fakeRequest(POST, "/storeParcelBillPhoto").header("Authorization", user.getAuthToken()).bodyJson(Json.toJson(objectNode))).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        ride.refresh();
+        assertNotNull(ride.getParcelDropoffImageName());
+        assertTrue(ride.getParcelDropoffImageName().endsWith(".png"));
+        assertTrue(new File("public/" + ride.getParcelDropoffImageName()).exists());
+        Result imageCheckResult = route(fakeRequest(GET, "/" + ride.getParcelDropoffImageName()));
+        assertEquals(200, imageCheckResult.status());
+        new File("public/" + ride.getParcelDropoffImageName()).deleteOnExit();
+    }
+
 
     IGcmUtils gcmUtilsMock;
 

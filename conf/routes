@@ -118,6 +118,7 @@ GET     /getPrivateProfile                      controllers.UserController.getPr
 GET     /getCurrentRide                         controllers.UserController.getCurrentRide
 POST    /storeLocations                         controllers.RideController.storeLocations
 POST    /estimateRide                           controllers.RideController.estimateRide
+POST    /storeParcelBillPhoto                   controllers.RideController.storeParcelBillPhoto
 POST    /storeDrivingLicense                    controllers.UserController.storeDrivingLicense
 POST    /storeVehiclePlate                      controllers.UserController.storeVehiclePlate
 GET     /uploads/:name                          controllers.HomeController.imageAt(name:String)
