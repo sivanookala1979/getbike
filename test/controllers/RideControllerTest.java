@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
 import models.*;
 import mothers.RideLocationMother;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -329,8 +328,8 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void updatePaymentStatusTESTFlow(){
-        User user= loggedInUser();
+    public void updatePaymentStatusTESTFlow() {
+        User user = loggedInUser();
         Ride ride = new Ride();
         ride.setRiderId(user.id);
         ride.setRideStatus(RideStatus.RideClosed);
@@ -379,6 +378,39 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
         assertEquals(GetBikeErrorCodes.RIDE_VALID_PROOFS_UPLOAD, acceptRideJsonNode.get("errorCode").intValue());
 
+    }
+
+    @Test
+    public void acceptRideTESTCanNotAcceptParcel() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRideType("Parcel");
+        ride.save();
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        assertEquals(GetBikeErrorCodes.CAN_NOT_ACCEPT_PARCEL, acceptRideJsonNode.get("errorCode").intValue());
+    }
+
+    @Test
+    public void acceptRideTESTPrimeRiderCanAcceptParcel() {
+        User user = loggedInUser();
+        user.setPrimeRider(true);
+        user.save();
+        User otherUser = otherUser();
+        Ride ride = createRide(otherUser.getId());
+        ride.setRideType("Parcel");
+        ride.save();
+        Result acceptRideResult = route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + ride.getId()).header("Authorization", user.getAuthToken()));
+        JsonNode acceptRideJsonNode = jsonFromResult(acceptRideResult);
+        assertEquals("success", acceptRideJsonNode.get("result").textValue());
+        ride.refresh();
+        assertEquals(RideStatus.RideAccepted, ride.getRideStatus());
+        assertEquals(user.getId(), ride.getRiderId());
     }
 
     @Test
@@ -964,6 +996,57 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void openRidesTESTWithParcels() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
+        Ride secondRide = createRide(otherUser.getId());
+        Ride parcelRide = createRide(otherUser.getId());
+        parcelRide.setRideType("Parcel");
+        parcelRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + firstRide.getStartLatitude() + "&longitude=" + firstRide.getStartLongitude()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+    }
+
+    @Test
+    public void openRidesTESTWithParcelsForPrimeRider() {
+        User user = loggedInUser();
+        user.setPrimeRider(true);
+        user.save();
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
+        Ride secondRide = createRide(otherUser.getId());
+        Ride parcelRide = createRide(otherUser.getId());
+        parcelRide.setRideType("Parcel");
+        parcelRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + firstRide.getStartLatitude() + "&longitude=" + firstRide.getStartLongitude()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 3;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(parcelRide.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(secondRide.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
+        assertEquals(firstRide.getId().longValue(), ridesList.get(2).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(2).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(2).get("requestorPhoneNumber").textValue());
+    }
+
+    @Test
     public void getMyCompletedRidesTESTHappyFlow() {
         User user = loggedInUser();
         Ride firstRide = createRide(user.getId());
@@ -1148,7 +1231,7 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void geoFencingAreaValidationTestFlowForSuccess(){
+    public void geoFencingAreaValidationTestFlowForSuccess() {
         User user = loggedInUser();
         GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
         geoFencingAreaValidation.setAddressArea("Ammerpet");
@@ -1157,14 +1240,14 @@ public class RideControllerTest extends BaseControllerTest {
         geoFencingAreaValidation.setRadius(5);
         geoFencingAreaValidation.save();
         GetBikeUtils.sleep(200);
-        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        System.out.println("Geofencing locations are:............................................................................" + geoFencingAreaValidation.getId() + "   ,   " + geoFencingAreaValidation.getLatitude() + " , " + geoFencingAreaValidation.getLongitude() + " , " + geoFencingAreaValidation.getAddressArea());
         Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.438899&longitude=78.441460").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
     }
 
     @Test
-    public void geoFencingAreaValidationTestFlowForFailure(){
+    public void geoFencingAreaValidationTestFlowForFailure() {
         User user = loggedInUser();
         GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
         geoFencingAreaValidation.setAddressArea("Ammerpet");
@@ -1173,14 +1256,14 @@ public class RideControllerTest extends BaseControllerTest {
         geoFencingAreaValidation.setRadius(3);
         geoFencingAreaValidation.save();
         GetBikeUtils.sleep(200);
-        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        System.out.println("Geofencing locations are:............................................................................" + geoFencingAreaValidation.getId() + "   ,   " + geoFencingAreaValidation.getLatitude() + " , " + geoFencingAreaValidation.getLongitude() + " , " + geoFencingAreaValidation.getAddressArea());
         Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.485091&longitude=78.363907").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("failure", responseObject.get("result").textValue());
     }
 
     @Test
-    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForSuccess(){
+    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForSuccess() {
         User user = loggedInUser();
         GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
         geoFencingAreaValidation.setAddressArea("outer ring road");
@@ -1196,14 +1279,14 @@ public class RideControllerTest extends BaseControllerTest {
         geoFencingAreaValidation1.setRadius(5);
         geoFencingAreaValidation1.save();
         GetBikeUtils.sleep(200);
-        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        System.out.println("Geofencing locations are:............................................................................" + geoFencingAreaValidation.getId() + "   ,   " + geoFencingAreaValidation.getLatitude() + " , " + geoFencingAreaValidation.getLongitude() + " , " + geoFencingAreaValidation.getAddressArea());
         Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.438899&longitude=78.441460").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("success", responseObject.get("result").textValue());
     }
 
     @Test
-    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForFailure(){
+    public void geoFencingAreaValidationWithMultipleLocationValuesTestFlowForFailure() {
         User user = loggedInUser();
         GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
         geoFencingAreaValidation.setAddressArea("outer ring road");
@@ -1219,7 +1302,7 @@ public class RideControllerTest extends BaseControllerTest {
         geoFencingAreaValidation1.setRadius(3);
         geoFencingAreaValidation1.save();
         GetBikeUtils.sleep(200);
-        System.out.println("Geofencing locations are:............................................................................"+geoFencingAreaValidation.getId()+"   ,   "+geoFencingAreaValidation.getLatitude()+" , "+geoFencingAreaValidation.getLongitude()+" , "+geoFencingAreaValidation.getAddressArea());
+        System.out.println("Geofencing locations are:............................................................................" + geoFencingAreaValidation.getId() + "   ,   " + geoFencingAreaValidation.getLatitude() + " , " + geoFencingAreaValidation.getLongitude() + " , " + geoFencingAreaValidation.getAddressArea());
         Result actual = route(fakeRequest(GET, "/geoFencingAreaValidation?latitude=17.485091&longitude=78.363907").header("Authorization", user.getAuthToken()));
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("failure", responseObject.get("result").textValue());
@@ -1355,6 +1438,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(ride.getOrderAmount(), actual.findPath("orderAmount").asDouble());
         assertEquals(ride.getRideGender(), actual.findPath("rideGender").asText().charAt(0));
     }
+
     @Test
     public void dateWiseFilterForNonGeoFencingLocationsWithEmptyDateTESTWithHappyFlow() {
         User user = loggedInUser();
@@ -1372,6 +1456,7 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode actual = jsonFromResult(result);
         assertEquals(1, actual.size());
     }
+
     @Test
     public void dateWiseFilterForNonGeoFencingLocationsTESTWithHappyFlow() {
         User user = loggedInUser();
@@ -1385,12 +1470,24 @@ public class RideControllerTest extends BaseControllerTest {
         location.setLongitude(17.28954255);
         location.setRequestedAt(date);
         location.save();
-        Result result = route(fakeRequest(GET, "/filterNonGeoFencingLocation?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD)+"&srcNumber=" + location.getMobileNumber()));
+        Result result = route(fakeRequest(GET, "/filterNonGeoFencingLocation?startDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&endDate=" + DateUtils.convertDateToString(new Date(), DateUtils.YYYYMMDD) + "&srcNumber=" + location.getMobileNumber()));
         JsonNode actual = jsonFromResult(result);
         assertEquals("8801682567", actual.findPath("mobileNumber").textValue());
         assertEquals(location.getLatitude(), actual.findPath("latitude").asDouble());
         assertEquals(location.getLongitude(), actual.findPath("longitude").asDouble());
         assertEquals(location.getAddressArea(), actual.findPath("addressArea").textValue());
+    }
+
+    @Test
+    public void userRequestFromNonGeoFEncingLocationTestFlow() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("latitude", Json.toJson(78.2587255));
+        requestObjectNode.set("longitude", Json.toJson(17.28954255));
+        requestObjectNode.set("addressArea", Json.toJson("Pullareddy Nagar, Kavali"));
+        Result result = route(fakeRequest(POST, "/userRequestFromNonGeoFencingLocation").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
     }
 
     IGcmUtils gcmUtilsMock;
@@ -1406,7 +1503,6 @@ public class RideControllerTest extends BaseControllerTest {
         gcmUtilsMock = mock(IGcmUtils.class);
         ApplicationContext.defaultContext().setGcmUtils(gcmUtilsMock);
     }
-
 
 
     private Result requestGetBike(User user, double startLatitude, double startLongitude) {
@@ -1439,18 +1535,6 @@ public class RideControllerTest extends BaseControllerTest {
             }
         }
         assertTrue("Could not find user " + searchUser.getId(), found);
-    }
-
-    @Test
-    public void userRequestFromNonGeoFEncingLocationTestFlow() {
-        User user = loggedInUser();
-        ObjectNode requestObjectNode = Json.newObject();
-        requestObjectNode.set("latitude",Json.toJson(78.2587255));
-        requestObjectNode.set("longitude",Json.toJson(17.28954255));
-        requestObjectNode.set("addressArea", Json.toJson("Pullareddy Nagar, Kavali"));
-        Result result = route(fakeRequest(POST, "/userRequestFromNonGeoFencingLocation").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
-        JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("success", jsonNode.get("result").textValue());
     }
 
 }

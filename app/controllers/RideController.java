@@ -129,6 +129,8 @@ public class RideController extends BaseController {
                     Ride ride = Ride.find.byId(rideId);
                     if (ride != null && user.getId().equals(ride.getRequestorId())) {
                         errorCode = CAN_NOT_ACCEPT_YOUR_OWN_RIDE;
+                    } else if (ride != null && "Parcel".equals(ride.getRideType()) && !user.isPrimeRider()) {
+                        errorCode = CAN_NOT_ACCEPT_PARCEL;
                     } else if (ride != null && RideRequested.equals(ride.getRideStatus())) {
                         ride.setRideStatus(RideAccepted);
                         ride.setRiderId(user.getId());
@@ -447,12 +449,21 @@ public class RideController extends BaseController {
             ArrayNode ridesNodes = Json.newArray();
             double latitude = getDouble("latitude");
             double longitude = getDouble("longitude");
-            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_gender = '" + user.getGender() + "' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
+            List<Ride> openRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_gender = '" + user.getGender() + "' and ride_type != 'Parcel' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
                     ") ) * cos( radians(start_latitude) ) " +
                     "   * cos( radians(start_longitude) - radians(" + longitude +
                     ")) + sin(radians(" + latitude + ")) " +
                     "   * sin( radians(start_latitude)))) < " +
                     MAX_DISTANCE_IN_KILOMETERS + " ").setMaxRows(5).order("requestedAt desc").findList();
+            if (user.isPrimeRider()) {
+                List<Ride> parcelRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_type = 'Parcel' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
+                        ") ) * cos( radians(start_latitude) ) " +
+                        "   * cos( radians(start_longitude) - radians(" + longitude +
+                        ")) + sin(radians(" + latitude + ")) " +
+                        "   * sin( radians(start_latitude)))) < " +
+                        MAX_DISTANCE_IN_KILOMETERS + " ").setMaxRows(5).order("requestedAt asc").findList();
+                openRides.addAll(0, parcelRides);
+            }
             for (Ride ride : openRides) {
                 ObjectNode rideNode = Json.newObject();
                 rideNode.set("ride", Json.toJson(ride));

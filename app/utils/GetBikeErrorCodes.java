@@ -14,4 +14,5 @@ public class GetBikeErrorCodes {
     public static final int CAN_NOT_ACCEPT_YOUR_OWN_RIDE = 9906;
     public static final int INSUFFICIENT_WALLET_AMOUNT = 9907;
     public static final int INVALID_PROMO_CODE = 9908;
+    public static final int CAN_NOT_ACCEPT_PARCEL = 9909;
 }
