@@ -129,6 +129,9 @@ POST    /paytmCheckSumGenerator                 controllers.PaymentController.pa
 POST    /paytmCheckSumVerify                    controllers.PaymentController.paytmCheckSumVerify
 GET     /generateOrderId                        controllers.PaymentController.generateOrderId
 
+POST    /addRoasterRecord                       controllers.RoasterRecordController.addRoasterRecord
+GET     /getRoaster                             controllers.RoasterRecordController.getRoaster
+
 GET     /promotion/add                           controllers.PromotionalBannerController.addPromotionalBanner
 POST    /promotion/upload                        controllers.PromotionalBannerController.uploadPromotionalBanner
 GET     /promotion/getPromotions                 controllers.PromotionalBannerController.getAllPromotionBanner
