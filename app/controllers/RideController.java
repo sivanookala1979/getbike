@@ -13,6 +13,7 @@ import dataobject.WalletEntryType;
 import models.*;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import play.Logger;
 import play.data.DynamicForm;
@@ -187,23 +188,7 @@ public class RideController extends BaseController {
                     }
                     ride.setRiderId(user.getId());
                     ride.setRideGender(user.getGender());
-                    String phoneNumber = locationsJson.get("phoneNumber").textValue();
-                    User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
-                    if (requestor == null) {
-                        requestor = new User();
-                        requestor.setPhoneNumber(phoneNumber);
-                        if (locationsJson.has("name") && StringUtils.isNotNullAndEmpty(locationsJson.get("name").textValue())) {
-                            requestor.setName(locationsJson.get("name").textValue());
-                        }
-                        if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
-                            requestor.setEmail(locationsJson.get("email").textValue());
-                        }
-                        if (locationsJson.has("gender") && StringUtils.isNotNullAndEmpty(locationsJson.get("gender").textValue())) {
-                            requestor.setGender(locationsJson.get("gender").textValue().charAt(0));
-                        }
-                        requestor.save();
-                        WalletController.processAddBonusPointsToWallet(requestor.getId(), JOINING_BONUS);
-                    }
+                    User requestor = getRequestor(locationsJson);
                     ride.setRequestorId(requestor.getId());
                     ride.setRideStatus(RideAccepted);
                     ride.setRequestedAt(new Date());
@@ -223,6 +208,33 @@ public class RideController extends BaseController {
         setResult(objectNode, result);
         objectNode.set("errorCode", Json.toJson(errorCode));
         return ok(Json.toJson(objectNode));
+    }
+
+    @NotNull
+    private User getRequestor(JsonNode locationsJson) {
+        if (locationsJson.has("vendorId")) {
+            User vendor = User.find.byId(locationsJson.get("vendorId").longValue());
+            if (vendor != null)
+                return vendor;
+        }
+        String phoneNumber = locationsJson.get("phoneNumber").textValue();
+        User requestor = User.find.where().eq("phoneNumber", phoneNumber).findUnique();
+        if (requestor == null) {
+            requestor = new User();
+            requestor.setPhoneNumber(phoneNumber);
+            if (locationsJson.has("name") && StringUtils.isNotNullAndEmpty(locationsJson.get("name").textValue())) {
+                requestor.setName(locationsJson.get("name").textValue());
+            }
+            if (locationsJson.has("email") && StringUtils.isNotNullAndEmpty(locationsJson.get("email").textValue())) {
+                requestor.setEmail(locationsJson.get("email").textValue());
+            }
+            if (locationsJson.has("gender") && StringUtils.isNotNullAndEmpty(locationsJson.get("gender").textValue())) {
+                requestor.setGender(locationsJson.get("gender").textValue().charAt(0));
+            }
+            requestor.save();
+            WalletController.processAddBonusPointsToWallet(requestor.getId(), JOINING_BONUS);
+        }
+        return requestor;
     }
 
 

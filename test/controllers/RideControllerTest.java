@@ -182,6 +182,42 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(ride.getId(), requestorReloaded.getCurrentRequestRideId());
         assertEquals(true, requestorReloaded.isRequestInProgress());
     }
+    @Test
+    public void hailCustomerTESTWithVendor() {
+        User user = loggedInUser();
+        User requestor = new User();
+        requestor.setVendor(true);
+        requestor.setName("Apollo");
+        requestor.save();
+        ObjectNode requestObjectNode = Json.newObject();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        requestObjectNode.set(Ride.LATITUDE, Json.toJson(startLatitude));
+        requestObjectNode.set(Ride.LONGITUDE, Json.toJson(startLongitude));
+        requestObjectNode.set("sourceAddress", Json.toJson("Pullareddy Nagar, Kavali"));
+        requestObjectNode.set("destinationAddress", Json.toJson("Musunuru, Kavali"));
+        requestObjectNode.set("vendorId", Json.toJson(requestor.getId()));
+        requestObjectNode.set("modeOfPayment", Json.toJson("Cash"));
+        Result result = route(fakeRequest(POST, "/hailCustomer").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        Ride ride = CustomCollectionUtils.first(Ride.find.where().eq("riderId", user.getId()).findList());
+        JsonNode jsonNode = jsonFromResult(result);
+        assertNotNull(ride);
+        assertEquals(user.getId(), ride.getRiderId());
+        assertEquals(requestor.getId(), ride.getRequestorId());
+        assertEquals(startLatitude, ride.getStartLatitude(), NumericConstants.DELTA);
+        assertEquals(startLongitude, ride.getStartLongitude(), NumericConstants.DELTA);
+        assertEquals("Pullareddy Nagar, Kavali", ride.getSourceAddress());
+        assertEquals("Musunuru, Kavali", ride.getDestinationAddress());
+        assertEquals('M', ride.getRideGender());
+        assertEquals(ride.getId().longValue(), jsonNode.get(Ride.RIDE_ID).longValue());
+        assertEquals(RideAccepted, ride.getRideStatus());
+        User actual = User.find.byId(user.getId());
+        assertTrue(actual.isRideInProgress());
+        assertEquals(ride.getId(), actual.getCurrentRideId());
+        User requestorReloaded = User.find.byId(requestor.getId());
+        assertEquals(ride.getId(), requestorReloaded.getCurrentRequestRideId());
+        assertEquals(true, requestorReloaded.isRequestInProgress());
+    }
 
     @Test
     public void hailCustomerTESTWithRideInProgress() {
