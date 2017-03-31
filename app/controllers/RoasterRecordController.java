@@ -8,6 +8,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,6 +38,7 @@ public class RoasterRecordController extends BaseController {
         String result = "failure";
         if (user != null) {
             List<RoasterRecord> records = RoasterRecord.find.where().eq("riderId", user.getId()).findList();
+            Collections.reverse(records);
             objectNode.set("records", Json.toJson(records));
             result = "success";
         }

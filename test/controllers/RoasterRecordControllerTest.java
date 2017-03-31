@@ -64,8 +64,8 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
         JsonNode recordsList = jsonNode.get("records");
         int knownNumberOfRides = 2;
         assertEquals(knownNumberOfRides, recordsList.size());
-        assertEquals("397297Aa/iwow", recordsList.get(0).get("customerOrderNumber").textValue());
-        assertEquals("8272927", recordsList.get(1).get("customerOrderNumber").textValue());
+        assertEquals("397297Aa/iwow", recordsList.get(1).get("customerOrderNumber").textValue());
+        assertEquals("8272927", recordsList.get(0).get("customerOrderNumber").textValue());
     }
 
 }
