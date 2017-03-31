@@ -126,6 +126,10 @@ th {
                             <td>{{product.id}}</td>
                             <td>{{product.requestorName}}<br/>
                                 <a data-ng-if="product.riderName != 'Not Provided'" target="_blank" ng-href="/riderPositions/{{product.riderId}}/10">{{product.riderName}}</a>
+                                {{product.parcelPickupDetails}}<br/>
+                                {{product.parcelPickupNumber }}<br/>
+                                {{product.parcelDropoffDetails}}<br/>
+                                {{product.parcelDropoffNumber }}<br/>
                             </td>
                             <td>{{product.rideType}}<br/>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}<br/><b data-ng-if="product.freeRide == true">Free Ride</b></td>
                             <td>{{product.orderDistance}}</td>

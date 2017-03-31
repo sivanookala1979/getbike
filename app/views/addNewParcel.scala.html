@@ -104,7 +104,7 @@ $(document).ready(function(){
 	 "</td>",
 	 "<td><input type='text' id='pickupDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='pickupDetails' autofocus/></td>",
 	 "<td><input type='text' id='pickupContact"+i+"' placeholder='  Enter Pickup  Number' name='pickupContact'/></td>",
-	 "<td><input type='text' id='pickupLocation"+i+"' onblur='initAutocomplete(this.id)' placeholder='  Enter Pickup Location' name='pickupLocation'/></td>",
+	 "<td><input type='text' id='pickupLocation"+i+"' onclick='initAutocomplete(this.id)' placeholder='  Enter Pickup Location' name='pickupLocation'/></td>",
 	 "<td><input type='text' id='dropDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='dropDetails'/></td>",
 	 "<td><input type='text' id='dropContact"+i+"'  placeholder='  Enter Drop  Number' name='dropContact'/></td>",
 	 "<td><input type='text' id='dropLocation"+i+"'  placeholder='  Enter Drop Location' name='dropLocation'/></td>",
@@ -179,10 +179,10 @@ $(document).ready(function(){
 
     <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
         <div class="col-sm-12">
-            <button type="button" id="saveButton" style="margin-left:1px; width: 150px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
-                SCHEDULLE
-            </button>
-            <button type="button"  onclick="window.location.href='/parcel/home'" id="cancelButton" style="margin-left:1px; width: 150px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+            <button type="button" id="saveButton" style="margin-left:1px; width: 150px;border-radius: 15px;color:#0081B5; " class="btn btn-default">
+                SCHEDULE
+            </button>&nbsp;&nbsp;
+            <button type="button"  onclick="window.location.href='/parcel/home'" id="cancelButton" style="margin-left:1px; width: 150px;border-radius: 15px;color:#0081B5; " class="btn btn-default">
                 CANCEL
             </button>
 

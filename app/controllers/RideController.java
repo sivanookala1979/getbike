@@ -1183,19 +1183,88 @@ public class RideController extends BaseController {
     }
 
     public Result dateWiseFilterForParcelHistoryList() {
+        int numberOfRides = 0;
+        double totalDistance = 0.0;
+        double totalAmount = 0.0;
+        int noOfCompleted = 0;
+        int noOfPending = 0;
+        int noOfAccepted = 0;
         String startDate = request().getQueryString("startDate");
         String endDate = request().getQueryString("endDate");
-        String srcNumber = request().getQueryString("srcNumber");
+        String searchTripId = request().getQueryString("searchTripId");
+        String status = request().getQueryString("status");
+        Logger.info("Status----------"+status);
         List<Ride> parcelList = new ArrayList<>();
         List<Object> listOfIds = new ArrayList<>();
+        if ("ALL".equals(status) || "null".equals(status)) {
+            status = null;
+        }
+        if ("null".equals(searchTripId)) {
+            searchTripId = null;
+        }
         Long requestorId = User.find.where().eq("email", session("vendorName")).findUnique().getId();
         ExpressionList<Ride> parcelExpressionList = Ride.find.where().eq("requestorId", requestorId);
-        if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id desc").findList();
-        } else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
-            parcelList = parcelExpressionList.orderBy("id desc").findList();
+        if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && isNotNullAndEmpty(status) && isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).eq("id",searchTripId).orderBy("requested_at desc").findList();
+        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("requested_at desc").findList();
+        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("id",searchTripId).orderBy("requested_at desc").findList();
+        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).orderBy("requested_at desc").findList();
+        }else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status)) {
+            parcelList = parcelExpressionList.eq("ride_status", status).orderBy("requested_at desc").findList();
         }
+        for (Ride ride : parcelList) {
+            loadNames(ride);
+            if (ride.getRequestedAt() != null) {
+                ride.setFormatedRequestAt(ride.getRequestedAt());
+            }
+            if (ride.getAcceptedAt() != null) {
+                ride.setFormatedAcceptedAt(ride.getAcceptedAt());
+            }
+            if (ride.isPaid()) {
+                ride.setRidePaymentStatus("Success");
+            } else {
+                ride.setRidePaymentStatus("Pending");
+            }
+            if (ride.getRideStartedAt() != null) {
+                ride.setFormatedRideStartedAt(ride.getRideStartedAt());
+            }
+            if (ride.getRideEndedAt() != null) {
+                ride.setFormatedRideEndedAt(ride.getRideEndedAt());
+            }
+            if (ride.getOrderDistance() != null) {
+                totalDistance = totalDistance + ride.getOrderDistance();
+            }
+            if (ride.getTotalBill() != null) {
+                totalAmount = totalAmount + ride.getTotalBill();
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideRequested)) {
+                Logger.info("Inside Ride req");
+                noOfPending++;
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideAccepted)) {
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
+                Logger.info("Inside Ride acc");
+                noOfAccepted++;
+            }
+            if (ride.getRideStatus().equals(RideStatus.RideClosed)) {
+                ride.setRiderMobileNumber(User.find.where().eq("id", ride.getRiderId()).findUnique().getPhoneNumber());
+                Logger.info("Inside Ride clo");
+                noOfCompleted++;
+            }
+        }
+        numberOfRides = parcelList.size();
+        JSONObject obj = new JSONObject();
+        obj.put("numberOfRides", numberOfRides);
+        obj.put("totalDistance", round2(totalDistance));
+        obj.put("totalAmount", round2(totalAmount));
+        obj.put("pending", noOfPending);
+        obj.put("accepted", noOfAccepted);
+        obj.put("closed", noOfCompleted);
         ObjectNode objectNode = Json.newObject();
+        setJson(objectNode, "rideSummary", obj);
 
         setResult(objectNode, parcelList);
         return ok(Json.toJson(objectNode));
