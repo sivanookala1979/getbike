@@ -1,0 +1,192 @@
+@main("Get Bike", "Schedule"){
+<link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+<link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+<script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+<script src="@routes.Assets.versioned("javascripts/autoCompleteMap.js")" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDeny7bP1c950-wzCUB7m7-1RTajvtDxtk&libraries=places&callback=initAutocomplete" async defer></script>
+<script xmlns:border="http://www.w3.org/1999/xhtml" xmlns:border="http://www.w3.org/1999/xhtml">
+ var i=1;
+$(document).ready(function(){
+
+        $("#addRowId").on('click',function(){
+            addRow();
+        });
+        $(function () {
+                $('#createdAtDate').datetimepicker();
+            });
+        $("#saveButton").on('click',function(){
+
+            var parcelTable = document.getElementById("tab_parcel_body");
+            var jsonResponse = tableToJson(parcelTable);
+            $.ajax({
+                         type : "POST",
+                         dataType: "json",
+                         url : "@routes.RideController.saveParcelEntries()",
+                         contentType: "application/json; charset=utf-8",
+                         data: JSON.stringify(jsonResponse),
+                         success : function(result) {
+                            console.log(result);
+                            if(result.success == "success"){
+                                location.href="@routes.RideController.allParcelEntries()";
+                            }else{
+                                alert("Fails");
+                                location.href="@routes.RideController.addNewParcelEntries()";
+                            }
+                         },
+                         error : function() {
+                            alert("Fails");
+                             location.href="@routes.RideController.addNewParcelEntries()";
+                             return false;
+                         }
+             });
+         });
+    });
+
+    function tableToJson(parcelTable){
+        var data =[];
+        var tableObj = {parcelData: []};
+        var tableRow;
+        var rowData ={};
+
+        //Reading parcelTable started here
+        if(parcelTable.rows.length > 0 ){
+            var type, pickupLocation, pickupContact,dropLocation, dropDetails,dropContact,createdAt,pickupDetails,startLat,startLong;
+
+            for (var i=0; i<parcelTable.rows.length; i++) {
+                var createdAt = document.getElementById("createdAt").value;
+                pickupDetails = document.getElementById("pickupDetails"+i).value;
+                pickupLocation = document.getElementById("pickupLocation"+i).value;
+                pickupContact = document.getElementById("pickupContact"+i).value;
+                dropLocation = document.getElementById("dropLocation"+i).value;
+                dropDetails = document.getElementById("dropDetails"+i).value;
+                dropContact = document.getElementById("dropContact"+i).value;
+                startLat = document.getElementById("startLat"+i).value;
+                startLong = document.getElementById("startLong"+i).value;
+
+                if(createdAt != "" && createdAt != null){
+                    rowData = {};
+                    rowData["pickupDetails"] = pickupDetails;
+                    rowData["pickupLocation"] = pickupLocation;
+                    rowData["pickupContact"] = pickupContact;
+                    rowData["dropLocation"] = dropLocation;
+                    rowData["dropDetails"] = dropDetails;
+                    rowData["dropContact"] = dropContact;
+                    rowData["createdAt"] = createdAt;
+                    rowData["startLat"] = startLat;
+                    rowData["startLong"] = startLong;
+                    tableObj.parcelData.push(rowData);
+
+                }
+                else{ alert('No input found in Date Please Select A date');
+                }
+            }
+
+        }else{
+            alert('No input found in Address table');
+            initAutocomplete();
+            return false;
+        }
+        return tableObj;
+        //parcelTable row data ended here
+        alert(JSON.stringify(tableObj));
+    }
+
+    function addRow(){
+    var table = $("#tab_parcel_body");
+    var rowNum = parseInt($("#table-row-num").val(), 10);
+    var resultHtml = '';
+	for(var i = 0 ; i < rowNum ; i++) {
+		resultHtml += ["<tr>",
+	 "<td>",
+	  (i+1),
+	 "</td>",
+	 "<td><input type='text' id='pickupDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='pickupDetails' autofocus/></td>",
+	 "<td><input type='text' id='pickupContact"+i+"' placeholder='  Enter Pickup  Number' name='pickupContact'/></td>",
+	 "<td><input type='text' id='pickupLocation"+i+"' onblur='initAutocomplete(this.id)' placeholder='  Enter Pickup Location' name='pickupLocation'/></td>",
+	 "<td><input type='text' id='dropDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='dropDetails'/></td>",
+	 "<td><input type='text' id='dropContact"+i+"'  placeholder='  Enter Drop  Number' name='dropContact'/></td>",
+	 "<td><input type='text' id='dropLocation"+i+"'  placeholder='  Enter Drop Location' name='dropLocation'/></td>",
+	 "<td><input type='hidden' id='startLat"+i+"'  /></td>",
+	 "<td><input type='hidden' id='startLong"+i+"' /></td>",
+	 "</tr>"].join("\n");
+	}
+	table.html(resultHtml);
+    return false;
+    }
+     // Create the autocomplete object, restricting the search to geographical
+
+  function initAutocomplete(id){
+                if(id != "" && id != null){
+                var number = id.match(/\d+/)[0];
+                }
+                var input = document.getElementById(id);
+                var pickupLocation = new google.maps.places.Autocomplete(input);
+                var input2 = document.getElementById('dropLocation'+number);
+                var dropLocation = new google.maps.places.Autocomplete(input2);
+                pickupLocation.addListener('place_changed', function() {
+                      var place = pickupLocation.getPlace();
+                      var lat = pickupLocation.getPlace().geometry.location.lat();
+                      var long = pickupLocation.getPlace().geometry.location.lng();
+                      document.getElementById('startLat'+number).value = lat;
+                      document.getElementById('startLong'+number).value = long;
+                 });
+  }
+</script>
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12">
+            <div class="form-group">
+                <div class="col-xs-3 col-sm-offset-1 date">
+                    <label for="createdAtDate"  style="display: block;">Schedule Date And Time for Parcel </label>
+                    <div class='input-group date'id='createdAtDate' >
+                        <input type='text'   class="form-control"  placeholder="Select Date for Parcel"  id="createdAt" name="createdAt"required="required" autofocus/>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-sm-offset-3">
+                    <label for="table-row-num"  style="display: block;">Enter Number of Rider Required </label>
+                    <input type="number" min="1" id="table-row-num" value="1" required="required" placeholder="Enter Number of Rider Required" class="form-control" autofocus>
+                </div>
+                <div class="col-sm-2 ">
+                    <label for="addRowId" style="display: block;">Riders </label>
+                    <button class="btn btn-primary" id="addRowId">ADD</button>
+                </div>
+            </div><div >.</div>
+
+            <table class="table" id="tab_parcel">
+                <thead>
+                <tr style="background:#5AA9EC;color:black;">
+                    <th>#</th>
+                    <th>Pickup Details</th>
+                    <th>Pickup Contact Number</th>
+                    <th>Pickup Location</th>
+                    <th>Drop Details</th>
+                    <th>Drop Contact Number</th>
+                    <th>Drop Location</th>
+                </tr>
+                </thead>
+                <tbody id="tab_parcel_body">
+                <tr>
+                    <script>addRow()</script>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:15px;padding-bottom:20px;" align="center">
+        <div class="col-sm-12">
+            <button type="button" id="saveButton" style="margin-left:1px; width: 150px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                SCHEDULLE
+            </button>
+            <button type="button"  onclick="window.location.href='/parcel/home'" id="cancelButton" style="margin-left:1px; width: 150px;border-radius: 25px;color:#0081B5; " class="btn btn-default">
+                CANCEL
+            </button>
+
+        </div>
+    </div>
+</div>
+}

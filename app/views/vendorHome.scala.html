@@ -1,0 +1,64 @@
+@main("Get Bike", "Home"){
+<style>
+     .panel-default > .panel-heading-custom{
+      background-image: none;
+      background-color: #dae9fe;
+      color: #1464F4;
+      }
+      .panel-default > .panel-heading-custom2{
+       background-image: none;
+       background-color: #dae9fe;
+       color: #1464F4;
+        }
+      .panel-default > .panel-heading-custom3{
+       background-image: none;
+       background-color: #dae9fe;
+       color: #1464F4;
+       }
+       h1.panel-title {
+          font-size: 36px;
+       }
+       .panel-body {
+        font-size: 18px;
+        color:#1464F4;
+       }
+       .btn-block {
+        padding: 0px 0px;
+        font-size: 18px;
+        border-radius: 3px;
+        }
+        .btn-primary {
+         background-color: #1464F4;
+        }
+</style>
+
+<body>
+<div class="col-xs-12" style="height:50px;"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-offset-4 col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading panel-heading-custom">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="pull-right" style="margin-top: 0;"><span class="glyphicon glyphicon-cog"></div>
+                                    <div class="pull-left" style="margin-top: 0;">Vendor</div>
+                                </div>
+                            </div>
+                            <h1 class="panel-title text-center">getbike Vendor</h1>
+                        </div>
+                        <div class="panel-body text-center">
+                            Date : @(new Date().format("dd-MMM-YYYY"))<hr>
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <a class = "btn navbar-btn btn-primary" href = "/parcel/add" >Schedule</a>
+                            </div>
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <a class = "btn navbar-btn btn-primary" href = "/parcel/add" > History </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }

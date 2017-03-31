@@ -111,6 +111,11 @@ GET     /deleteGeoFencinglocations/:id          controllers.RideController.delet
 POST    /userRequestFromNonGeoFencingLocation   controllers.RideController.userRequestFromNonGeoFencingLocation
 GET     /filterNonGeoFencingLocation            controllers.RideController.dateWiseFilterForNonGeoFencingLocations
 GET     /allNonGeoFencingLocations              controllers.RideController.allNonGeoFencingLocations
+GET     /parcel/add                             controllers.RideController.addNewParcelEntries
+POST    /parcel/save                            controllers.RideController.saveParcelEntries
+GET     /parcel/all                             controllers.RideController.allParcelEntries
+GET     /parcel/filter/                         controllers.RideController.dateWiseFilterForParcelHistoryList
+GET     /parcel/home                            controllers.RideController.homeScreen
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)

@@ -11,6 +11,11 @@
 @user = @{if (userName != null) userName else ""}
 @admin = @{session.get("admin")}
 @adminRole = @{if (admin != null) admin else ""}
+@vendor = @{session.get("vendor")}
+@vendorRole = @{if (vendor != null) vendor else ""}
+@vendorName = @{session.get("vendorName")}
+@vendorUserName = @{if (vendorName != null) vendorName else ""}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,6 +41,7 @@
         <script src="@routes.Assets.versioned("javascripts/dirPagination.js")" type="text/javascript"></script>
         <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
     </head>
+    @if(adminRole.equalsIgnoreCase("Admin")){
     <body>
     <div class="container" data-ng-app="myApp">
      <div class="row">
@@ -48,17 +54,17 @@
               <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"></span></a></li>
               <li><a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a></li>
             <li class="dropdown">
-              <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">User Maintenance<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/user/userMaintenance">Create NewUser</a></li>
-                <li><a href=" /user/changepassword">Change Password</a></li>
-              </ul>-->
-            </li>
-            <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-equalizer"> Analytics<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="/analytics"><span class="glyphicon glyphicon-equalizer"></span> Weekly Amount</a></li>
                 <li><a href="/analytics/analyticBar"><span class="glyphicon glyphicon-equalizer"></span> Weekly Rides</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Maintenance<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/user/userMaintenance">Create NewUser</a></li>
+                <li><a href=" /user/changepassword">Change Password</a></li>
               </ul>
             </li>
         </ul>
@@ -103,23 +109,55 @@
     <span class="navbar-brand" style="color:white; float:right;">@user: <a href="@routes.LoginController.logout"> Logout <span class="glyphicon glyphicon-off"></span></a></span>
     </div>
     </div>
-    </div>
+     @if(adminRole.equalsIgnoreCase("Admin")){</div>
        @* And here's where we render the `Html` object containing
          * the page content. *@
         @content
-    </div>
-    <script type="text/javascript">
-    @if(adminRole.equalsIgnoreCase("Admin") ){
-     jQuery(function ($) {
-        $('li.dropdown2').show()
-     });
-     }else{
-        jQuery(function ($) {
-          $('li.dropdown2').hide()
-        });
-     }
-    </script>
+    </div>}
+
     </body>
+    }
+     @if(vendorRole.equalsIgnoreCase("Vendor")  && !adminRole.equalsIgnoreCase("Admin") ){
+    <body>
+     <div class="container" data-ng-app="myApp">
+     <div class="row">
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+             <li class="active"><a href="/parcel/add"><span class="glyphicon glyphicon-calendar"></span> Schedule </a></li>
+             <li><a href="/parcel/all"><span class="glyphicon glyphicon-bookmark"></span> History </a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+           <li class="dropdown">
+             <a href="#" class="dropdown-toggle" data-toggle="dropdown" align="right">@vendorUserName <span class="glyphicon glyphicon-menu-hamburger"></span></b></a>
+             <ul class="dropdown-menu">
+             <li><a href="/parcel/all""><span class="glyphicon glyphicon-bookmark"></span> History</a></li>
+             <li><a href="/parcel/add"><span class="glyphicon glyphicon-calendar"></span> Schedule</a></li>
+             <li><a href="#"><span class="glyphicon glyphicon-edit"></span> Edit Profile</a></li>
+             <li><a href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+             <li><a href="@routes.LoginController.logout"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+             </ul>
+           </li>
+        </ul>
+       </div>
+       <div class="navbar navbar-inverse" role="navigation">
+        <div class= "row" style="margin:0px">
+              <div class="col-sm-4 "><span class="navbar-brand" style="color:white">@header : @vendorRole</span></div>
+                <div class="col-sm-4 col-sm-offset-4">
+                    <span class="navbar-brand" style="color:white; float:right;"> @vendorUserName :<a href="@routes.LoginController.logout"> Logout <span class="glyphicon glyphicon-off"></span></a></span>
+                </div>
+              </div>
+       @if(vendorRole.equalsIgnoreCase("Vendor") ){ </div>
+       @* And here's where we render the `Html` object containing
+         * the page content. *@
+         @content
+        </div>}
+         </div>
+     </div>
+      </div>
+    </div>
+    </body>
+    }
+
 </html>
 <script>
      window.onload = function() {

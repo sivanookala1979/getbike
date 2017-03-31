@@ -59,6 +59,8 @@ public class Ride extends Model {
     String parcelDropoffNumber;
     String parcelPickupImageName;
     String parcelDropoffImageName;
+    String parcelPickupDetails;
+    String parcelDropoffDetails;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -419,5 +421,21 @@ public class Ride extends Model {
 
     public void setParcelDropoffImageName(String parcelDropoffImageName) {
         this.parcelDropoffImageName = parcelDropoffImageName;
+    }
+
+    public String getParcelPickupDetails() {
+        return parcelPickupDetails;
+    }
+
+    public void setParcelPickupDetails(String parcelPickupDetails) {
+        this.parcelPickupDetails = parcelPickupDetails;
+    }
+
+    public String getParcelDropoffDetails() {
+        return parcelDropoffDetails;
+    }
+
+    public void setParcelDropoffDetails(String parcelDropoffDetails) {
+        this.parcelDropoffDetails = parcelDropoffDetails;
     }
 }

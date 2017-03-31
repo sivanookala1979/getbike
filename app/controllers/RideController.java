@@ -59,6 +59,7 @@ public class RideController extends BaseController {
     public LinkedHashMap<String, String> rideTableHeaders = getTableHeadersList(new String[]{"Requester Id", "Rider Id", "Rider Status", "Order Distance", "Order Amount", "Requested At", "Accepted At", "Ride Started At", "Ride Ended At", "Start Latitude", "Start Longitude", "Source Address", "Destination Address", "Total Fare", "TaxesAndFees", "Sub Total", "Rouding Off", "Total Bill"}, new String[]{"requestorId", "requestorName", "riderId", "rideStatus", "orderDistance", "orderAmount", "requestedAt", "acceptedAt", "rideStartedAt", "rideEndedAt", "startLatitude", "startLongitude", "sourceAddress", "destinationAddress", "totalFare", "taxesAndFees", "subTotal", "roundingOff", "totalBill"});
     public LinkedHashMap<String, String> rideLocationTableHeaders = getTableHeadersList(new String[]{"", "", "Ride Location", "Ride Id", "Location Time", "Latitude", "Longitude"}, new String[]{"", "", "id", "rideId", "locationTime", "latitude", "longitude"});
     public LinkedHashMap<String, String> nonGeoLocationTableHeaders = getTableHeadersList(new String[]{"Id", "Mobile Number", "Latitude", "Longitude", "Address", "Requested At"}, new String[]{"id", "mobileNumber", "latitude", "longitude", "addressArea", "requestedAt"});
+    public LinkedHashMap<String, String> parcelTableHeaders = getTableHeadersList(new String[]{"Id", "Created At", "Pickup Location", "Drop Location", "Pickup Details", "Pickup Contact", "Drop Details", "Drop Contact"}, new String[]{"id", "createdAt", "pickupLocation", "dropLocation", "pickupDetails", "pickupContact", "dropDetails", "dropContact"});
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result getBike() {
@@ -1121,6 +1122,91 @@ public class RideController extends BaseController {
         User vendor = User.find.byId(ride.getRequestorId());
         publishRideDetails(vendor, ride, true);
         return redirect("/ride/rideList");
+    }
+
+    public Result saveParcelEntries() {
+        ObjectNode objectNode = Json.newObject();
+        try {
+            JsonNode json = request().body().asJson();
+            JsonNode parcelJson = (JsonNode) json.findPath("parcelData");
+            ArrayNode parcelArray = (ArrayNode) parcelJson;
+            Logger.info("Date ----" + json.findPath("createdAt").asText().isEmpty());
+            if (!json.findPath("createdAt").asText().isEmpty()) {
+                for (int i = 0; i < parcelArray.size(); i++) {
+                    JsonNode jsonNode = parcelArray.get(i);
+                    Ride ride = new Ride();
+                    Logger.info("Vendor Name ------" + session("vendorName"));
+                    ride.setRequestorName(session("vendorName"));
+                    ride.setRequestorId(User.find.where().eq("email", session("vendorName")).findUnique().getId());
+                    ride.setSourceAddress(jsonNode.get("pickupLocation").asText());
+                    ride.setDestinationAddress(jsonNode.get("dropLocation").asText());
+                    ride.setParcelPickupNumber(jsonNode.get("pickupContact").asText());
+                    ride.setParcelDropoffNumber(jsonNode.get("dropContact").asText());
+                    ride.setStartLatitude(jsonNode.get("startLat").asDouble());
+                    ride.setStartLongitude(jsonNode.get("startLong").asDouble());
+                    ride.setRideStatus(RideStatus.RideRequested);
+                    if (ride.getStartLatitude().doubleValue() == 0.0 || ride.getStartLongitude().doubleValue() == 0.0) {
+                        ride.setStartLatitude(14.9029817);
+                        ride.setStartLongitude(79.9944657);
+                    }
+                    ride.setModeOfPayment("Cash");
+                    ride.setRequestedAt(DateUtils.getDateFromString(jsonNode.get("createdAt").asText()));
+                    ride.setParcelPickupDetails(jsonNode.get("pickupDetails").asText());
+                    ride.setParcelDropoffDetails(jsonNode.get("dropDetails").asText());
+                    ride.setRideType("Parcel");
+                    ride.save();
+                    User vendor = User.find.byId(ride.getRequestorId());
+                    publishRideDetails(vendor, ride, true);
+                    Logger.info("----------Parcel Saved---------");
+                }
+                objectNode.put(SUCCESS, SUCCESS);
+            } else {
+                objectNode.put(FAILURE, FAILURE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            objectNode.put(FAILURE, FAILURE);
+        }
+        return ok(objectNode);
+    }
+
+    public Result homeScreen() {
+        return ok(views.html.vendorHome.render());
+    }
+
+    public Result addNewParcelEntries() {
+        if (!isValidateVendorSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        System.out.println("Vendor Name------" + session("vendorName"));
+        return ok(views.html.addNewParcel.render());
+    }
+
+    public Result dateWiseFilterForParcelHistoryList() {
+        String startDate = request().getQueryString("startDate");
+        String endDate = request().getQueryString("endDate");
+        String srcNumber = request().getQueryString("srcNumber");
+        List<Ride> parcelList = new ArrayList<>();
+        List<Object> listOfIds = new ArrayList<>();
+        Long requestorId = User.find.where().eq("email", session("vendorName")).findUnique().getId();
+        ExpressionList<Ride> parcelExpressionList = Ride.find.where().eq("requestorId", requestorId);
+        if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("id desc").findList();
+        } else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            parcelList = parcelExpressionList.orderBy("id desc").findList();
+        }
+        ObjectNode objectNode = Json.newObject();
+
+        setResult(objectNode, parcelList);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result allParcelEntries() {
+        if (!isValidateVendorSession()) {
+            return redirect(routes.LoginController.login());
+        }
+        return ok(views.html.parcelHistoryList.render(parcelTableHeaders, "col-sm-12", "", "Parcels", "", "", ""));
+
     }
 
 

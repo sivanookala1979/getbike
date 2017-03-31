@@ -30,6 +30,9 @@ public class LoginController extends BaseController {
             user.setRole("Admin");
             user.save();
         }
+        User user = User.find.where().eq("email", "admin_getbike").findUnique();
+        user.setRole("Admin");
+        user.update();
         Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
         return ok(views.html.login.render(logInForm));
     }
@@ -40,8 +43,16 @@ public class LoginController extends BaseController {
         int rowCount = User.find.where().eq("email", user.getEmail()).eq("password", user.getPassword()).findRowCount();
         if (rowCount != 0) {
             User uniqueUser = User.find.where().eq("email", user.getEmail()).eq("password", user.getPassword()).findUnique();
-            if (uniqueUser.getRole() != null) {
-                session("admin", uniqueUser.getRole());
+            if (uniqueUser.getRole() != null){
+                if(uniqueUser.getRole().equalsIgnoreCase("Admin")) {
+                    session("admin", uniqueUser.getRole());
+                }
+                if(uniqueUser.getRole().equalsIgnoreCase("Vendor")){
+                    session("vendor", uniqueUser.getRole());
+                    System.out.println("ID----"+uniqueUser.getId().toString());
+                    session("vendorName", uniqueUser.getEmail());
+                    return redirect("/parcel/home");
+                }
             }
             session("User", user.getEmail());
             return redirect("/home");

@@ -72,6 +72,11 @@ public class BaseController extends Controller {
         if (IS_ADMIN) return true;
         return session("admin") != null;
     }
+    protected boolean isValidateVendorSession() {
+        if (IS_TEST) return true;
+        return session("vendor") != null;
+
+    }
 
 
     public boolean isNotNullAndEmpty(String value) {

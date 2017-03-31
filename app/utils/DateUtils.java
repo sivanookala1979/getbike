@@ -3,6 +3,7 @@ package utils;
 import play.Logger;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -78,5 +79,16 @@ public class DateUtils {
         }
         Collections.reverse(dates);
         return dates;
+    }
+    public static Date getDateFromString(String stringDate){
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+        Date date = null;
+        try {
+            date = formatter.parse(stringDate);
+            System.out.println(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 }
