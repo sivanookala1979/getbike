@@ -1106,8 +1106,13 @@ public class RideController extends BaseController {
         ride.setParcelPickupNumber(dynamicForm.get("pickupMobileNumber"));
         ride.setDestinationAddress(dynamicForm.get("destinationAddress"));
         ride.setParcelDropoffNumber(dynamicForm.get("dropoffMobileNumber"));
-        ride.setStartLatitude(Double.parseDouble(dynamicForm.get("sourceLatitude")));
-        ride.setStartLongitude(Double.parseDouble(dynamicForm.get("sourceLongitude")));
+        if (StringUtils.isNullOrEmpty(dynamicForm.get("sourceLatitude"))) {
+            ride.setStartLatitude(14.9029817);
+            ride.setStartLongitude(79.9944657);
+        } else {
+            ride.setStartLatitude(Double.parseDouble(dynamicForm.get("sourceLatitude")));
+            ride.setStartLongitude(Double.parseDouble(dynamicForm.get("sourceLongitude")));
+        }
         ride.setRideStatus(RideStatus.RideRequested);
         ride.setModeOfPayment("Cash");
         ride.setRequestedAt(new Date());
