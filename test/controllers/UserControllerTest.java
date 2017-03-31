@@ -752,6 +752,31 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getVendorsTESTHappyFlow() {
+        User user = loggedInUser();
+        user.setPrimeRider(true);
+        user.save();
+        User apollo = new User();
+        apollo.setName("Appollo");
+        apollo.setVendor(true);
+        apollo.save();
+        User cleanseHigh = new User();
+        cleanseHigh.setName("Cleanse High");
+        cleanseHigh.setVendor(true);
+        cleanseHigh.save();
+        Result actual = route(fakeRequest(GET, "/getVendors").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals("success", jsonNode.get("result").textValue());
+        JsonNode recordsList = jsonNode.get("vendors");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, recordsList.size());
+        assertEquals(apollo.getId().longValue(), recordsList.get(0).get("id").longValue());
+        assertEquals(cleanseHigh.getId().longValue(), recordsList.get(1).get("id").longValue());
+        assertEquals(apollo.getName(), recordsList.get(0).get("name").textValue());
+        assertEquals(cleanseHigh.getName(), recordsList.get(1).get("name").textValue());
+    }
+
+    @Test
     public void userSpecialPriceTESTWithHappyFlow() {
 
     }

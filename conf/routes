@@ -121,6 +121,7 @@ POST    /estimateRide                           controllers.RideController.estim
 POST    /storeParcelBillPhoto                   controllers.RideController.storeParcelBillPhoto
 POST    /storeDrivingLicense                    controllers.UserController.storeDrivingLicense
 POST    /storeVehiclePlate                      controllers.UserController.storeVehiclePlate
+GET     /getVendors                             controllers.UserController.getVendors
 GET     /uploads/:name                          controllers.HomeController.imageAt(name:String)
 
 POST    /payUSuccess                            controllers.PaymentController.payUSuccess

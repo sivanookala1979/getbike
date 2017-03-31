@@ -4,6 +4,7 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.Vendor;
 import models.*;
 import play.Logger;
 import play.data.DynamicForm;
@@ -590,4 +591,25 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+
+    public Result getVendors() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null && user.isPrimeRider()){
+            List<User> vendorUsers = User.find.where().eq("vendor", true).order("id asc").findList();
+            List<Vendor> vendors = new ArrayList<>();
+            for(User vendorUser : vendorUsers)
+            {
+                Vendor vendor = new Vendor();
+                vendor.setId(vendorUser.getId());
+                vendor.setName(vendorUser.getName());
+                vendors.add(vendor);
+            }
+            objectNode.set("vendors", Json.toJson(vendors));
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
 }
