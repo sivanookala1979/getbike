@@ -141,7 +141,9 @@ th {
                                 {{product.actualDestinationAddress}}
                             </td>
                             <td><a target="_blank" href="/ridePath?rideId={{product.id}}">View</a><br/>
-                                {{product.totalBill}}
+                                {{product.totalBill}}<br/>
+                                <img ng-if="product.parcelDropoffImageName != null" ng-src="/{{product.parcelDropoffImageName}}"
+                                     width="40"/>
                             </td>
                         </tr>
                         </tbody>
