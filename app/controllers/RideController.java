@@ -1313,7 +1313,7 @@ public class RideController extends BaseController {
         User user = currentUser();
         if (user != null) {
             double customerTripsAmount = 0, parcelTripsAmount = 0;
-            List<Ride> closedRides = Ride.find.where().eq("rideStatus", RideClosed).eq("riderId", user.getId()).eq("requestedAt",DateUtils.stringToDate(dateString)).findList();
+            List<Ride> closedRides = Ride.find.where().eq("rideStatus", RideClosed).eq("riderId", user.getId()).between("requested_at", DateUtils.getNewDate(dateString, 0, 0, 0), DateUtils.getNewDate(dateString, 23, 59, 59)).findList();
             for (Ride ride : closedRides) {
                 if ("Parcel".equals(ride.getRideType())) {
                     parcelTripsAmount = parcelTripsAmount + ride.getTotalBill();
