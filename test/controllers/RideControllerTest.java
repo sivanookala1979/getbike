@@ -1550,6 +1550,141 @@ public class RideControllerTest extends BaseControllerTest {
         new File("public/" + ride.getParcelDropoffImageName()).deleteOnExit();
     }
 
+    @Test
+    public void getTripsAmountForDateTestFlow() {
+        User user = loggedInUser();
+        Ride ride = createRide(user.getId());
+        ride.setRideType("Parcel");
+        ride.setRiderId(user.getId());
+        ride.setTotalBill(59.0);
+        ride.setRideStatus(RideClosed);
+        ride.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride.save();
+        Ride ride1 = createRide(user.getId());
+        ride1.setRideType("Parcel");
+        ride1.setRiderId(user.getId());
+        ride1.setTotalBill(95.0);
+        ride1.setRideStatus(RideClosed);
+        ride1.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride1.save();
+        Ride ride2 = createRide(user.getId());
+        ride2.setRiderId(user.getId());
+        ride2.setTotalBill(265.0);
+        ride2.setRideStatus(RideClosed);
+        ride2.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride2.save();
+        Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals(154.0,jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void getTripsAmountForDateTestFlowWithDifferentDates() {
+        User user = loggedInUser();
+        Ride ride = createRide(user.getId());
+        ride.setRideType("Parcel");
+        ride.setRiderId(user.getId());
+        ride.setTotalBill(59.0);
+        ride.setRideStatus(RideClosed);
+        ride.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride.save();
+        Ride ride1 = createRide(user.getId());
+        ride1.setRideType("Parcel");
+        ride1.setRiderId(user.getId());
+        ride1.setTotalBill(95.0);
+        ride1.setRideStatus(RideClosed);
+        ride1.setRequestedAt(DateUtils.stringToDate("2017-04-03"));
+        ride1.save();
+        Ride ride2 = createRide(user.getId());
+        ride2.setRiderId(user.getId());
+        ride2.setTotalBill(265.0);
+        ride2.setRideStatus(RideClosed);
+        ride2.setRequestedAt(DateUtils.stringToDate("2017-04-02"));
+        ride2.save();
+        Ride ride3 = createRide(user.getId());
+        ride3.setRiderId(user.getId());
+        ride3.setTotalBill(25.0);
+        ride3.setRideStatus(RideClosed);
+        ride3.setRequestedAt(new Date());
+        ride3.save();
+        Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals(59.0,jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+        Result actual1 = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-03").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode1 = jsonFromResult(actual1);
+        assertEquals(95.0,jsonNode1.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0,jsonNode1.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode1.get("result").textValue());
+        Result actual2 = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-02").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode2 = jsonFromResult(actual2);
+        assertEquals(0.0,jsonNode2.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0,jsonNode2.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode2.get("result").textValue());
+    }
+
+
+    @Test
+    public void getTripsAmountForDateTestFlowWithNoTripsForSelectedDate() {
+        User user = loggedInUser();
+        Ride ride2 = createRide(user.getId());
+        ride2.setRiderId(user.getId());
+        ride2.setTotalBill(265.0);
+        ride2.setRideStatus(RideClosed);
+        ride2.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride2.save();
+        Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-01").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals(0.0,jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+    @Test
+    public void getTripsAmountForDateTestFlowWithOnlyParcelTrips() {
+        User user = loggedInUser();
+        Ride ride = createRide(user.getId());
+        ride.setRideType("Parcel");
+        ride.setRiderId(user.getId());
+        ride.setTotalBill(59.0);
+        ride.setRideStatus(RideClosed);
+        ride.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride.save();
+        Ride ride1 = createRide(user.getId());
+        ride1.setRideType("Parcel");
+        ride1.setRiderId(user.getId());
+        ride1.setTotalBill(95.0);
+        ride1.setRideStatus(RideClosed);
+        ride1.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride1.save();
+        Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals(154.0,jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+
+    @Test
+    public void getTripsAmountForDateTestFlowWithOnlyCustomerTrips() {
+        User user = loggedInUser();
+        Ride ride2 = createRide(user.getId());
+        ride2.setRiderId(user.getId());
+        ride2.setTotalBill(265.0);
+        ride2.setRideStatus(RideClosed);
+        ride2.setRequestedAt(DateUtils.stringToDate("2017-04-04"));
+        ride2.save();
+        Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals(0.0,jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals("success", jsonNode.get("result").textValue());
+    }
+
+
 
     IGcmUtils gcmUtilsMock;
 

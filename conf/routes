@@ -116,6 +116,7 @@ POST    /parcel/save                            controllers.RideController.saveP
 GET     /parcel/all                             controllers.RideController.allParcelEntries
 GET     /parcel/filter/                         controllers.RideController.dateWiseFilterForParcelHistoryList
 GET     /parcel/home                            controllers.RideController.homeScreen
+GET     /getTripsAmountForDate                  controllers.RideController.getTripsAmountForDate
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)

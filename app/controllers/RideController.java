@@ -1026,10 +1026,10 @@ public class RideController extends BaseController {
             ride.setRequestorId(customerUser.getId());
             ride.setRequestorName(customerUser.getName());
         }
-        ride.setRequestedAt(new Date());
-        ride.setAcceptedAt(new Date());
-        ride.setRideStartedAt(new Date());
-        ride.setRideEndedAt(new Date());
+        ride.setRequestedAt(DateUtils.stringToDate(dynamicForm.get("date")));
+        ride.setAcceptedAt(DateUtils.stringToDate(dynamicForm.get("date")));
+        ride.setRideStartedAt(DateUtils.stringToDate(dynamicForm.get("date")));
+        ride.setRideEndedAt(DateUtils.stringToDate(dynamicForm.get("date")));
         ride.save();
         return redirect("/ride/rideList");
     }
@@ -1301,6 +1301,29 @@ public class RideController extends BaseController {
                 }
                 result = SUCCESS;
             }
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result getTripsAmountForDate() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        String dateString = getString("dateString");
+        User user = currentUser();
+        if (user != null) {
+            double customerTripsAmount = 0, parcelTripsAmount = 0;
+            List<Ride> closedRides = Ride.find.where().eq("rideStatus", RideClosed).eq("riderId", user.getId()).eq("requestedAt",DateUtils.stringToDate(dateString)).findList();
+            for (Ride ride : closedRides) {
+                if ("Parcel".equals(ride.getRideType())) {
+                    parcelTripsAmount = parcelTripsAmount + ride.getTotalBill();
+                } else {
+                    customerTripsAmount = customerTripsAmount + ride.getTotalBill();
+                }
+            }
+            objectNode.set("customerTripsAmount", Json.toJson(customerTripsAmount));
+            objectNode.set("parcelTripsAmount", Json.toJson(parcelTripsAmount));
+            result = SUCCESS;
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
