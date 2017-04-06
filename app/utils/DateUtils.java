@@ -81,7 +81,7 @@ public class DateUtils {
         return dates;
     }
     public static Date getDateFromString(String stringDate){
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
         Date date = null;
         try {
             date = formatter.parse(stringDate);

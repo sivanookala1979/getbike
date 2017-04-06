@@ -1026,10 +1026,10 @@ public class RideController extends BaseController {
             ride.setRequestorId(customerUser.getId());
             ride.setRequestorName(customerUser.getName());
         }
-        ride.setRequestedAt(DateUtils.stringToDate(dynamicForm.get("date")));
-        ride.setAcceptedAt(DateUtils.stringToDate(dynamicForm.get("date")));
-        ride.setRideStartedAt(DateUtils.stringToDate(dynamicForm.get("date")));
-        ride.setRideEndedAt(DateUtils.stringToDate(dynamicForm.get("date")));
+        ride.setRequestedAt(DateUtils.getDateFromString(dynamicForm.get("startTime")));
+        ride.setAcceptedAt(DateUtils.getDateFromString(dynamicForm.get("startTime")));
+        ride.setRideStartedAt(DateUtils.getDateFromString(dynamicForm.get("startTime")));
+        ride.setRideEndedAt(DateUtils.getDateFromString(dynamicForm.get("startTime")));
         ride.save();
         return redirect("/ride/rideList");
     }
@@ -1327,6 +1327,31 @@ public class RideController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public Result editTripDetails(Long id) {
+        Ride ride = Ride.find.byId(id);
+        return ok(views.html.editTripsDetails.render(ride));
+    }
+
+    public Result updateTripDetail() {
+        DynamicForm requestData = formFactory.form().bindFromRequest();
+        String rideId = requestData.get("tripId");
+        String amount = requestData.get("amount");
+        String distance = requestData.get("distance");
+        String startTime = requestData.get("startTime");
+        String endTime = requestData.get("endTime");
+        Long riderId = Long.parseLong(requestData.get("riderId"));
+        Ride ride = Ride.find.byId(Long.valueOf(rideId));
+        ride.setTotalBill(Double.parseDouble(amount));
+        ride.setOrderDistance(Double.parseDouble(distance));
+        ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
+        ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
+        ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
+        ride.setRiderId(riderId);
+        ride.setRideStatus(RideClosed);
+        ride.update();
+        return redirect("/ride/rideList");
     }
 
 }

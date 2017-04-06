@@ -117,6 +117,8 @@ GET     /parcel/all                             controllers.RideController.allPa
 GET     /parcel/filter/                         controllers.RideController.dateWiseFilterForParcelHistoryList
 GET     /parcel/home                            controllers.RideController.homeScreen
 GET     /getTripsAmountForDate                  controllers.RideController.getTripsAmountForDate
+GET     /editTripDetails/:id                    controllers.RideController.editTripDetails(id: Long)
+GET     /updateTripDetail                       controllers.RideController.updateTripDetail
 
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
