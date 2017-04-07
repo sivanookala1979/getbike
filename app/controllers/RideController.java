@@ -1343,14 +1343,19 @@ public class RideController extends BaseController {
         String endTime = requestData.get("endTime");
         Long riderId = Long.parseLong(requestData.get("riderId"));
         Ride ride = Ride.find.byId(Long.valueOf(rideId));
-        ride.setTotalBill(Double.parseDouble(amount));
-        ride.setOrderDistance(Double.parseDouble(distance));
-        ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
-        ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
-        ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
-        ride.setRiderId(riderId);
-        ride.setRideStatus(RideClosed);
-        ride.update();
+        if( User.find.where().findIds().contains(riderId)){
+            ride.setTotalBill(Double.parseDouble(amount));
+            ride.setOrderDistance(Double.parseDouble(distance));
+            ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
+            ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
+            ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
+            ride.setRideStatus(RideClosed);
+            ride.setRiderId(riderId);
+            ride.update();
+        }else {
+            flash("error", "Invalid RiderId "+ riderId +" Please Give Valid RiderId !");
+            return badRequest(views.html.editTripsDetails.render(ride));
+        }
         return redirect("/ride/rideList");
     }
 
