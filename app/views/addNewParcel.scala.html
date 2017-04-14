@@ -1,11 +1,10 @@
 @main("Get Bike", "Schedule"){
-<link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
-<link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
-<script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+<script src="@routes.Assets.versioned("javascripts/moment-with-locales.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/bootstrap-datetimepicker.js")" type="text/javascript"></script>
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/bootstrap-datetimepicker.css")">
 <script src="@routes.Assets.versioned("javascripts/autoCompleteMap.js")" type="text/javascript"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDeny7bP1c950-wzCUB7m7-1RTajvtDxtk&libraries=places&callback=initAutocomplete" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDeny7bP1c950-wzCUB7m7-1RTajvtDxtk&libraries=places&callback" async defer></script>
+
 <script xmlns:border="http://www.w3.org/1999/xhtml" xmlns:border="http://www.w3.org/1999/xhtml">
  var i=1;
 $(document).ready(function(){
@@ -14,8 +13,12 @@ $(document).ready(function(){
             addRow();
         });
         $(function () {
-                $('#createdAtDate').datetimepicker();
-            });
+            $('#createdAtDate').datetimepicker({
+             format : 'MM/DD/YYYY hh:mm a',
+            minDate: moment().add(1, 'h')
+                });
+
+        });
         $("#saveButton").on('click',function(){
 
             var parcelTable = document.getElementById("tab_parcel_body");
@@ -85,7 +88,6 @@ $(document).ready(function(){
 
         }else{
             alert('No input found in Address table');
-            initAutocomplete();
             return false;
         }
         return tableObj;
@@ -138,11 +140,13 @@ $(document).ready(function(){
     <div class="row clearfix">
         <div class="col-md-12">
             <div class="form-group">
-                <div class="col-xs-3 col-sm-offset-1 date">
-                    <label for="createdAtDate"  style="display: block;">Schedule Date And Time for Parcel </label>
-                    <div class='input-group date'id='createdAtDate' >
-                        <input type='text'   class="form-control"  placeholder="Select Date for Parcel"  id="createdAt" name="createdAt"required="required" autofocus/>
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                <div class="col-sm-3 col-sm-offset-1">
+                    <div class="form-group">
+                        <label for="createdAtDate"  style="display: block;">Schedule Date And Time For Parcel  </label>
+                        <div class="input-group date" id="createdAtDate">
+                            <input type="text" class="form-control"  placeholder="Select Date for Parcel"  id="createdAt" name="createdAt"required="required" autofocus />
+                            <span class="input-group-addon"><span class="glyphicon-calendar glyphicon"></span></span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-sm-offset-3">
