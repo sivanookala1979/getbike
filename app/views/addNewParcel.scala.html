@@ -14,9 +14,9 @@ $(document).ready(function(){
         });
         $(function () {
             $('#createdAtDate').datetimepicker({
-             format : 'MM/DD/YYYY hh:mm a',
-            minDate: moment().add(1, 'h')
-                });
+                format : 'MM/DD/YYYY hh:mm a',
+                minDate: moment().add(0, 'h')
+            });
 
         });
         $("#saveButton").on('click',function(){
