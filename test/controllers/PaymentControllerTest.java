@@ -63,4 +63,18 @@ public class PaymentControllerTest extends BaseControllerTest {
         assertEquals("Requested", paymentOrder.getStatus());
     }
 
+    @Test
+    public void testStatusTESTHappyFlow() throws Exception {
+
+        String mid = "VavInf16301400717586";
+        String orderId = "d6c8b054-9da6-4f1a-88a7-14bcc9c24f91";
+        double amount = 100.0;
+
+        boolean result = new PaymentController().isValidStatus(mid, orderId, amount);
+        System.out.println(result);
+        assertTrue(false);
+
+    }
+
+
 }

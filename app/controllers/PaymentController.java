@@ -2,6 +2,7 @@ package controllers;
 
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,10 +17,12 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import utils.DateUtils;
+import utils.HTTPUtils;
 import utils.StringUtils;
 import views.html.payUFailure;
 import views.html.payUSuccess;
 
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -28,6 +31,7 @@ import java.util.*;
 public class PaymentController extends BaseController {
 
     public static final String MERCHANT_KEY = "VwsvnLQvWiAzXcc!";
+    public static final String MERCHANT_ID = "VavInf16301400717586";
     public LinkedHashMap<String, String> paymentTableHeaders = getTableHeadersList(new String[]{"Order Id", "User Id", "OrderIdentifier", "Order DateTime", "OrderType", "Amount", "Description", "Status", "Response"}, new String[]{"orderId", "userId", "orderIdentifier", "orderDateTime", "orderDistance", "orderType", "amount", "description", "status", "response"});
 
     public Result payUSuccess() {
@@ -138,6 +142,7 @@ public class PaymentController extends BaseController {
                     Double transactionAmount = Double.parseDouble(stringAmount);
                     Logger.info("Transaction Amount " + transactionAmount + " Payment Order Amount " + paymentOrder.getAmount());
                     if (paymentOrder != null && transactionAmount >= paymentOrder.getAmount()) {
+                        isValidStatus(MERCHANT_ID, paymentOrder.getOrderIdentifier(), transactionAmount);
                         String pgDetails = formAsString.length() >= 4000 ? formAsString.substring(0, 4000) : formAsString;
                         String txnid = parameters.get("TXNID");
                         paymentOrder.setStatus("Processed");
@@ -193,6 +198,30 @@ public class PaymentController extends BaseController {
         outputHtml.append("</html>");
         return ok(outputHtml.toString()).as("text/html");
     }
+
+    public boolean isValidStatus(String mid, String orderId, double amount) throws Exception {
+        TreeMap<String, String> parameters = new TreeMap<String, String>();
+        parameters.put("MID", mid);
+        parameters.put("ORDERID", orderId);
+        String checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(PaymentController.MERCHANT_KEY, parameters);
+        System.out.println(checkSum);
+        //String response = HTTPUtils.getDataFromServer("https://secure.paytm.in/oltp/HANDLER_INTERNAL/getTxnStatus?JsonData={%22MID%22:%22VavInf16301400717586%22,%22ORDERID%22:%22d6c8b054-9da6-4f1a-88a7-14bcc9c24f91%22,%22CHECKSUMHASH%22:%22UtHUi4rnudJZ9isQ6rcqPzW8WsDW6gln2RZ4dhlH1dJrqN0CORKpJROihncA8XSC/XfKMoMmpACdLew6okeKN2ggTrO5NKEMjLog/E41qY0=%22}","GET");
+        String response = HTTPUtils.getDataFromServer("https://secure.paytm.in/oltp/HANDLER_INTERNAL/getTxnStatus?JsonData={%22MID%22:%22" +
+                mid +
+                "%22,%22ORDERID%22:%22" +
+                orderId +
+                "%22,%22CHECKSUMHASH%22:%22" +
+                URLEncoder.encode(checkSum.replaceAll("\n",""), "UTF-8") +
+                "%22}","GET");
+        System.out.println(response);
+        JsonNode jsonNode = Json.parse(response);
+        System.out.println(jsonNode.get("STATUS").textValue());
+        System.out.println(jsonNode.get("TXNAMOUNT").textValue());
+        boolean result = "TXN_SUCCESS".equals(jsonNode.get("STATUS").textValue()) && amount == Double.parseDouble(jsonNode.get("TXNAMOUNT").textValue());
+        System.out.println(result);
+        return result;
+    }
+
 
     private void markRideAsPaid(Long rideId, String walletEntryType) {
         Ride ride = Ride.find.byId(rideId);
