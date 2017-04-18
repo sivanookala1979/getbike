@@ -644,7 +644,16 @@ public class RideController extends BaseController {
             Double latitude = getDouble("latitude");
             Double longitude = getDouble("longitude");
             List<RideLocation> riders = new ArrayList<>();
-            for (int i = 0; i < 5; i++) {
+            List<User> relevantRiders = getRelevantRiders(user.getId(), latitude, longitude, user.getGender(), false);
+            int i = 0;
+            for (User relevantRider : relevantRiders) {
+                RideLocation randomLocation = new RideLocation();
+                randomLocation.setLatitude(relevantRider.getLastKnownLatitude());
+                randomLocation.setLongitude(relevantRider.getLastKnownLongitude());
+                riders.add(randomLocation);
+                i++;
+            }
+            for (; i < 5; i++) {
                 RideLocation randomLocation = new RideLocation();
                 randomLocation.setLatitude(noise(latitude, 0.004));
                 randomLocation.setLongitude(noise(longitude, 0.001));
@@ -720,7 +729,7 @@ public class RideController extends BaseController {
         if (onlyPrimeRiders) {
             relevantRiders = relevantRiders.eq("primeRider", true);
         }
-        return relevantRiders.eq("validProofsUploaded", true).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
+        return relevantRiders.eq("validProofsUploaded", true).ge("lastLocationTime", minutesOld(15)).eq("isRequestInProgress", false).raw("( 3959 * acos( cos( radians(" + latitude +
                 ") ) * cos( radians( last_known_latitude ) ) " +
                 "   * cos( radians(last_known_longitude) - radians(" + longitude +
                 ")) + sin(radians(" + latitude + ")) " +
@@ -1193,7 +1202,7 @@ public class RideController extends BaseController {
         String endDate = request().getQueryString("endDate");
         String searchTripId = request().getQueryString("searchTripId");
         String status = request().getQueryString("status");
-        Logger.info("Status----------"+status);
+        Logger.info("Status----------" + status);
         List<Ride> parcelList = new ArrayList<>();
         List<Object> listOfIds = new ArrayList<>();
         if ("ALL".equals(status) || "null".equals(status)) {
@@ -1205,14 +1214,14 @@ public class RideController extends BaseController {
         Long requestorId = User.find.where().eq("email", session("vendorName")).findUnique().getId();
         ExpressionList<Ride> parcelExpressionList = Ride.find.where().eq("requestorId", requestorId);
         if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && isNotNullAndEmpty(status) && isNotNullAndEmpty(searchTripId)) {
-            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).eq("id",searchTripId).orderBy("requested_at desc").findList();
-        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).eq("id", searchTripId).orderBy("requested_at desc").findList();
+        } else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
             parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).orderBy("requested_at desc").findList();
-        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && isNotNullAndEmpty(searchTripId)) {
-            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("id",searchTripId).orderBy("requested_at desc").findList();
-        }else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
+        } else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status) && isNotNullAndEmpty(searchTripId)) {
+            parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("id", searchTripId).orderBy("requested_at desc").findList();
+        } else if (isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate) && isNotNullAndEmpty(status) && !isNotNullAndEmpty(searchTripId)) {
             parcelList = parcelExpressionList.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", status).orderBy("requested_at desc").findList();
-        }else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status)) {
+        } else if (!isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate) && !isNotNullAndEmpty(status)) {
             parcelList = parcelExpressionList.eq("ride_status", status).orderBy("requested_at desc").findList();
         }
         for (Ride ride : parcelList) {
@@ -1343,7 +1352,7 @@ public class RideController extends BaseController {
         String endTime = requestData.get("endTime");
         Long riderId = Long.parseLong(requestData.get("riderId"));
         Ride ride = Ride.find.byId(Long.valueOf(rideId));
-        if( User.find.where().findIds().contains(riderId)){
+        if (User.find.where().findIds().contains(riderId)) {
             ride.setTotalBill(Double.parseDouble(amount));
             ride.setOrderDistance(Double.parseDouble(distance));
             ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
@@ -1352,8 +1361,8 @@ public class RideController extends BaseController {
             ride.setRideStatus(RideClosed);
             ride.setRiderId(riderId);
             ride.update();
-        }else {
-            flash("error", "Invalid RiderId "+ riderId +" Please Give Valid RiderId !");
+        } else {
+            flash("error", "Invalid RiderId " + riderId + " Please Give Valid RiderId !");
             return badRequest(views.html.editTripsDetails.render(ride));
         }
         return redirect("/ride/rideList");

@@ -10,6 +10,7 @@ import play.mvc.Result;
 import java.util.TreeMap;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.*;
@@ -72,8 +73,7 @@ public class PaymentControllerTest extends BaseControllerTest {
 
         boolean result = new PaymentController().isValidStatus(mid, orderId, amount);
         System.out.println(result);
-        assertTrue(false);
-
+        assertFalse(result);
     }
 
 

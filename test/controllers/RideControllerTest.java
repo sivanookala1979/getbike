@@ -295,6 +295,7 @@ public class RideControllerTest extends BaseControllerTest {
         otherUser.setGcmCode("fQGK9w6iePY:APA91bEKA_u9AVswVGU0D84RSvH-DZowv33G4Mayp0gjOwljN-TMLUitP37zpPLMi4WcJSzlMccXrTdhyTCBYxn7OBAxlR_BRCAZmZ7BCccSmXkLCPFRzB4j723sUT5Ksfmm0mgQQE4e");
         otherUser.setLastKnownLatitude(startLatitude);
         otherUser.setLastKnownLongitude(startLongitude);
+        otherUser.setLastLocationTime(minutesOld(2));
         otherUser.setGender('M');
         otherUser.setValidProofsUploaded(true);
         otherUser.save();
@@ -1268,6 +1269,22 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void loadNearByRidersTESTWithValidUsers() {
+        User user = loggedInUser();
+        User otherUser = otherUser();
+        otherUser.setLastKnownLatitude(23.45000001);
+        otherUser.setLastKnownLongitude(11.56000001);
+        otherUser.setLastLocationTime(new Date());
+        otherUser.save();
+        Result actual = route(fakeRequest(GET, "/loadNearByRiders?latitude=23.45&longitude=11.56").header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        assertEquals(5, responseObject.get("riders").size());
+        assertEquals(otherUser.getLastKnownLatitude(), responseObject.get("riders").get(0).get("latitude").doubleValue());
+        assertEquals(otherUser.getLastKnownLongitude(), responseObject.get("riders").get(0).get("longitude").doubleValue());
+    }
+
+    @Test
     public void geoFencingAreaValidationTestFlowForSuccess() {
         User user = loggedInUser();
         GeoFencingLocation geoFencingAreaValidation = new GeoFencingLocation();
@@ -1366,6 +1383,21 @@ public class RideControllerTest extends BaseControllerTest {
         List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
         assertEquals(2, actual.size());
         cAssertHasUser(actual, rider1);
+        cAssertHasUser(actual, rider2);
+    }
+
+    @Test
+    public void getRelevantRidersTESTWithOldLastKnownTime() {
+        User user = loggedInUser();
+        User rider1 = createRider(23.45, 56.78);
+        rider1.setValidProofsUploaded(true);
+        rider1.setLastLocationTime(minutesOld(16));
+        rider1.update();
+        User rider2 = createRider(23.45, 56.78);
+        rider2.setValidProofsUploaded(true);
+        rider2.update();
+        List<User> actual = RideController.getRelevantRiders(user.getId(), 23.45, 56.78, user.getGender(), false);
+        assertEquals(1, actual.size());
         cAssertHasUser(actual, rider2);
     }
 
