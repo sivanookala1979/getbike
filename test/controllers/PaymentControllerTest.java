@@ -65,7 +65,7 @@ public class PaymentControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void testStatusTESTHappyFlow() throws Exception {
+    public void testStatusTESTWithFailedTransaction() throws Exception {
 
         String mid = "VavInf16301400717586";
         String orderId = "d6c8b054-9da6-4f1a-88a7-14bcc9c24f91";
@@ -77,4 +77,14 @@ public class PaymentControllerTest extends BaseControllerTest {
     }
 
 
+    @Test
+    public void testStatusTESTHappyFlow() throws Exception {
+        String mid = "VavInf16301400717586";
+        String orderId = "4ca30d33-b135-4a38-a5a1-284996d347a5";
+        double amount = 20.0;
+
+        boolean result = new PaymentController().isValidStatus(mid, orderId, amount);
+        System.out.println(result);
+        assertTrue(result);
+    }
 }
