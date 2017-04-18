@@ -470,7 +470,7 @@ public class RideController extends BaseController {
                     "   * sin( radians(start_latitude)))) < " +
                     MAX_DISTANCE_IN_KILOMETERS + " ").setMaxRows(5).order("requestedAt desc").findList();
             if (user.isPrimeRider()) {
-                List<Ride> parcelRides = Ride.find.where().eq("rideStatus", RideRequested).raw("ride_type = 'Parcel' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
+                List<Ride> parcelRides = Ride.find.where().eq("rideStatus", RideRequested).ge("requestedAt", minutesOld(15)).raw("ride_type = 'Parcel' and requestor_id != " + user.getId() + " and ( 3959 * acos( cos( radians(" + latitude +
                         ") ) * cos( radians(start_latitude) ) " +
                         "   * cos( radians(start_longitude) - radians(" + longitude +
                         ")) + sin(radians(" + latitude + ")) " +

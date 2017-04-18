@@ -18,6 +18,15 @@
 }
 </style>
 <div class="container">
+    <div class="col-md-6 col-md-offset-3">
+        @if(flash.containsKey("error")) {
+        <div class="well">
+            <div id="error-message" class="text-danger" style="font-size:150%">
+                <center>@flash.get("error")</center>
+            </div>
+        </div>
+        }
+    </div>
     <div class="well well-lg">
     <form class="form-horizontal" action="@routes.UserController.updateUserDetail()" method="GET" role="form">
         <center><h4>AuthToken: @user.authToken</h4></center>
@@ -31,19 +40,19 @@
         <div class="form-group">
             <label for="name" class="col-sm-3 control-label">User Name</label>
             <div class="col-sm-6">
-                <input type="text" id="name" name="name" placeholder="Name" value="@user.name" class="form-control">
+                <input type="text" id="name" name="name" placeholder="Name" value="@user.name" class="form-control" required>
             </div>
         </div>
         <div class="form-group">
             <label for="email" class="col-sm-3 control-label">Email</label>
             <div class="col-sm-6">
-                <input type="email" id="email" name="email" placeholder="Email" value="@user.email" class="form-control">
+                <input type="email" id="email" name="email" placeholder="Email" value="@user.email" class="form-control" required>
             </div>
         </div>
         <div class="form-group">
             <label for="mobileNumber" class="col-sm-3 control-label">Mobile Number</label>
             <div class="col-sm-6">
-                <input type="text" id="mobileNumber" name="mobileNumber" placeholder="Mobile Number" value="@user.phoneNumber" class="form-control" >
+                <input type="text" id="mobileNumber" name="mobileNumber" placeholder="Mobile Number" value="@user.phoneNumber" class="form-control" required>
             </div>
         </div>
 
@@ -61,7 +70,7 @@
         <div class="form-group">
             <label for="promoCode" class="col-sm-3 control-label">Promo Code</label>
             <div class="col-sm-6">
-                <input type="text" id="promoCode" name="promoCode" placeholder="promoCode" value="@user.getPromoCode()" class="form-control">
+                <input type="text" id="promoCode" name="promoCode" placeholder="promoCode" value="@user.getPromoCode()" class="form-control" required>
             </div>
         </div>
 
