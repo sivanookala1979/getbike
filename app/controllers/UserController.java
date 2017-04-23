@@ -478,6 +478,9 @@ public class UserController extends BaseController {
         return ok(views.html.editUsersDetails.render(user));
     }
 
+    public Result pricingForm() {
+        return ok(views.html.pricingForm.render());
+    }
     public Result updateUserDetail() {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
@@ -617,5 +620,106 @@ public class UserController extends BaseController {
         }
         setResult(objectNode, result);
         return ok(Json.toJson(objectNode));
+    }
+
+    public Result savePrice() {
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+        PricingProfile pricingProfile = new PricingProfile();
+        String name = dynamicForm.get("name");
+        String fixedPrice = dynamicForm.get("fixedPrice");
+        String fixedPriceAmount = dynamicForm.get("fixedPriceAmount");
+        String hasBasePackage = dynamicForm.get("hasBasePackage");
+        System.out.println("fix is " + fixedPrice + " Base " + hasBasePackage);
+        String basePackageAmount = dynamicForm.get("basePackageAmount");
+        String basePackageKilometers = dynamicForm.get("basePackageKilometers");
+        String basePackageMinutes = dynamicForm.get("basePackageMinutes");
+        String additionalPerKilometer = dynamicForm.get("additionalPerKilometer");
+        String additionalPerMinute = dynamicForm.get("additionalPerMinute");
+        pricingProfile.setName(name);
+        if (isNotNullAndEmpty(fixedPrice) && fixedPrice.equals("fixedPrice")) {
+            pricingProfile.setFixedPrice(true);
+        }
+
+        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("basePackage")) {
+            pricingProfile.setHasBasePackage(true);
+        }
+        if (isNotNullAndEmpty(fixedPriceAmount)) {
+            pricingProfile.setFixedPriceAmount(Double.valueOf(dynamicForm.get("fixedPriceAmount")));
+        }
+        if (isNotNullAndEmpty(basePackageAmount)) {
+            pricingProfile.setBasePackageAmount(Double.valueOf(dynamicForm.get("basePackageAmount")));
+        }
+        if (isNotNullAndEmpty(basePackageKilometers)) {
+            pricingProfile.setBasePackageKilometers(Double.valueOf(dynamicForm.get("basePackageKilometers")));
+        }
+        if (isNotNullAndEmpty(basePackageMinutes)) {
+            pricingProfile.setBasePackageMinutes(Double.valueOf(dynamicForm.get("basePackageMinutes")));
+        }
+        if (isNotNullAndEmpty(additionalPerKilometer)) {
+            pricingProfile.setAdditionalPerKilometer(Double.valueOf(dynamicForm.get("additionalPerKilometer")));
+        }
+        if (isNotNullAndEmpty(additionalPerMinute)) {
+            pricingProfile.setAdditionalPerMinute(Double.valueOf(dynamicForm.get("additionalPerMinute")));
+        }
+        pricingProfile.save();
+        return redirect("/pricingProfile");
+    }
+
+    public Result pricingProfile() {
+        List<PricingProfile> allPrice = PricingProfile.find.all();
+        return ok(views.html.pricingProfile.render(allPrice));
+    }
+
+    public Result editPricingForm(Long id) {
+        PricingProfile pricingProfile = PricingProfile.find.byId(id);
+        return ok(views.html.editPricingForm.render(pricingProfile));
+    }
+
+    public Result deletePricingForm(Long id) {
+        PricingProfile.find.deleteById(id);
+        return redirect("/pricingProfile");
+    }
+
+    public Result updatePricingProfile(Long id) {
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+        PricingProfile pricingProfile = PricingProfile.find.byId(id);
+        String name = dynamicForm.get("name");
+        String fixedPrice = dynamicForm.get("fixedPrice");
+        String fixedPriceAmount = dynamicForm.get("fixedPriceAmount");
+        String hasBasePackage = dynamicForm.get("hasBasePackage");
+        System.out.println("Hasbase package " + hasBasePackage);
+        String basePackageAmount = dynamicForm.get("basePackageAmount");
+        String basePackageKilometers = dynamicForm.get("basePackageKilometers");
+        String basePackageMinutes = dynamicForm.get("basePackageMinutes");
+        String additionalPerKilometer = dynamicForm.get("additionalPerKilometer");
+        String additionalPerMinute = dynamicForm.get("additionalPerMinute");
+        pricingProfile.setName(name);
+        if (isNotNullAndEmpty(fixedPrice) && fixedPrice.equals("fixedPrice")) {
+            pricingProfile.setFixedPrice(true);
+        }
+
+        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("basePackage")) {
+            pricingProfile.setHasBasePackage(true);
+        }
+        if (isNotNullAndEmpty(fixedPriceAmount)) {
+            pricingProfile.setFixedPriceAmount(Double.valueOf(dynamicForm.get("fixedPriceAmount")));
+        }
+        if (isNotNullAndEmpty(basePackageAmount)) {
+            pricingProfile.setBasePackageAmount(Double.valueOf(dynamicForm.get("basePackageAmount")));
+        }
+        if (isNotNullAndEmpty(basePackageKilometers)) {
+            pricingProfile.setBasePackageKilometers(Double.valueOf(dynamicForm.get("basePackageKilometers")));
+        }
+        if (isNotNullAndEmpty(basePackageMinutes)) {
+            pricingProfile.setBasePackageMinutes(Double.valueOf(dynamicForm.get("basePackageMinutes")));
+        }
+        if (isNotNullAndEmpty(additionalPerKilometer)) {
+            pricingProfile.setAdditionalPerKilometer(Double.valueOf(dynamicForm.get("additionalPerKilometer")));
+        }
+        if (isNotNullAndEmpty(additionalPerMinute)) {
+            pricingProfile.setAdditionalPerMinute(Double.valueOf(dynamicForm.get("additionalPerMinute")));
+        }
+        pricingProfile.save();
+        return redirect("/pricingProfile");
     }
 }

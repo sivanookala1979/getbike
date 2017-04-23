@@ -1,0 +1,111 @@
+@import views.html.custom_views._
+@main("Get Bike", "Special Price"){
+<div class="container">
+    <form action="@routes.UserController.savePrice()" method="post">
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+
+                <div><label class="control-label">Name</label></div>
+                <div><input class="form-control" type="text" id="name" name="name"></div>
+                <br>
+                <div id="price">
+                    <div class="row">
+                        <div class="col-sm-6" id="fixed">
+                            <input type="checkbox" id="fixedPrice" value="fixedPrice" name="fixedPrice"
+                                   onclick="dropdown1()">&nbsp;Fixed Price<br>
+                        </div>
+                        <div id="basePackagecheck">
+                            <input type="checkbox" id="hasBasePackage" name="hasBasePackage" value="basePackage"
+                                   onclick="dropdown2()">&nbsp;Base Package<br>
+                        </div>
+                    </div>
+
+                    <div id="fixedAmount" style="display:none">
+                        <br>
+                        <label class="control-label">Fixed price amount</label>
+                        <div style="padding-top:5px">
+                            <input type="number" class="form-control" id="fixedPriceAmount" name="fixedPriceAmount">
+                        </div>
+                    </div>
+
+                    <div id="baseAmount" style="display:none">
+                        <br>
+                        <label class="control-label" id="baselabel">Base Package Amount</label>
+                        <div style="padding-top:5px">
+                            <input type="number" class="form-control" id="basePackageAmount"
+                                   name="basePackageAmount">
+                        </div>
+                        <div style="padding-top:5px">
+                            <label class="control-label">Base Package Kilometers</label>
+                            <div style="padding-top:5px">
+                                <input type="number" class="form-control" id="basePackageKilometers"
+                                       name="basePackageKilometers">
+                            </div>
+                        </div>
+
+
+                        <div style="padding-top:5px">
+
+                            <label class="control-label">Base Package Minutes</label>
+                            <div style="padding-top:5px">
+                                <input type="number" class="form-control" id="basePackageMinutes"
+                                       name="basePackageMinutes"></div>
+                        </div>
+
+
+                        <div style="padding-top:5px">
+                            <label class="control-label">Additional Per Kilometer</label>
+                            <div style="padding-top:5px">
+                                <input type="number" class="form-control" id="additionalPerKilometer"
+                                       name="additionalPerKilometer">
+                            </div>
+                        </div>
+
+
+                        <div style="padding-top:5px">
+                            <label class="control-label">Additional Per Minute</label>
+                            <div style="padding-top:5px">
+                                <input type="number" class="form-control" id="additionalPerMinute"
+                                       name="additionalPerMinute"></div>
+                        </div>
+
+                    </div>
+                    <br/>
+                    <div>
+                        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+}
+<script>
+   function dropdown1()
+   {
+        if(document.getElementById("fixedPrice").checked)
+        {
+               document.getElementById("hasBasePackage").checked = false;
+             $("#fixedAmount").show();  $("#baseAmount").hide();  $("#basePackagecheck").hide();
+        } else {
+              $("#fixedAmount").hide(); $("#basePackagecheck").show();
+        }
+
+   }
+    function dropdown2()
+   {
+        if(document.getElementById("hasBasePackage").checked)
+        {
+             $("#fixedAmount").hide();$("#baseAmount").show();
+              $("#fixedAmount").fixed();
+        } else {
+             $("#baseAmount").hide();
+        }
+
+   }
+
+
+</script>

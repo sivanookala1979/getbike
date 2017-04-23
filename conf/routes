@@ -40,7 +40,13 @@ GET     /radiusRiders                               controllers.DashboardControl
 GET     /riderPositions/:id/:count                  controllers.DashboardController.riderPositions(id: Long, count: Integer)
 
 GET     /index                                  controllers.HomeController.index
+GET     /editPricingForm/:id                    controllers.UserController.editPricingForm(id: Long)
+GET     /deletePricingForm/:id                  controllers.UserController.deletePricingForm(id: Long)
 POST    /signup                                 controllers.UserController.signup
+GET     /pricingForm                            controllers.UserController.pricingForm
+GET     /pricingProfile                         controllers.UserController.pricingProfile
+GET     /updatePricingProfile/:id               controllers.UserController.updatePricingProfile(id: Long)
+
 POST    /login                                  controllers.UserController.login
 POST    /loginWithOtp                           controllers.UserController.loginWithOtp
 POST    /storeLastKnownLocation                 controllers.UserController.storeLastKnownLocation
@@ -70,6 +76,7 @@ GET     /users/storeTutorialCompletedStatus     controllers.UserController.store
 GET     /users/makeDriverAvailabilityTrue       controllers.UserController.makeDriverAvailabilityTrue
 GET     /users/makeDriverAvailabilityFalse      controllers.UserController.makeDriverAvailabilityFalse
 GET     /users/getDriverAvailabilityStatus      controllers.UserController.getDriverAvailabilityStatus
+POST    /savePrice                              controllers.UserController.savePrice
 
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer
