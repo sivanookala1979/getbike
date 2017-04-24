@@ -61,6 +61,7 @@ public class Ride extends Model {
     String parcelDropoffImageName;
     String parcelPickupDetails;
     String parcelDropoffDetails;
+    String parcelOrderId;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -437,5 +438,13 @@ public class Ride extends Model {
 
     public void setParcelDropoffDetails(String parcelDropoffDetails) {
         this.parcelDropoffDetails = parcelDropoffDetails;
+    }
+
+    public String getParcelOrderId() {
+        return parcelOrderId;
+    }
+
+    public void setParcelOrderId(String parcelOrderId) {
+        this.parcelOrderId = parcelOrderId;
     }
 }

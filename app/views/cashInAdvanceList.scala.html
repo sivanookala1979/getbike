@@ -1,0 +1,59 @@
+@main("Get Bike", "CashInAdvance"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+
+        <div class="container">
+            <table class="table table-striped">
+                <tr bgcolor="#f2f2f2">
+                    <th>Id</th>
+                    <th>riderMobileNumber</th>
+                    <th>riderName</th>
+                    <th>requestedStatus</th>
+                    <th>riderDescription</th>
+                    <th>adminDescription</th>
+                    <th>amount</th>
+                    <th>requestedAt</th>
+                </tr>
+                <tr ng-repeat="location in data.locations">
+                    <td>{{location.id}}</td>
+                    <td>{{location.riderMobileNumber}}</td>
+                    <td>{{location.riderName}}</td>
+                    <td>{{location.requestStatus}}</td>
+                    <td>{{location.riderDescription}}</td>
+                    <td>{{location.adminDescription}}</td>
+                    <td>{{location.amount}}</td>
+                    <td>{{location.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.locations = [];
+    vm.pageno = 1;
+    vm.total_count = 0;
+    vm.itemsPerPage = 10;
+    vm.getData = function(pageno){
+     var url = "/viewCashInAdvanceList?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.locations = [];
+                vm.locations = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData(vm.pageno);
+});
+</script>
+}

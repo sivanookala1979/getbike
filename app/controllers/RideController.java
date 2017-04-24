@@ -1147,6 +1147,7 @@ public class RideController extends BaseController {
                     Logger.info("Vendor Name ------" + session("vendorName"));
                     ride.setRequestorName(session("vendorName"));
                     ride.setRequestorId(User.find.where().eq("email", session("vendorName")).findUnique().getId());
+                    ride.setParcelOrderId(jsonNode.get("orderId").asText());
                     ride.setSourceAddress(jsonNode.get("pickupLocation").asText());
                     ride.setDestinationAddress(jsonNode.get("dropLocation").asText());
                     ride.setParcelPickupNumber(jsonNode.get("pickupContact").asText());
@@ -1350,6 +1351,14 @@ public class RideController extends BaseController {
         String distance = requestData.get("distance");
         String startTime = requestData.get("startTime");
         String endTime = requestData.get("endTime");
+        RideStatus rideStatus = RideClosed;
+        if ("RideRequested".equals(requestData.get("rideStatus"))){
+            rideStatus = RideAccepted;
+        } else if ("RideAccepted".equals(requestData.get("rideStatus"))) {
+            rideStatus = RideAccepted;
+        } else if ("RideCancelled".equals(requestData.get("rideStatus"))) {
+            rideStatus = RideCancelled;
+        }
         Long riderId = Long.parseLong(requestData.get("riderId"));
         Ride ride = Ride.find.byId(Long.valueOf(rideId));
         if (User.find.where().findIds().contains(riderId)) {
@@ -1358,7 +1367,7 @@ public class RideController extends BaseController {
             ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
             ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
             ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
-            ride.setRideStatus(RideClosed);
+            ride.setRideStatus(rideStatus);
             ride.setRiderId(riderId);
             ride.update();
         } else {

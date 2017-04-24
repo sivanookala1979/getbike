@@ -127,6 +127,11 @@ GET     /getTripsAmountForDate                  controllers.RideController.getTr
 GET     /editTripDetails/:id                    controllers.RideController.editTripDetails(id: Long)
 GET     /updateTripDetail                       controllers.RideController.updateTripDetail
 
+POST    /saveUserCashInAdvanceRequest           controllers.CashInAdvanceController.saveUserCashInAdvanceRequest
+GET     /viewCashInAdvanceList                  controllers.CashInAdvanceController.viewCashInAdvanceList
+GET     /getAllCashInAdvanceList                controllers.CashInAdvanceController.getAllCashInAdvanceList
+GET     /cashInAdvance/approve/:id              controllers.CashInAdvanceController.makeRequestApprove(id: Long)
+GET     /cashInAdvance/reject/:id               controllers.CashInAdvanceController.makeRequestReject(id: Long)
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
 GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile

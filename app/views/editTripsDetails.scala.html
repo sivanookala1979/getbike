@@ -58,7 +58,7 @@
         <div class="form-group">
             <label for="distance" class="col-sm-3 control-label">Distance </label>
             <div class="col-sm-6">
-                <input type="distance" id="distance" name="distance" placeholder="Distance" value="@ride.getOrderDistance()" class="form-control" required>
+                <input type="text" id="distance" name="distance" placeholder="Distance" value="@ride.getOrderDistance()" class="form-control" required>
             </div>
         </div>
 
@@ -68,6 +68,21 @@
                 <input type="text" id="riderId" name="riderId" placeholder="riderId" value="@ride.getRiderId()" class="form-control" required>
             </div>
         </div>
+
+        <div class="form-group">
+            <label for="riderId" class="col-sm-3 control-label">Ride Status </label>
+            <div class="col-sm-6">
+
+                <select id="rideStatus" name="rideStatus">
+                    <option value="RideRequested">RideRequested</option>
+                    <option value="RideAccepted">RideAccepted</option>
+                    <option value="RideClosed" selected="selected">RideClosed</option>
+                    <option value="RideCancelled">RideCancelled</option>
+                </select>
+
+            </div>
+        </div>
+
 
         <div class="form-group">
         <div class="col-xs-6 col-sm-offset-3 date">
@@ -82,7 +97,7 @@
             <div class="col-xs-6 col-sm-offset-3 date">
             <label for="createdAtDate"  style="display: block;">End date and Time</label>
             <div class='input-group date'id='createdAtDate2' >
-                <input type='text'   class="form-control"  placeholder="Select Date"  id="createdAt2" name="endTime"required="required" />
+                <input type='text'   class="form-control"  placeholder="Select Date"  id="createdAt2" name="endTime" />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
         </div>

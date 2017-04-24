@@ -1,6 +1,8 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.CashInAdvance;
 import models.RoasterRecord;
 import models.User;
 import org.junit.Test;
@@ -66,6 +68,58 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
         assertEquals(knownNumberOfRides, recordsList.size());
         assertEquals("397297Aa/iwow", recordsList.get(1).get("customerOrderNumber").textValue());
         assertEquals("8272927", recordsList.get(0).get("customerOrderNumber").textValue());
+    }
+
+    @Test
+    public void saveUserCashInAdvanceRequestHappyTestFlow() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please please credit 290 rupees to my account asap!"));
+        requestObjectNode.set("amount",Json.toJson(290));
+        Result result = route(fakeRequest(POST, "/saveUserCashInAdvanceRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+    }
+
+    @Test
+    public void saveUserCashInAdvanceRequestTestFlowForApprove() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please credit 200 rupees to my account asap!"));
+        requestObjectNode.set("amount",Json.toJson(200));
+        Result result = route(fakeRequest(POST, "/saveUserCashInAdvanceRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+        Long id = jsonNode.get("requestId").longValue();
+        System.out.println("Testing phase: id is .........."+id);
+        Result result1 = route(fakeRequest(GET, "/cashInAdvance/approve/" + id).header("Authorization", user.getAuthToken()));
+        CashInAdvance dbCashInAdvance = CashInAdvance.find.where().eq("id",id).findUnique();
+        System.out.println("Testing phase: amount requested is :"+dbCashInAdvance.getAmount());
+        System.out.println("Testing phase: request status :"+dbCashInAdvance.getRequestStatus());
+        assertEquals(200.0,dbCashInAdvance.getAmount());
+        assertEquals(true,dbCashInAdvance.getRequestStatus().booleanValue());
+    }
+
+    @Test
+    public void saveUserCashInAdvanceRequestTestFlowForReject() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please credit 900 rupees to my account asap! bcoz i am suffering"));
+        requestObjectNode.set("amount",Json.toJson(900));
+        Result result = route(fakeRequest(POST, "/saveUserCashInAdvanceRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+        Long id = jsonNode.get("requestId").longValue();
+        System.out.println("Testing phase: id is .........."+id);
+        Result result1 = route(fakeRequest(GET, "/cashInAdvance/reject/" + id).header("Authorization", user.getAuthToken()));
+        CashInAdvance dbCashInAdvance = CashInAdvance.find.where().eq("id",id).findUnique();
+        System.out.println("Testing phase: amount requested is :"+dbCashInAdvance.getAmount());
+        System.out.println("Testing phase: request status :"+dbCashInAdvance.getRequestStatus());
+        assertEquals(900.0,dbCashInAdvance.getAmount());
+        assertEquals(false,dbCashInAdvance.getRequestStatus().booleanValue());
     }
 
 }

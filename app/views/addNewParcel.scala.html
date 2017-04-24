@@ -15,7 +15,7 @@ $(document).ready(function(){
         $(function () {
             $('#createdAtDate').datetimepicker({
                 format : 'MM/DD/YYYY hh:mm a',
-                minDate: moment().add(0, 'h')
+                minDate: moment().add(1, 'h')
             });
 
         });
@@ -55,10 +55,11 @@ $(document).ready(function(){
 
         //Reading parcelTable started here
         if(parcelTable.rows.length > 0 ){
-            var type, pickupLocation, pickupContact,dropLocation, dropDetails,dropContact,createdAt,pickupDetails,startLat,startLong;
+            var type, orderId, pickupLocation, pickupContact,dropLocation, dropDetails,dropContact,createdAt,pickupDetails,startLat,startLong;
 
             for (var i=0; i<parcelTable.rows.length; i++) {
                 var createdAt = document.getElementById("createdAt").value;
+                orderId = document.getElementById("orderId"+i).value;
                 pickupDetails = document.getElementById("pickupDetails"+i).value;
                 pickupLocation = document.getElementById("pickupLocation"+i).value;
                 pickupContact = document.getElementById("pickupContact"+i).value;
@@ -70,6 +71,7 @@ $(document).ready(function(){
 
                 if(createdAt != "" && createdAt != null){
                     rowData = {};
+                    rowData["orderId"] = orderId;
                     rowData["pickupDetails"] = pickupDetails;
                     rowData["pickupLocation"] = pickupLocation;
                     rowData["pickupContact"] = pickupContact;
@@ -104,6 +106,7 @@ $(document).ready(function(){
 	 "<td>",
 	  (i+1),
 	 "</td>",
+	 "<td><input type='text' id='orderId"+i+"' placeholder='Order Id(optional)' name='orderId' /></td>",
 	 "<td><input type='text' id='pickupDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='pickupDetails' autofocus/></td>",
 	 "<td><input type='text' id='pickupContact"+i+"' placeholder='  Enter Pickup  Number' name='pickupContact'/></td>",
 	 "<td><input type='text' id='pickupLocation"+i+"' onclick='initAutocomplete(this.id)' placeholder='  Enter Pickup Location' name='pickupLocation'/></td>",
@@ -163,6 +166,7 @@ $(document).ready(function(){
                 <thead>
                 <tr style="background:#5AA9EC;color:black;">
                     <th>#</th>
+                    <th>Parcel Order Id</th>
                     <th>Pickup Details</th>
                     <th>Pickup Contact Number</th>
                     <th>Pickup Location</th>
