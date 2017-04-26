@@ -62,6 +62,7 @@ public class Ride extends Model {
     String parcelPickupDetails;
     String parcelDropoffDetails;
     String parcelOrderId;
+    Double codAmount;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -446,5 +447,13 @@ public class Ride extends Model {
 
     public void setParcelOrderId(String parcelOrderId) {
         this.parcelOrderId = parcelOrderId;
+    }
+
+    public Double getCodAmount() {
+        return codAmount;
+    }
+
+    public void setCodAmount(Double codAmount) {
+        this.codAmount = codAmount;
     }
 }

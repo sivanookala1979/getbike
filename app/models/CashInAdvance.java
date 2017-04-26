@@ -14,6 +14,7 @@ public class CashInAdvance extends Model {
 
     @Id
     public Long id;
+    Long riderId;
     String riderMobileNumber;
     String riderName;
     Boolean requestStatus;
@@ -30,6 +31,14 @@ public class CashInAdvance extends Model {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getRiderId() {
+        return riderId;
+    }
+
+    public void setRiderId(Long riderId) {
+        this.riderId = riderId;
     }
 
     public String getRiderMobileNumber() {

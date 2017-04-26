@@ -28,6 +28,8 @@ import utils.*;
 
 import javax.inject.Inject;
 import java.io.FileOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -1148,6 +1150,7 @@ public class RideController extends BaseController {
                     ride.setRequestorName(session("vendorName"));
                     ride.setRequestorId(User.find.where().eq("email", session("vendorName")).findUnique().getId());
                     ride.setParcelOrderId(jsonNode.get("orderId").asText());
+                    ride.setCodAmount(jsonNode.get("codAmount").asDouble());
                     ride.setSourceAddress(jsonNode.get("pickupLocation").asText());
                     ride.setDestinationAddress(jsonNode.get("dropLocation").asText());
                     ride.setParcelPickupNumber(jsonNode.get("pickupContact").asText());
@@ -1349,24 +1352,37 @@ public class RideController extends BaseController {
         String rideId = requestData.get("tripId");
         String amount = requestData.get("amount");
         String distance = requestData.get("distance");
+        String requestedAtTime = requestData.get("requestedTime");
         String startTime = requestData.get("startTime");
         String endTime = requestData.get("endTime");
         RideStatus rideStatus = RideClosed;
         if ("RideRequested".equals(requestData.get("rideStatus"))){
-            rideStatus = RideAccepted;
+            rideStatus = RideRequested;
         } else if ("RideAccepted".equals(requestData.get("rideStatus"))) {
             rideStatus = RideAccepted;
         } else if ("RideCancelled".equals(requestData.get("rideStatus"))) {
             rideStatus = RideCancelled;
+        } else if ("RideRescheduled".equals(requestData.get("rideStatus"))) {
+            rideStatus = Rescheduled;
         }
         Long riderId = Long.parseLong(requestData.get("riderId"));
+        SimpleDateFormat formatter=new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
         Ride ride = Ride.find.byId(Long.valueOf(rideId));
         if (User.find.where().findIds().contains(riderId)) {
             ride.setTotalBill(Double.parseDouble(amount));
             ride.setOrderDistance(Double.parseDouble(distance));
-            ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
-            ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
-            ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
+            try {
+                ride.setRequestedAt(formatter.parse(requestedAtTime));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (startTime.length() != 0) {
+                ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
+                ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
+            }
+            if (endTime.length() != 0) {
+                ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
+            }
             ride.setRideStatus(rideStatus);
             ride.setRiderId(riderId);
             ride.update();

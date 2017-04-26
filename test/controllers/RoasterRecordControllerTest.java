@@ -71,6 +71,33 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void getCashRequestsHappyTestFlow() {
+        User user = loggedInUser();
+        CashInAdvance cashInAdvance = new CashInAdvance();
+        cashInAdvance.setRiderId(user.getId());
+        cashInAdvance.setAmount(236.0);
+        cashInAdvance.setRequestStatus(false);
+        cashInAdvance.setRiderDescription("asap!");
+        cashInAdvance.save();
+        CashInAdvance cashInAdvance1 = new CashInAdvance();
+        cashInAdvance1.setRiderId(user.getId());
+        cashInAdvance1.setAmount(58.0);
+        cashInAdvance1.setRequestStatus(true);
+        cashInAdvance1.setRiderDescription("plz");
+        cashInAdvance1.save();
+
+        Result actual = route(fakeRequest(GET, "/getCashRequests").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals("success", jsonNode.get("result").textValue());
+        JsonNode recordsList = jsonNode.get("records");
+        int knownNumberOfRecords = 2;
+        assertEquals(knownNumberOfRecords, recordsList.size());
+        assertEquals(58.0, recordsList.get(0).get("amount").doubleValue());
+        assertEquals(236.0, recordsList.get(1).get("amount").doubleValue());
+        assertEquals("asap!",recordsList.get(1).get("riderDescription").textValue());
+    }
+
+    @Test
     public void saveUserCashInAdvanceRequestHappyTestFlow() {
         User user = loggedInUser();
         ObjectNode requestObjectNode = Json.newObject();
@@ -100,6 +127,7 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
         System.out.println("Testing phase: request status :"+dbCashInAdvance.getRequestStatus());
         assertEquals(200.0,dbCashInAdvance.getAmount());
         assertEquals(true,dbCashInAdvance.getRequestStatus().booleanValue());
+        assertEquals(dbCashInAdvance.getRiderId(),user.getId());
     }
 
     @Test
@@ -120,6 +148,7 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
         System.out.println("Testing phase: request status :"+dbCashInAdvance.getRequestStatus());
         assertEquals(900.0,dbCashInAdvance.getAmount());
         assertEquals(false,dbCashInAdvance.getRequestStatus().booleanValue());
+        assertEquals(dbCashInAdvance.getRiderId(),user.getId());
     }
 
 }

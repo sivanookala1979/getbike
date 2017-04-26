@@ -90,7 +90,7 @@ th {
                            style="border: 1px solid lightgrey; width: 100%;overflow: auto;">
                         <thead style="border-bottom: 1px solid grey;">
                         <tr>
-                            <th ng-click="sort('id')">Trip ID
+                            <th ng-click="sort('id')">Trip ID <br/> OrderId
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='id'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -102,7 +102,7 @@ th {
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='rideStatus'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
-                            <th ng-click="sort('orderDistance')">Order Distance
+                            <th ng-click="sort('orderDistance')">Order Distance <br/> COD amount
                                 <span class="glyphicon sort-icon" ng-show="sortKey=='orderDistance'"
                                       ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
                             </th>
@@ -129,7 +129,7 @@ th {
                                 {{product.parcelDropoffNumber }}<br/>
                             </td>
                             <td>{{product.rideType}}<br/>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}<br/><b data-ng-if="product.freeRide == true">Free Ride</b></td>
-                            <td>{{product.orderDistance}}</td>
+                            <td>{{product.orderDistance}}<br/>{{product.codAmount}}</td>
                             <td>{{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.acceptedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.rideStartedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>

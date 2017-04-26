@@ -9,6 +9,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ public class CashInAdvanceController extends BaseController {
         if (user != null) {
             JsonNode locationsJson = request().body().asJson();
             CashInAdvance cashInAdvance = new CashInAdvance();
+            cashInAdvance.setRiderId(user.getId());
             cashInAdvance.setRiderMobileNumber(user.getPhoneNumber());
             cashInAdvance.setRiderName(user.getName());
             cashInAdvance.setRequestStatus(null);
@@ -74,4 +76,19 @@ public class CashInAdvanceController extends BaseController {
         cashInAdvance.update();
         return ok("/getAllCashInAdvanceList");
     }
+
+    public Result getCashRequests() {
+        ObjectNode objectNode = Json.newObject();
+        User user = currentUser();
+        String result = "failure";
+        if (user != null) {
+            List<CashInAdvance> records = CashInAdvance.find.where().eq("riderId", user.getId()).findList();
+            Collections.reverse(records);
+            objectNode.set("records", Json.toJson(records));
+            result = "success";
+        }
+        objectNode.set("result", Json.toJson(result));
+        return ok(Json.toJson(objectNode));
+    }
+
 }

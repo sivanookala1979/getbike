@@ -78,6 +78,7 @@
                     <option value="RideAccepted">RideAccepted</option>
                     <option value="RideClosed" selected="selected">RideClosed</option>
                     <option value="RideCancelled">RideCancelled</option>
+                    <option value="RideRescheduled">RideRescheduled</option>
                 </select>
 
             </div>
@@ -85,10 +86,17 @@
 
 
         <div class="form-group">
+            <div class="col-xs-6 col-sm-offset-3 date">
+                <label for="createdAtDate"  style="display: block;">Requested date and Time </label>
+                <div class='input-group date'id='requestedAtDate' >
+                    <input type='text'   class="form-control"  placeholder="Select Date " value="@ride.getRequestedAt()" id="createdAt3" name="requestedTime"required="required" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
         <div class="col-xs-6 col-sm-offset-3 date">
             <label for="createdAtDate"  style="display: block;">Start date and Time </label>
             <div class='input-group date'id='createdAtDate' >
-                <input type='text'   class="form-control"  placeholder="Select Date "  id="createdAt" name="startTime"required="required" />
+                <input type='text'   class="form-control"  placeholder="Select Date "  id="createdAt" name="startTime" />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
         </div>

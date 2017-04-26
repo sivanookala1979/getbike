@@ -55,7 +55,7 @@ $(document).ready(function(){
 
         //Reading parcelTable started here
         if(parcelTable.rows.length > 0 ){
-            var type, orderId, pickupLocation, pickupContact,dropLocation, dropDetails,dropContact,createdAt,pickupDetails,startLat,startLong;
+            var type, orderId, pickupLocation, pickupContact,dropLocation, dropDetails,dropContact,createdAt,pickupDetails,codAmount,startLat,startLong;
 
             for (var i=0; i<parcelTable.rows.length; i++) {
                 var createdAt = document.getElementById("createdAt").value;
@@ -66,6 +66,7 @@ $(document).ready(function(){
                 dropLocation = document.getElementById("dropLocation"+i).value;
                 dropDetails = document.getElementById("dropDetails"+i).value;
                 dropContact = document.getElementById("dropContact"+i).value;
+                codAmount = document.getElementById("codAmount"+i).value;
                 startLat = document.getElementById("startLat"+i).value;
                 startLong = document.getElementById("startLong"+i).value;
 
@@ -78,6 +79,7 @@ $(document).ready(function(){
                     rowData["dropLocation"] = dropLocation;
                     rowData["dropDetails"] = dropDetails;
                     rowData["dropContact"] = dropContact;
+                    rowData["codAmount"] = codAmount;
                     rowData["createdAt"] = createdAt;
                     rowData["startLat"] = startLat;
                     rowData["startLong"] = startLong;
@@ -106,13 +108,14 @@ $(document).ready(function(){
 	 "<td>",
 	  (i+1),
 	 "</td>",
-	 "<td><input type='text' id='orderId"+i+"' placeholder='Order Id(optional)' name='orderId' /></td>",
+	 "<td><input type='text' id='orderId"+i+"' placeholder='Order Id/Patient Name(optional)' name='orderId' /></td>",
 	 "<td><input type='text' id='pickupDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='pickupDetails' autofocus/></td>",
 	 "<td><input type='text' id='pickupContact"+i+"' placeholder='  Enter Pickup  Number' name='pickupContact'/></td>",
 	 "<td><input type='text' id='pickupLocation"+i+"' onclick='initAutocomplete(this.id)' placeholder='  Enter Pickup Location' name='pickupLocation'/></td>",
 	 "<td><input type='text' id='dropDetails"+i+"' placeholder='  Enter Name /H.No/street* Details' name='dropDetails'/></td>",
 	 "<td><input type='text' id='dropContact"+i+"'  placeholder='  Enter Drop  Number' name='dropContact'/></td>",
 	 "<td><input type='text' id='dropLocation"+i+"'  placeholder='  Enter Drop Location' name='dropLocation'/></td>",
+	 "<td><input type='text' id='codAmount"+i+"' placeholder='COD amount(optional)' name='codAmount' /></td>",
 	 "<td><input type='hidden' id='startLat"+i+"'  /></td>",
 	 "<td><input type='hidden' id='startLong"+i+"' /></td>",
 	 "</tr>"].join("\n");
@@ -173,6 +176,7 @@ $(document).ready(function(){
                     <th>Drop Details</th>
                     <th>Drop Contact Number</th>
                     <th>Drop Location</th>
+                    <th>COD Amount</th>
                 </tr>
                 </thead>
                 <tbody id="tab_parcel_body">
