@@ -1,111 +1,120 @@
+
 @import views.html.custom_views._
-@main("Get Bike", "Special Price"){
+@main("Get Bike", "Pricing Profile"){
+<style>
+
+
+*[role="form"] {
+    max-width: 530px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 0.3em;
+}
+
+*[role="form"] h2 {
+    margin-left: 4.5em;
+    margin-bottom: 1em;
+}
+
+</style>
+
 <div class="container">
-    <form action="@routes.UserController.savePrice()" method="post">
-        <div class="row">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4">
+    <div class="well well-lg">
+        <form class="form-horizontal" action="@routes.UserController.savePrice()" method="post"
+              role="form">
 
-                <div><label class="control-label">Name</label></div>
-                <div><input class="form-control" type="text" id="name" name="name"></div>
-                <br>
-                <div id="price">
-                    <div class="row">
-                        <div class="col-sm-6" id="fixed">
-                            <input type="checkbox" id="fixedPrice" value="fixedPrice" name="fixedPrice"
-                                   onclick="dropdown1()">&nbsp;Fixed Price<br>
-                        </div>
-                        <div id="basePackagecheck">
-                            <input type="checkbox" id="hasBasePackage" name="hasBasePackage" value="basePackage"
-                                   onclick="dropdown2()">&nbsp;Base Package<br>
-                        </div>
+            <h2 >Pricing Profile</h2>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Name</label>
+                <div class="col-sm-6">
+                    <input type="text" id="name" name="name" placeholder="Name" class="form-control">
+                </div>
+            </div>
+
+            <div id="price" class="form-group">
+                <label class="col-sm-3 control-label">Fixed Price</label>
+                <div class="col-sm-6" style="padding-top:10px">
+                    <input type="checkbox" id="fixedPrice" value="fixedPrice"  name="fixedPrice" onclick="dropdown1()">
+                </div>
+            </div>
+
+            <div id="basePackagecheck" class="form-group">
+                <label class="col-sm-3 control-label">Has Base Package</label>
+                <div class="col-sm-6" style="padding-top:10px">
+                    <input type="checkbox" id="hasBasePackage" value="hasBasePackage" name="hasBasePackage"
+                           onclick="dropdown2()">
+                </div>
+            </div>
+
+            <div id="fixedAmount" class="form-group" style="display:none">
+                <label class="col-sm-3 control-label">Fixed Price Amount</label>
+                <div class="col-sm-6">
+                    <input type="number" id="fixedPriceAmount" name="fixedPriceAmount" placeholder="Fixed Price Amount"
+                          class="form-control">
+                </div>
+            </div>
+            <div id="baseAmount" style="display:none">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Base Package Amount</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="basePackageAmount" name="basePackageAmount"
+                               placeholder="Base Package Amount" class="form-control">
                     </div>
+                </div>
 
-                    <div id="fixedAmount" style="display:none">
-                        <br>
-                        <label class="control-label">Fixed price amount</label>
-                        <div style="padding-top:5px">
-                            <input type="number" class="form-control" id="fixedPriceAmount" name="fixedPriceAmount">
-                        </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Base Package Minutes</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="basePackageMinutes" name="basePackageMinutes"
+                               placeholder="Base Package Minutes"
+                               class="form-control">
                     </div>
-
-                    <div id="baseAmount" style="display:none">
-                        <br>
-                        <label class="control-label" id="baselabel">Base Package Amount</label>
-                        <div style="padding-top:5px">
-                            <input type="number" class="form-control" id="basePackageAmount"
-                                   name="basePackageAmount">
-                        </div>
-                        <div style="padding-top:5px">
-                            <label class="control-label">Base Package Kilometers</label>
-                            <div style="padding-top:5px">
-                                <input type="number" class="form-control" id="basePackageKilometers"
-                                       name="basePackageKilometers">
-                            </div>
-                        </div>
+                </div>
 
 
-                        <div style="padding-top:5px">
-
-                            <label class="control-label">Base Package Minutes</label>
-                            <div style="padding-top:5px">
-                                <input type="number" class="form-control" id="basePackageMinutes"
-                                       name="basePackageMinutes"></div>
-                        </div>
-
-
-                        <div style="padding-top:5px">
-                            <label class="control-label">Additional Per Kilometer</label>
-                            <div style="padding-top:5px">
-                                <input type="number" class="form-control" id="additionalPerKilometer"
-                                       name="additionalPerKilometer">
-                            </div>
-                        </div>
-
-
-                        <div style="padding-top:5px">
-                            <label class="control-label">Additional Per Minute</label>
-                            <div style="padding-top:5px">
-                                <input type="number" class="form-control" id="additionalPerMinute"
-                                       name="additionalPerMinute"></div>
-                        </div>
-
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Base Package Kilometers</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="basePackageKilometers" name="basePackageKilometers"
+                               placeholder="Base Package Kilometers"
+                               class="form-control">
                     </div>
-                    <br/>
-                    <div>
-                        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                </div>
+
+
+            </div>
+            <div id="additional">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Additional Per Kilometer</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="additionalPerKilometer" name="additionalPerKilometer"
+                               placeholder="Additional Per Kilometer"
+                               class="form-control">
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Additional Per Minute</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="additionalPerMinute" name="additionalPerMinute"
+                               placeholder="Additional Per Minute"
+                               class="form-control">
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
 
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-3">
+                    <button type="submit" class="btn btn-primary btn-block"><span
+                            class="glyphicon glyphicon-ok-sign"></span></span> Submit
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
-
+<script src='@routes.Assets.versioned("javascripts/pricingForm.js")'type="text/javascript"></script>
 }
-<script>
-   function dropdown1()
-   {
-        if(document.getElementById("fixedPrice").checked)
-        {
-               document.getElementById("hasBasePackage").checked = false;
-             $("#fixedAmount").show();  $("#baseAmount").hide();  $("#basePackagecheck").hide();
-        } else {
-              $("#fixedAmount").hide(); $("#basePackagecheck").show();
-        }
-
-   }
-    function dropdown2()
-   {
-        if(document.getElementById("hasBasePackage").checked)
-        {
-             $("#fixedAmount").hide();$("#baseAmount").show();
-              $("#fixedAmount").fixed();
-        } else {
-             $("#baseAmount").hide();
-        }
-
-   }
-
-
-</script>

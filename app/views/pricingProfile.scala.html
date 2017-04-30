@@ -13,23 +13,21 @@
 <div class="container">
     <table class="table table-bordered">
         <tr bgcolor="#f2f2f2">
-            <th>Delete</th>
-            <th>Edit</th>
             <th>Id</th>
             <th>Name</th>
             <th>Fixed Price</th>
             <th>Fixed Price Amount</th>
             <th>Has Base Package</th>
             <th>Base Package Amount</th>
-            <th>basePackageKilometers</th>
-            <th>basePackageMinutes</th>
-            <th>additionalPerKilometer</th>
-            <th>additionalPerMinute</th>
+            <th>Base Package Kilometers</th>
+            <th>Base Package Minutes</th>
+            <th>Additional Per Kilometer</th>
+            <th>Additional Per Minute</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
         @for(price <- allPrice){
         <tr>
-            <td><a href="/deletePricingForm/@price.id">Delete</a></td>
-            <td><a href="/editPricingForm/@price.id">Edit</a></td>
             <td>@price.id</td>
             <td>@price.name</td>
             <td>@price.fixedPrice</td>
@@ -40,6 +38,8 @@
             <td>@price.basePackageMinutes</td>
             <td>@price.additionalPerKilometer</td>
             <td>@price.additionalPerMinute</td>
+            <td><a href="/editPricingForm/@price.id"><span class="glyphicon glyphicon-edit">Edit</span></a></td>
+            <td><a href="/deletePricingForm/@price.id"><span class="glyphicon glyphicon-trash">Delete</span></a></td>
         </tr>
         }
     </table>

@@ -62,7 +62,7 @@ public class User extends Model {
     boolean driverAvailability;
     boolean primeRider;
     boolean vendor;
-
+    String profileType;
 
     public String getName() {
         return name;
@@ -418,5 +418,13 @@ public class User extends Model {
 
     public void setVendor(boolean vendor) {
         this.vendor = vendor;
+    }
+
+    public String getProfileType() {
+        return profileType;
+    }
+
+    public void setProfileType(String profileType) {
+        this.profileType = profileType;
     }
 }

@@ -1,6 +1,6 @@
 @(price: PricingProfile)
 @import views.html.custom_views._
-@main("Get Bike", "Edit User"){
+@main("Get Bike", "Edit Pricing Profile"){
 <style>
 
 
@@ -20,36 +20,11 @@
 </style>
 
 <div class="container">
-    <div class="col-md-6 col-md-offset-3">
-        @if(flash.containsKey("error")) {
-        <div class="well">
-            <div id="error-message" class="text-danger" style="font-size:150%">
-                <center>@flash.get("error")</center>
-            </div>
-        </div>
-        }
-    </div>
     <div class="well well-lg">
         <form class="form-horizontal" action="@routes.UserController.updatePricingProfile(price.id)" method="GET"
               role="form">
-            <center><h4></h4></center>
-            <h2>Update Pricing Profile Details</h2>
 
-            <div id="fixedCheck" class="form-group">
-                <label class="col-sm-3 control-label">Fixed Price</label>
-                <div class="col-sm-6">
-                    <input type="checkbox" id="fixedPrice" name="fixedPrice" onclick="dropdown1()"
-                           @if(price.fixedPrice){checked="checked" }>
-                </div>
-            </div>
-
-            <div id="baseCheck" class="form-group">
-                <label class="col-sm-3 control-label">Has Base Package</label>
-                <div class="col-sm-6">
-                    <input type="checkbox" id="hasBasePackage" name="hasBasePackage" onclick="dropdown2()"
-                           @if(price.hasBasePackage){checked="checked" }>
-                </div>
-            </div>
+            <h2 >Update Pricing Profile Details</h2>
             <div class="form-group">
                 <label class="col-sm-3 control-label">Id</label>
                 <div class="col-sm-6">
@@ -64,14 +39,28 @@
                            class="form-control">
                 </div>
             </div>
-            <div id="fixedAmount" class="form-group">
+            <div id="price" class="form-group">
+                <label class="col-sm-3 control-label">Fixed Price</label>
+                <div class="col-sm-6" style="padding-top:6px">
+                    <input type="checkbox" id="fixedPrice" name="fixedPrice" value="fixedPrice" onclick="dropdown1()" @if(price.fixedPrice){checked="checked" }>
+                </div>
+            </div>
+
+            <div id="basePackagecheck" class="form-group">
+                <label class="col-sm-3 control-label">Has Base Package</label>
+                <div class="col-sm-6" style="padding-top:6px">
+                    <input type="checkbox" id="hasBasePackage" name="hasBasePackage" value="hasBasePackage" onclick="dropdown2()"
+                           @if(price.hasBasePackage){checked="checked"}>
+                </div>
+            </div>
+            <div id="fixedAmount" class="form-group" style="display:none">
                 <label class="col-sm-3 control-label">Fixed Price Amount</label>
                 <div class="col-sm-6">
                     <input type="number" id="fixedPriceAmount" name="fixedPriceAmount" placeholder="Fixed Price Amount"
                            value="@price.fixedPriceAmount" class="form-control">
                 </div>
             </div>
-            <div id="basePackages" style="display:none">
+            <div id="baseAmount" style="display:none">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Base Package Amount</label>
                     <div class="col-sm-6">
@@ -100,6 +89,9 @@
                     </div>
                 </div>
 
+
+            </div>
+            <div id="additional">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Additional Per Kilometer</label>
                     <div class="col-sm-6">
@@ -119,6 +111,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="form-group">
                 <div class="col-sm-4 col-sm-offset-2">
                     <button type="submit" class="btn btn-primary btn-block"><span
@@ -135,34 +128,5 @@
         </form>
     </div>
 </div>
+<script src='@routes.Assets.versioned("javascripts/editPricingForm.js")'type="text/javascript"></script>
 }
-
-<script>
-   function dropdown1()
-   {
-        if(document.getElementById("fixedPrice").checked)
-        {
-             document.getElementById("hasBasePackage").checked = false;
-             $("#fixedAmount").show();  $("#basePackages").hide();
-        } else {
-              $("#fixedAmount").hide(); $("#baseCheck").show();
-
-        }
-
-   }
-    function dropdown2()
-   {
-        if(document.getElementById("hasBasePackage").checked)
-        {
-             document.getElementById("fixedPrice").checked = false;
-             $("#fixedAmount").hide();$("#basePackages").show();
-             document.getElementById("fixedCheck").checked = false;
-
-        } else {
-             $("#basePackages").hide();$("#fixedCheck").show();
-        }
-
-   }
-
-
-</script>

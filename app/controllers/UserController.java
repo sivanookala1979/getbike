@@ -297,7 +297,7 @@ public class UserController extends BaseController {
                 ex.printStackTrace();
             }
             user.setValidProofsUploaded(false);
-            SMSHelper.sendSms("54037",user.getPhoneNumber(),"&");
+            SMSHelper.sendSms("54037", user.getPhoneNumber(), "&");
             user.save();
             result = SUCCESS;
         }
@@ -326,7 +326,7 @@ public class UserController extends BaseController {
                 ex.printStackTrace();
             }
             user.setValidProofsUploaded(false);
-            SMSHelper.sendSms("54037",user.getPhoneNumber(),"&");
+            SMSHelper.sendSms("54037", user.getPhoneNumber(), "&");
             user.save();
             result = SUCCESS;
         }
@@ -369,17 +369,16 @@ public class UserController extends BaseController {
     public Result updateUserProofValidationApprove(Long id, Boolean isValidProofs) {
         Logger.info("Boolean is " + isValidProofs);
         User user = User.find.where().eq("id", id).findUnique();
-        if (isValidProofs){
+        if (isValidProofs) {
             IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
             gcmUtils.sendMessage(user, "Your profile is declined. Please resubmit the proofs.", "getbike", null);
             Logger.debug("Rejected .......................");
-            SMSHelper.sendSms("54039",user.getPhoneNumber(),"&");
-        }
-        else {
+            SMSHelper.sendSms("54039", user.getPhoneNumber(), "&");
+        } else {
             IGcmUtils gcmUtils = ApplicationContext.defaultContext().getGcmUtils();
             gcmUtils.sendMessage(user, "Your profile is successfully updated.", "getbike", null);
             Logger.debug("Approve..........................");
-            SMSHelper.sendSms("54038",user.getPhoneNumber(),"&");
+            SMSHelper.sendSms("54038", user.getPhoneNumber(), "&");
         }
         user.setValidProofsUploaded(!isValidProofs);
         user.update();
@@ -458,18 +457,19 @@ public class UserController extends BaseController {
 
     public Result userSpecialPrice(Long id) {
         User user = User.find.byId(id);
-        return ok(views.html.specialprice.render(user));
+        List<PricingProfile> allPrice = PricingProfile.find.all();
+        return ok(views.html.specialprice.render(user, allPrice));
     }
 
     public Result updateUserDetailsWithSpecialPrice() {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
         String name = requestData.get("name");
-        String spePrice = requestData.get("spePrice");
         User user = User.find.byId(Long.valueOf(userId));
-        user.setSpePrice(Double.valueOf(spePrice));
-        user.setSpecialPrice(true);
+        user.setSpecialPrice("on".equals(requestData.get("sPrice")));
+        user.setProfileType(requestData.get("profileType"));
         user.update();
+        System.out.println("the profile type is  and tyhr r" + user.getProfileType() + " " + requestData.get("sPrice"));
         return redirect("/users/usersList");
     }
 
@@ -481,6 +481,7 @@ public class UserController extends BaseController {
     public Result pricingForm() {
         return ok(views.html.pricingForm.render());
     }
+
     public Result updateUserDetail() {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
@@ -502,15 +503,16 @@ public class UserController extends BaseController {
             user.setVendor(vendor);
             user.update();
         } else {
-            flash("error", "Mobile Number already present in DB "+ mobileNumber +" please give valid one !");
+            flash("error", "Mobile Number already present in DB " + mobileNumber + " please give valid one !");
             return badRequest(views.html.editUsersDetails.render(user));
         }
         return redirect("/users/usersList");
     }
+
     public Result SearchForPromoCodeLogins() {
 
         String srcName = request().getQueryString("srcName");
-        System.out.print("Name ------------."+srcName);
+        System.out.print("Name ------------." + srcName);
         List<User> userList = new ArrayList<>();
         List<Object> listOfIds = new ArrayList<>();
         ExpressionList<User> userExpressionList = null;
@@ -519,7 +521,7 @@ public class UserController extends BaseController {
             listOfIds = User.find.where().or(Expr.like("lower(signupPromoCode)", "%" + srcName.toLowerCase() + "%"), Expr.like("lower(signupPromoCode)", "%" + srcName.toLowerCase() + "%")).orderBy("id").findIds();
             userExpressionList = User.find.where().or(Expr.in("id", listOfIds), Expr.in("id", listOfIds));
             userList = userExpressionList.orderBy("id").findList();
-        } else if(!isNotNullAndEmpty(srcName)){
+        } else if (!isNotNullAndEmpty(srcName)) {
             flash("Enter the search For Promo code !");
         }
         ObjectNode objectNode = Json.newObject();
@@ -539,8 +541,8 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
-            if (user.isAppTutorialStatus()){
+        if (user != null) {
+            if (user.isAppTutorialStatus()) {
                 result = SUCCESS;
             }
         }
@@ -548,11 +550,11 @@ public class UserController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
-    public Result storeTutorialCompletedStatus(){
+    public Result storeTutorialCompletedStatus() {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             user.setAppTutorialStatus(true);
             user.update();
             result = SUCCESS;
@@ -565,7 +567,7 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             if (user.isDriverAvailability()) {
                 result = SUCCESS;
             }
@@ -578,7 +580,7 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             user.setDriverAvailability(true);
             user.update();
             result = SUCCESS;
@@ -591,7 +593,7 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null){
+        if (user != null) {
             user.setDriverAvailability(false);
             user.update();
             result = SUCCESS;
@@ -605,11 +607,10 @@ public class UserController extends BaseController {
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
         User user = currentUser();
-        if (user != null && user.isPrimeRider()){
+        if (user != null && user.isPrimeRider()) {
             List<User> vendorUsers = User.find.where().eq("vendor", true).order("id asc").findList();
             List<Vendor> vendors = new ArrayList<>();
-            for(User vendorUser : vendorUsers)
-            {
+            for (User vendorUser : vendorUsers) {
                 Vendor vendor = new Vendor();
                 vendor.setId(vendorUser.getId());
                 vendor.setName(vendorUser.getName());
@@ -627,6 +628,7 @@ public class UserController extends BaseController {
         PricingProfile pricingProfile = new PricingProfile();
         String name = dynamicForm.get("name");
         String fixedPrice = dynamicForm.get("fixedPrice");
+        System.out.println("Fixed price is " + fixedPrice);
         String fixedPriceAmount = dynamicForm.get("fixedPriceAmount");
         String hasBasePackage = dynamicForm.get("hasBasePackage");
         System.out.println("fix is " + fixedPrice + " Base " + hasBasePackage);
@@ -639,29 +641,42 @@ public class UserController extends BaseController {
         if (isNotNullAndEmpty(fixedPrice) && fixedPrice.equals("fixedPrice")) {
             pricingProfile.setFixedPrice(true);
         }
-
-        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("basePackage")) {
+        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("hasBasePackage")) {
             pricingProfile.setHasBasePackage(true);
         }
+
         if (isNotNullAndEmpty(fixedPriceAmount)) {
             pricingProfile.setFixedPriceAmount(Double.valueOf(dynamicForm.get("fixedPriceAmount")));
+        } else {
+            pricingProfile.setFixedPriceAmount(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageAmount)) {
             pricingProfile.setBasePackageAmount(Double.valueOf(dynamicForm.get("basePackageAmount")));
+        } else {
+            pricingProfile.setBasePackageAmount(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageKilometers)) {
             pricingProfile.setBasePackageKilometers(Double.valueOf(dynamicForm.get("basePackageKilometers")));
+        } else {
+            pricingProfile.setBasePackageKilometers(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageMinutes)) {
             pricingProfile.setBasePackageMinutes(Double.valueOf(dynamicForm.get("basePackageMinutes")));
+        } else {
+            pricingProfile.setBasePackageMinutes(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(additionalPerKilometer)) {
             pricingProfile.setAdditionalPerKilometer(Double.valueOf(dynamicForm.get("additionalPerKilometer")));
+        } else {
+            pricingProfile.setAdditionalPerKilometer(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(additionalPerMinute)) {
             pricingProfile.setAdditionalPerMinute(Double.valueOf(dynamicForm.get("additionalPerMinute")));
+        } else {
+            pricingProfile.setAdditionalPerMinute(Double.valueOf(0));
         }
         pricingProfile.save();
+
         return redirect("/pricingProfile");
     }
 
@@ -687,37 +702,52 @@ public class UserController extends BaseController {
         String fixedPrice = dynamicForm.get("fixedPrice");
         String fixedPriceAmount = dynamicForm.get("fixedPriceAmount");
         String hasBasePackage = dynamicForm.get("hasBasePackage");
-        System.out.println("Hasbase package " + hasBasePackage);
         String basePackageAmount = dynamicForm.get("basePackageAmount");
         String basePackageKilometers = dynamicForm.get("basePackageKilometers");
         String basePackageMinutes = dynamicForm.get("basePackageMinutes");
         String additionalPerKilometer = dynamicForm.get("additionalPerKilometer");
         String additionalPerMinute = dynamicForm.get("additionalPerMinute");
         pricingProfile.setName(name);
+
         if (isNotNullAndEmpty(fixedPrice) && fixedPrice.equals("fixedPrice")) {
             pricingProfile.setFixedPrice(true);
+        } else {
+            pricingProfile.setFixedPrice(false);
         }
-
-        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("basePackage")) {
+        if (isNotNullAndEmpty(hasBasePackage) && hasBasePackage.equals("hasBasePackage")) {
             pricingProfile.setHasBasePackage(true);
+        } else {
+            pricingProfile.setHasBasePackage(false);
         }
         if (isNotNullAndEmpty(fixedPriceAmount)) {
             pricingProfile.setFixedPriceAmount(Double.valueOf(dynamicForm.get("fixedPriceAmount")));
+        } else {
+            pricingProfile.setFixedPriceAmount(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageAmount)) {
             pricingProfile.setBasePackageAmount(Double.valueOf(dynamicForm.get("basePackageAmount")));
+        } else {
+            pricingProfile.setBasePackageAmount(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageKilometers)) {
             pricingProfile.setBasePackageKilometers(Double.valueOf(dynamicForm.get("basePackageKilometers")));
+        } else {
+            pricingProfile.setBasePackageKilometers(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(basePackageMinutes)) {
             pricingProfile.setBasePackageMinutes(Double.valueOf(dynamicForm.get("basePackageMinutes")));
+        } else {
+            pricingProfile.setBasePackageMinutes(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(additionalPerKilometer)) {
             pricingProfile.setAdditionalPerKilometer(Double.valueOf(dynamicForm.get("additionalPerKilometer")));
+        } else {
+            pricingProfile.setAdditionalPerKilometer(Double.valueOf(0));
         }
         if (isNotNullAndEmpty(additionalPerMinute)) {
             pricingProfile.setAdditionalPerMinute(Double.valueOf(dynamicForm.get("additionalPerMinute")));
+        } else {
+            pricingProfile.setAdditionalPerMinute(Double.valueOf(0));
         }
         pricingProfile.save();
         return redirect("/pricingProfile");
