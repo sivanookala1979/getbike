@@ -63,6 +63,7 @@ public class BaseControllerTest extends WithApplication {
     public void setUp() {
         Ebean.createSqlUpdate("delete from user").execute();
         Ebean.createSqlUpdate("delete from login_otp").execute();
+        Ebean.createSqlUpdate("delete from pricing_profile").execute();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package utils;
 
+import models.PricingProfile;
 import models.RideLocation;
 import mothers.RideLocationMother;
 import org.junit.Test;
@@ -32,6 +33,63 @@ public class DistanceUtilsTest {
         assertEquals(103.0, DistanceUtils.calculateBasePrice(10, 60));
         assertEquals(125.0, DistanceUtils.calculateBasePrice(13, 70));
     }
+
+
+    @Test
+    public void calculateBasePriceTESTWithApollo() {
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setName("Apollo");
+        pricingProfile.setHasBasePackage(false);
+        pricingProfile.setAdditionalPerMinute(0.0);
+        pricingProfile.setAdditionalPerKilometer(6.0);
+        assertEquals(21.0, DistanceUtils.calculateBasePrice(3.5, 15, pricingProfile));
+        assertEquals(42.0, DistanceUtils.calculateBasePrice(7, 25, pricingProfile));
+        assertEquals(60.0, DistanceUtils.calculateBasePrice(10, 35, pricingProfile));
+        assertEquals(78.0, DistanceUtils.calculateBasePrice(13, 45, pricingProfile));
+    }
+
+    @Test
+    public void calculateBasePriceTESTWithCallHealth() {
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setName("Call Health");
+        pricingProfile.setHasBasePackage(false);
+        pricingProfile.setAdditionalPerMinute(0.0);
+        pricingProfile.setAdditionalPerKilometer(8.0);
+        assertEquals(28.0, DistanceUtils.calculateBasePrice(3.5, 15, pricingProfile));
+        assertEquals(56.0, DistanceUtils.calculateBasePrice(7, 25, pricingProfile));
+        assertEquals(80.0, DistanceUtils.calculateBasePrice(10, 35, pricingProfile));
+        assertEquals(104.0, DistanceUtils.calculateBasePrice(13, 45, pricingProfile));
+    }
+
+    @Test
+    public void calculateBasePriceTESTWithOhris() {
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setName("Ohris");
+        pricingProfile.setHasBasePackage(true);
+        pricingProfile.setBasePackageAmount(50.0);
+        pricingProfile.setBasePackageKilometers(5.0);
+        pricingProfile.setBasePackageMinutes(0.0);
+        pricingProfile.setAdditionalPerMinute(0.0);
+        pricingProfile.setAdditionalPerKilometer(6.0);
+        assertEquals(50.0, DistanceUtils.calculateBasePrice(3.5, 15, pricingProfile));
+        assertEquals(62.0, DistanceUtils.calculateBasePrice(7, 25, pricingProfile));
+        assertEquals(80.0, DistanceUtils.calculateBasePrice(10, 35, pricingProfile));
+        assertEquals(98.0, DistanceUtils.calculateBasePrice(13, 45, pricingProfile));
+    }
+
+
+    @Test
+    public void calculateBasePriceTESTWithDelhivery() {
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setName("Delhivery");
+        pricingProfile.setFixedPrice(true);
+        pricingProfile.setFixedPriceAmount(40.0);
+        assertEquals(40.0, DistanceUtils.calculateBasePrice(3.5, 15, pricingProfile));
+        assertEquals(40.0, DistanceUtils.calculateBasePrice(7, 25, pricingProfile));
+        assertEquals(40.0, DistanceUtils.calculateBasePrice(10, 35, pricingProfile));
+        assertEquals(40.0, DistanceUtils.calculateBasePrice(13, 45, pricingProfile));
+    }
+
 
     @Test
     public void distanceInMinutesTESTHappyFlow() {

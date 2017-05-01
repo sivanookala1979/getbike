@@ -295,7 +295,15 @@ public class RideController extends BaseController {
                 ride.setRideStatus(RideClosed);
                 List<RideLocation> locations = RideLocation.find.where().eq("rideId", rideId).order("locationTime asc").findList();
                 ride.setOrderDistance(DistanceUtils.distanceKilometers(locations));
-                ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), DistanceUtils.timeInMinutes(locations)));
+                User requestor = User.find.byId(ride.getRequestorId());
+                int timeInMinutes = DistanceUtils.timeInMinutes(locations);
+                ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), timeInMinutes));
+                if (requestor.isSpecialPrice()) {
+                    PricingProfile pricingProfile = PricingProfile.find.where().eq("name", requestor.getProfileType()).findUnique();
+                    if (pricingProfile != null) {
+                        ride.setOrderAmount(DistanceUtils.calculateBasePrice(ride.getOrderDistance(), timeInMinutes, pricingProfile));
+                    }
+                }
                 ride.setTotalFare(round2(ride.getOrderAmount()));
                 ride.setTaxesAndFees(round2(ride.getTotalFare() * 0.40 * 0.066));
                 ride.setSubTotal(round2(ride.getTotalFare() + ride.getTaxesAndFees()));
@@ -311,7 +319,6 @@ public class RideController extends BaseController {
                     ride.setRideEndedAt(new Date());
                 }
                 ride.save();
-                User requestor = User.find.byId(ride.getRequestorId());
                 cleanRider(user);
                 cleanRequestor(requestor);
                 addRideWalletEntry(user, ride);
@@ -1356,7 +1363,7 @@ public class RideController extends BaseController {
         String startTime = requestData.get("startTime");
         String endTime = requestData.get("endTime");
         RideStatus rideStatus = RideClosed;
-        if ("RideRequested".equals(requestData.get("rideStatus"))){
+        if ("RideRequested".equals(requestData.get("rideStatus"))) {
             rideStatus = RideRequested;
         } else if ("RideAccepted".equals(requestData.get("rideStatus"))) {
             rideStatus = RideAccepted;
@@ -1366,7 +1373,7 @@ public class RideController extends BaseController {
             rideStatus = Rescheduled;
         }
         Long riderId = Long.parseLong(requestData.get("riderId"));
-        SimpleDateFormat formatter=new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
         Ride ride = Ride.find.byId(Long.valueOf(rideId));
         if (User.find.where().findIds().contains(riderId)) {
             ride.setTotalBill(Double.parseDouble(amount));
