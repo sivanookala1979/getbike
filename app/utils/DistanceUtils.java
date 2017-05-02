@@ -1,5 +1,6 @@
 package utils;
 
+import models.PricingProfile;
 import models.RideLocation;
 
 import java.util.List;
@@ -100,6 +101,28 @@ public class DistanceUtils {
             result += (timeInMinutes - freeTimeInMinutes) * pricePerMinute;
         }
         return round1(result);
+    }
+
+    public static double calculateBasePrice(double distanceInKilometers, double timeInMinutes, PricingProfile pricingProfile) {
+        if (pricingProfile.isFixedPrice()) {
+            return pricingProfile.getFixedPriceAmount();
+        }
+        double result = 0.0;
+        if (pricingProfile.isHasBasePackage()) {
+            result = pricingProfile.basePackageAmount;
+
+            if (distanceInKilometers > pricingProfile.getBasePackageKilometers()) {
+                result += (distanceInKilometers - pricingProfile.getBasePackageKilometers()) * pricingProfile.getAdditionalPerKilometer();
+            }
+
+            if (timeInMinutes > pricingProfile.getBasePackageMinutes()) {
+                result += (timeInMinutes - pricingProfile.getBasePackageMinutes()) * pricingProfile.getAdditionalPerMinute();
+            }
+        } else {
+            result = distanceInKilometers * pricingProfile.getAdditionalPerKilometer();
+            result += timeInMinutes * pricingProfile.getAdditionalPerMinute();
+        }
+        return round2(result);
     }
 
     public static double round1(double result) {

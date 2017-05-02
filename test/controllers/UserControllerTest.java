@@ -613,7 +613,7 @@ public class UserControllerTest extends BaseControllerTest {
         loginOtp.setCreatedAt(new Date());
         loginOtp.setGeneratedOtp("123456");
         loginOtp.save();
-        route(fakeRequest(GET , "/users/loginOtpList"));
+        route(fakeRequest(GET, "/users/loginOtpList"));
         Result result = route(fakeRequest(GET, "/loginOtpFilter?input=8855&pageNumber=1"));
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(loginOtp.getGeneratedOtp(), jsonNode.findPath("generatedOtp").asText());
@@ -655,14 +655,14 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("9191606091");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("failure",jsonNode.get("result").textValue());
+        assertEquals("failure", jsonNode.get("result").textValue());
         user.setAppTutorialStatus(true);
         user.update();
-        Result result1=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        Result result1 = route(fakeRequest(GET, "/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode1 = jsonFromResult(result1);
-        assertEquals("success",jsonNode1.get("result").textValue());
+        assertEquals("success", jsonNode1.get("result").textValue());
     }
 
     @Test
@@ -672,9 +672,9 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("9191609191");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("failure",jsonNode.get("result").textValue());
+        assertEquals("failure", jsonNode.get("result").textValue());
     }
 
     @Test
@@ -684,15 +684,15 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("9191606060");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Result result=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("failure",jsonNode.get("result").textValue());
-        Result result1=route(fakeRequest(GET,"/users/storeTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        assertEquals("failure", jsonNode.get("result").textValue());
+        Result result1 = route(fakeRequest(GET, "/users/storeTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode2 = jsonFromResult(result1);
-        assertEquals("success",jsonNode2.get("result").textValue());
-        Result result2=route(fakeRequest(GET,"/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
+        assertEquals("success", jsonNode2.get("result").textValue());
+        Result result2 = route(fakeRequest(GET, "/users/checkTutorialCompletedStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode3 = jsonFromResult(result2);
-        assertEquals("success",jsonNode3.get("result").textValue());
+        assertEquals("success", jsonNode3.get("result").textValue());
     }
 
     @Test
@@ -703,9 +703,9 @@ public class UserControllerTest extends BaseControllerTest {
         user.setAuthToken(UUID.randomUUID().toString());
         user.setDriverAvailability(true);
         user.save();
-        Result result=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("success",jsonNode.get("result").textValue());
+        assertEquals("success", jsonNode.get("result").textValue());
     }
 
     @Test
@@ -715,9 +715,9 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("1231606060");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Result result=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("failure",jsonNode.get("result").textValue());
+        assertEquals("failure", jsonNode.get("result").textValue());
     }
 
     @Test
@@ -727,12 +727,12 @@ public class UserControllerTest extends BaseControllerTest {
         user.setPhoneNumber("1231606060");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
-        Result result=route(fakeRequest(GET,"/users/makeDriverAvailabilityTrue").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/makeDriverAvailabilityTrue").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("success",jsonNode.get("result").textValue());
-        Result result1=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        assertEquals("success", jsonNode.get("result").textValue());
+        Result result1 = route(fakeRequest(GET, "/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode1 = jsonFromResult(result1);
-        assertEquals("success",jsonNode1.get("result").textValue());
+        assertEquals("success", jsonNode1.get("result").textValue());
     }
 
     @Test
@@ -743,12 +743,12 @@ public class UserControllerTest extends BaseControllerTest {
         user.setAuthToken(UUID.randomUUID().toString());
         user.setDriverAvailability(true);
         user.save();
-        Result result=route(fakeRequest(GET,"/users/makeDriverAvailabilityFalse").header("Authorization", user.getAuthToken()));
+        Result result = route(fakeRequest(GET, "/users/makeDriverAvailabilityFalse").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(result);
-        assertEquals("success",jsonNode.get("result").textValue());
-        Result result1=route(fakeRequest(GET,"/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
+        assertEquals("success", jsonNode.get("result").textValue());
+        Result result1 = route(fakeRequest(GET, "/users/getDriverAvailabilityStatus").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode1 = jsonFromResult(result1);
-        assertEquals("failure",jsonNode1.get("result").textValue());
+        assertEquals("failure", jsonNode1.get("result").textValue());
     }
 
     @Test
@@ -774,11 +774,6 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(cleanseHigh.getId().longValue(), recordsList.get(1).get("id").longValue());
         assertEquals(apollo.getName(), recordsList.get(0).get("name").textValue());
         assertEquals(cleanseHigh.getName(), recordsList.get(1).get("name").textValue());
-    }
-
-    @Test
-    public void userSpecialPriceTESTWithHappyFlow() {
-
     }
 
 

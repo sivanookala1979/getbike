@@ -682,6 +682,125 @@ public class RideControllerTest extends BaseControllerTest {
     }
 
     @Test
+    public void closeRideTESTWithPricingProfile() {
+        User user = loggedInUser();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.save();
+        double walletAmountBefore = WalletController.getWalletAmount(user);
+        User otherUser = otherUser();
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setFixedPrice(true);
+        pricingProfile.setFixedPriceAmount(40.0);
+        pricingProfile.setName("Apollo");
+        pricingProfile.save();
+        otherUser.setSpecialPrice(true);
+        otherUser.setProfileType(pricingProfile.getName());
+        otherUser.save();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(otherUser, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        when(gcmUtilsMock.sendMessage(otherUser, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
+        List<RideLocation> rideLocations = new ArrayList<>();
+
+
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1], i);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        Result closeRideResult = route(fakeRequest(GET, "/closeRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        double walletAmountAfter = WalletController.getWalletAmount(user);
+
+        JsonNode closeRideJsonNode = jsonFromResult(closeRideResult);
+        System.out.println(closeRideJsonNode.toString());
+        assertEquals("success", closeRideJsonNode.get("result").textValue());
+        JsonNode rideJsonObject = closeRideJsonNode.get("ride");
+        assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
+        assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
+        double expectedDistance = DistanceUtils.distanceKilometers(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
+        assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(pricingProfile.getFixedPriceAmount(), rideJsonObject.get("orderAmount").doubleValue());
+        verify(gcmUtilsMock).sendMessage(otherUser, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        User actual = User.find.byId(user.getId());
+        assertNull(actual.getCurrentRideId());
+        assertFalse(actual.isRideInProgress());
+        ride = Ride.find.byId(ride.id);
+        assertEquals(walletAmountBefore - ride.getTotalBill(), walletAmountAfter);
+    }
+
+    @Test
+    public void closeRideTESTWithPricingProfileHasBasePackage() {
+        User user = loggedInUser();
+        user.setRideInProgress(false);
+        user.setCurrentRideId(null);
+        user.save();
+        double walletAmountBefore = WalletController.getWalletAmount(user);
+        User otherUser = otherUser();
+        PricingProfile pricingProfile = new PricingProfile();
+        pricingProfile.setHasBasePackage(true);
+        pricingProfile.setBasePackageAmount(50.0);
+        pricingProfile.setAdditionalPerKilometer(6.0);
+        pricingProfile.setName("Ohris");
+        pricingProfile.setBasePackageKilometers(5.0);
+        pricingProfile.setAdditionalPerMinute(0.0);
+        pricingProfile.setBasePackageMinutes(0.0);
+        pricingProfile.save();
+        otherUser.setSpecialPrice(true);
+        otherUser.setProfileType(pricingProfile.getName());
+        otherUser.save();
+        double startLatitude = 23.4567;
+        double startLongitude = 72.17186;
+        Result getBikeResult = requestGetBike(otherUser, startLatitude, startLongitude);
+        JsonNode getBikeJsonNode = jsonFromResult(getBikeResult);
+        route(fakeRequest(GET, "/acceptRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+
+        Ride ride = Ride.find.byId(getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        when(gcmUtilsMock.sendMessage(otherUser, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue())).thenReturn(true);
+        List<RideLocation> rideLocations = new ArrayList<>();
+
+
+        double latlongs[] = RideLocationMother.LAT_LONGS;
+        for (int i = 0; i < latlongs.length; i += 2) {
+            RideLocation rideLocation = RideLocationMother.createRideLocation(ride.getId(), latlongs[i], latlongs[i + 1], i);
+            rideLocation.save();
+            rideLocations.add(rideLocation);
+        }
+        Result closeRideResult = route(fakeRequest(GET, "/closeRide?" +
+                Ride.RIDE_ID +
+                "=" + getBikeJsonNode.get(Ride.RIDE_ID)).header("Authorization", user.getAuthToken()));
+        double walletAmountAfter = WalletController.getWalletAmount(user);
+
+        JsonNode closeRideJsonNode = jsonFromResult(closeRideResult);
+        System.out.println(closeRideJsonNode.toString());
+        assertEquals("success", closeRideJsonNode.get("result").textValue());
+        JsonNode rideJsonObject = closeRideJsonNode.get("ride");
+        assertEquals(ride.getId().longValue(), rideJsonObject.get("id").longValue());
+        assertEquals("RideClosed", rideJsonObject.get("rideStatus").textValue());
+        double expectedDistance = DistanceUtils.distanceKilometers(RideLocation.find.where().eq("rideId", ride.getId()).order("locationTime asc").findList());
+        assertEquals(expectedDistance, rideJsonObject.get("orderDistance").doubleValue());
+        assertEquals(DistanceUtils.calculateBasePrice(expectedDistance, DistanceUtils.timeInMinutes(rideLocations), pricingProfile), rideJsonObject.get("orderAmount").doubleValue());
+        verify(gcmUtilsMock).sendMessage(otherUser, "Your ride is now closed.", "rideClosed", getBikeJsonNode.get(Ride.RIDE_ID).longValue());
+        User actual = User.find.byId(user.getId());
+        assertNull(actual.getCurrentRideId());
+        assertFalse(actual.isRideInProgress());
+        ride = Ride.find.byId(ride.id);
+        assertEquals(walletAmountBefore - ride.getTotalBill(), walletAmountAfter);
+    }
+
+
+    @Test
     public void closeRideTESTWithUpdatingActualSourceAddressAndActualDestinationAddress() {
         User user = loggedInUser();
         user.setRideInProgress(false);
