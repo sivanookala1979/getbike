@@ -109,10 +109,11 @@ public class LoginController extends BaseController {
     public Result createNewLoginDetails() {
         Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
         User user = logInForm.get();
-        user.setAuthToken(UUID.randomUUID().toString());
         int rowCount = User.find.where().eq("email", user.getEmail()).findRowCount();
         Logger.info("Row count  " + rowCount);
         if (rowCount == 0) {
+            user.setAuthToken(UUID.randomUUID().toString());
+            Logger.info("generated Auth Token  :" + user.getAuthToken());
             user.save();
             flash("error", "User Details successfully saved!");
             return ok(views.html.usermaintenance.render(logInForm));
