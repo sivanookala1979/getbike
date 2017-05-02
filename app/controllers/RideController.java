@@ -1511,8 +1511,12 @@ public class RideController extends BaseController {
         String statusCode = "500";
         String msg = "Order Creation Fails Due to Unauthorized  API token :"+apiKey;
         User vendorUser = validateVendor(apiKey);
+        int count = Ride.find.where().eq("parcelOrderId",userJson.get("data").get("parcelOrderId").asText()).findRowCount();
         Ride  aRide = new Ride();
-        if (vendorUser != null){
+        if (count != 0 ){
+            msg = "Order Creation Fails Due to Duplicate ParcelOrderId";
+        }
+        if (vendorUser != null && count == 0){
             aRide.setRequestorId(vendorUser.getId());
             aRide.setRequestorName(vendorUser.getName());
             aRide.setRideStatus(RideStatus.RideRequested);
