@@ -50,6 +50,12 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="parcelOrderId" class="col-sm-3 control-label">Parcel Order Id</label>
+            <div class="col-sm-6">
+                <input type="text" id="parcelOrderId" name="parcelOrderId" placeholder="parcelOrderId" value="@ride.getParcelOrderId()" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
             <label for="amount" class="col-sm-3 control-label">Amount </label>
             <div class="col-sm-6">
                 <input type="text" id="amount" name="amount" placeholder="Amount" value="@ride.getTotalBill()" class="form-control" required>

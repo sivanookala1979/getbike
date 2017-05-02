@@ -486,6 +486,7 @@ public class UserController extends BaseController {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String userId = requestData.get("userId");
         String name = requestData.get("name");
+        String password = requestData.get("password");
         String email = requestData.get("email");
         String mobileNumber = requestData.get("mobileNumber");
         String gender = requestData.get("gender");
@@ -495,6 +496,7 @@ public class UserController extends BaseController {
         int userCount = User.find.where().eq("phoneNumber", mobileNumber).findRowCount();
         if (mobileNumber.equals(user.getPhoneNumber()) || userCount == 0) {
             user.setName(name);
+            user.setPassword(password);
             user.setGender(gender.charAt(0));
             user.setPhoneNumber(mobileNumber);
             user.setEmail(email);

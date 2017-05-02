@@ -1365,6 +1365,7 @@ public class RideController extends BaseController {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String rideId = requestData.get("tripId");
         String amount = requestData.get("amount");
+        String parcelOrderId = requestData.get("parcelOrderId");
         String distance = requestData.get("distance");
         String requestedAtTime = requestData.get("requestedTime");
         String startTime = requestData.get("startTime");
@@ -1396,6 +1397,9 @@ public class RideController extends BaseController {
             }
             if (endTime.length() != 0) {
                 ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
+            }
+            if (parcelOrderId != null){
+                ride.setParcelOrderId(parcelOrderId);
             }
             ride.setRideStatus(rideStatus);
             ride.setRiderId(riderId);
