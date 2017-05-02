@@ -1559,6 +1559,7 @@ public class RideController extends BaseController {
         String statusCode = "500";
         String msg = "Order Retrieval Fails Due to Unauthorized  API token :"+apiKey;
         User vendorUser = validateVendor(apiKey);
+        String dateFormat = "MM/dd/yyyy hh:mm a";
         Ride aRide = null;
         if (vendorUser != null) {
             Long parcelOrderId = Long.parseLong(userJson.get("data").get("parcelOrderId").asText());
@@ -1568,12 +1569,12 @@ public class RideController extends BaseController {
                 obj2.put("tripId", aRide.getId());
                 obj2.put("vendorId", aRide.getRequestorId());
                 obj2.put("rideStatus", aRide.getRideStatus());
-                obj2.put("requestedAt", aRide.getRequestedAt());
+                obj2.put("requestedAt", DateUtils.convertDateToString(aRide.getRequestedAt(),dateFormat));
                 obj2.put("riderId", aRide.getRiderId());
-                obj2.put("riderName", aRide.getRiderName());
-                obj2.put("acceptedAt", aRide.getAcceptedAt());
-                obj2.put("startedAt", aRide.getRideStartedAt());
-                obj2.put("rideEndedAt", aRide.getRideEndedAt());
+                obj2.put("riderName", (aRide.getRiderId() != null ) ? User.find.where().eq("id", aRide.getRiderId()).findUnique().getName(): null);
+                obj2.put("acceptedAt", (aRide.getAcceptedAt() != null )? DateUtils.convertDateToString(aRide.getAcceptedAt(),dateFormat): null);
+                obj2.put("startedAt", (aRide.getRideStartedAt() != null )? DateUtils.convertDateToString(aRide.getRideStartedAt(),dateFormat) :null);
+                obj2.put("rideEndedAt", (aRide.getRideEndedAt() != null )? DateUtils.convertDateToString(aRide.getRideEndedAt(),dateFormat) :null);
                 obj2.put("totalBill", aRide.getTotalBill());
                 result = "SUCCESS";
                 statusCode = "200K";
