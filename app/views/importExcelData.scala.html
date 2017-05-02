@@ -1,0 +1,23 @@
+@main("Get Bike", "Import Excel Data"){
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/importExcel.css")">
+<script src="@routes.Assets.versioned("javascripts/importExcel.js")" type="text/javascript"></script>
+<script></script>
+
+<div class="container">
+    <div class="row">
+    <legend align="center"> Import Excel Data !</legend>
+    </div>
+    <form action="@routes.RideController.saveImportedExcelData()" method="POST" enctype="multipart/form-data">
+        <div class="fileupload fileupload-new" data-provides="fileupload">
+            <span class="btn btn-primary btn-file"><span class="fileupload-new">Select file</span>
+            <span class="fileupload-exists">Change</span> <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" name="importedFile" id="importedFile" /> </span>
+            <span class="fileupload-preview"></span>
+            <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+            &nbsp;&nbsp;&nbsp;
+            <button type="submit" class="btn btn-primary "><span class="glyphicon glyphicon-ok-sign"></span></span>Submit</button>
+            &nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-primary " onclick="window.location='/parcel/add';"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>
+        </div>
+    </form>
+</div>
+}

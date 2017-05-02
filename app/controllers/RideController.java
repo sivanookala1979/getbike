@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.RideStatus;
 import dataobject.WalletEntryType;
 import models.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.jetbrains.annotations.NotNull;
@@ -23,13 +26,17 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.libs.ws.ahc.AhcWSClient;
 import play.mvc.BodyParser;
+import play.mvc.Http;
 import play.mvc.Result;
 import utils.*;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -1392,5 +1399,213 @@ public class RideController extends BaseController {
         }
         return redirect("/ride/rideList");
     }
+    public Result importExcelData(){
+        return ok(views.html.importExcelData.render());
+    }
 
+    public Result saveImportedExcelData() throws IOException{
+        DataFormatter formatter = new DataFormatter();
+        ObjectNode objectNode = Json.newObject();
+        try {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        if (body == null) {
+            return badRequest("Invalid request, required is POST with enctype=multipart/form-data.");
+        }
+            String importedFile = fileUtils.fileUpload(body.getFile("importedFile"));
+            Logger.info("File Name :" +importedFile);
+            String excelFilePath = "public/uploads/"+importedFile;
+            FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+            Workbook workbook = getWorkbook(inputStream,excelFilePath);
+            Sheet firstSheet = workbook.getSheetAt(0);
+            Iterator<Row> iterator = firstSheet.iterator();
+            while (iterator.hasNext()) {
+                Row nextRow = iterator.next();
+                // display row number in the console.
+                System.out.println ("Row No.: ---------" + nextRow.getRowNum ());
+                if(nextRow.getRowNum()==0){
+                    continue; //just skip the rows if row number is 0
+                }
+                Iterator<Cell> cellIterator = nextRow.cellIterator();
+                Ride  aRide = new Ride();
+                aRide.setRequestorName(session("vendorName"));
+                aRide.setRideStatus(RideStatus.RideRequested);
+                aRide.setRequestorId(User.find.where().eq("email", session("vendorName")).findUnique().getId());
+                aRide.setRideType("Parcel");
+                while (cellIterator.hasNext()) {
+                    Cell nextCell = cellIterator.next();
+                    int columnIndex = nextCell.getColumnIndex();
+                    switch (columnIndex) {
+                        case 1:
+                            aRide.setRequestedAt(DateUtils.getDateFromString(formatter.formatCellValue(nextCell)));
+                            break;
+                        case 2:
+                            aRide.setParcelPickupDetails((String) getCellValue(nextCell));
+                            break;
+                        case 3:
+                            aRide.setParcelPickupNumber(formatter.formatCellValue(nextCell));
+                            break;
+                        case 4:
+                            aRide.setSourceAddress((String) getCellValue(nextCell));
+                            break;
+                        case 5:
+                            aRide.setParcelDropoffDetails((String) getCellValue(nextCell));
+                            break;
+                        case 6:
+                            aRide.setParcelDropoffNumber(formatter.formatCellValue(nextCell));
+                            break;
+                        case 7:
+                            aRide.setDestinationAddress((String) getCellValue(nextCell));
+                            break;
+                        case 8:
+                            aRide.setCodAmount((double) getCellValue(nextCell));
+                            break;
+                    }
+                }
+                aRide.save();
+            }
+            inputStream.close();
+            objectNode.put(SUCCESS, SUCCESS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                objectNode.put(FAILURE, FAILURE);
+            }
+            return redirect("/parcel/all");
+    }
+    public  Result vendorStoreData(){
+        JsonNode userJson = request().body().asJson();
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        String responseDetail = "Invalid User !";
+        List<Ride> parcelList = new ArrayList<>();
+        int numberOfRides = 0;
+        User vendorUser = currentUser();
+        if (vendorUser != null){
+            User user = User.find.where().eq("email",vendorUser.getEmail()).findUnique();
+            ExpressionList<Ride> parcelExpressionList = Ride.find.where().eq("requestorId", user.getId());
+            parcelList = parcelExpressionList.orderBy("requested_at desc").findList();
+            numberOfRides = parcelList.size();
+            System.out.print("Ride List Size ---> " +numberOfRides);
+            result = SUCCESS;
+            responseDetail = user.getEmail()+" is a Valid User";
+        }
+        JSONObject obj = new JSONObject();
+        obj.put("STATUS", result);
+        obj.put("RESPONSE DETAILS",responseDetail);
+        setJson(objectNode, "RESPONSE", obj);
+        setResult(objectNode, parcelList);
+        return ok(Json.toJson(objectNode));
+    }
+    public Result createVendorOrder(){
+        JsonNode userJson = request().body().asJson();
+        String apiKey = userJson.get("apiKey").textValue();
+        System.out.println("Authentacation:"+apiKey);
+        ObjectNode objectNode = Json.newObject();
+        String result = "FAILURE";
+        String statusCode = "500";
+        String msg = "Order Creation Fails Due to Unauthorized  API token :"+apiKey;
+        User vendorUser = validateVendor(apiKey);
+        Ride  aRide = new Ride();
+        if (vendorUser != null){
+            aRide.setRequestorId(vendorUser.getId());
+            aRide.setRequestorName(vendorUser.getName());
+            aRide.setRideStatus(RideStatus.RideRequested);
+            aRide.setModeOfPayment("Cash");
+            aRide.setRideType("Parcel");
+            aRide.setSourceAddress(userJson.get("data").get("sourceAddress").textValue());
+            System.out.print("Addd:"+userJson.get("data").get("sourceAddress").textValue());
+            aRide.setParcelOrderId(userJson.get("data").get("parcelOrderId").asText());
+            System.out.print("ParcelOrderId :"+userJson.get("data").get("parcelOrderId").asText());
+            aRide.setDestinationAddress(userJson.get("data").get("destinationAddress").textValue());
+            aRide.setStartLatitude(userJson.get("data").get("startLatitude").asDouble());
+            aRide.setStartLongitude(userJson.get("data").get("startLongitude").asDouble());
+            aRide.setRequestedAt(DateUtils.getDateFromString(userJson.get("data").get("requestedAt").textValue()));
+            aRide.setParcelDropoffNumber(userJson.get("data").get("parcelDropoffNumber").textValue());
+            aRide.setParcelPickupNumber(userJson.get("data").get("parcelPickupNumber").textValue());
+            aRide.setParcelPickupDetails(userJson.get("data").get("parcelPickupDetails").textValue());
+            aRide.setParcelDropoffDetails(userJson.get("data").get("parcelDropoffDetails").textValue());
+            aRide.setCodAmount(userJson.get("data").get("codAmount").asDouble());
+            aRide.save();
+            result = "SUCCESS";
+            statusCode ="200K";
+            msg = "Order Created Successfully ";
+        }
+        JSONObject obj = new JSONObject();
+        obj.put("STATUS", result);
+        obj.put("CODE",statusCode);
+        obj.put("MSG",msg);
+        JSONObject obj2 = new JSONObject();
+        obj2.put("tripId",aRide.getId());
+        obj2.put("vendorId",aRide.getRequestorId());
+        obj2.put("rideStatus",aRide.getRideStatus());
+        setJson(objectNode, "RESPONSE", obj);
+        setJson(objectNode, "data", obj2);
+        return ok(Json.toJson(objectNode));
+    }
+    public Result getVendorOrderStatus(){
+        JsonNode userJson = request().body().asJson();
+        String apiKey = userJson.get("apiKey").textValue();
+        System.out.println("Authentacation:"+apiKey);
+        ObjectNode objectNode = Json.newObject();
+        JSONObject obj = new JSONObject();
+        JSONObject obj2 = new JSONObject();
+        String result = "FAILURE";
+        String statusCode = "500";
+        String msg = "Order Retrieval Fails Due to Unauthorized  API token :"+apiKey;
+        User vendorUser = validateVendor(apiKey);
+        Ride aRide = null;
+        if (vendorUser != null) {
+            Long parcelOrderId = Long.parseLong(userJson.get("data").get("parcelOrderId").asText());
+            System.out.println("Order Id "+parcelOrderId);
+            aRide = Ride.find.where().eq("requestorId",vendorUser.getId()).eq("parcelOrderId", parcelOrderId).findUnique();
+            if (aRide != null) {
+                obj2.put("tripId", aRide.getId());
+                obj2.put("vendorId", aRide.getRequestorId());
+                obj2.put("rideStatus", aRide.getRideStatus());
+                obj2.put("requestedAt", aRide.getRequestedAt());
+                obj2.put("riderId", aRide.getRiderId());
+                obj2.put("riderName", aRide.getRiderName());
+                obj2.put("acceptedAt", aRide.getAcceptedAt());
+                obj2.put("startedAt", aRide.getRideStartedAt());
+                obj2.put("rideEndedAt", aRide.getRideEndedAt());
+                obj2.put("totalBill", aRide.getTotalBill());
+                result = "SUCCESS";
+                statusCode = "200K";
+                msg = "Order Retrieve Successfully ";
+            }
+            if (aRide == null) {
+                msg = "No Data with OrderId " + parcelOrderId;
+            }
+        }
+
+        obj.put("STATUS", result);
+        obj.put("CODE",statusCode);
+        obj.put("MSG",msg);
+
+
+        setJson(objectNode, "RESPONSE", obj);
+        setJson(objectNode, "data", obj2);
+        return ok(Json.toJson(objectNode));
+    }
+    private Object getCellValue(Cell cell) {
+        switch (cell.getCellType()) {
+            case Cell.CELL_TYPE_STRING:
+                return cell.getStringCellValue();
+            case Cell.CELL_TYPE_BOOLEAN:
+                return cell.getBooleanCellValue();
+            case Cell.CELL_TYPE_NUMERIC:
+                return cell.getNumericCellValue();
+        }
+        return null;
+    }
+    private Workbook getWorkbook(FileInputStream inputStream, String excelFilePath) throws IOException {
+        Workbook workbook = null;
+        if (excelFilePath.endsWith("xlsx")) {
+            workbook = new XSSFWorkbook(inputStream);
+        } else if (excelFilePath.endsWith("xls")) {
+            workbook = new HSSFWorkbook(inputStream);
+        } else {
+            throw new IllegalArgumentException("The specified file is not Excel file");
+        }
+        return workbook;
+    }
 }

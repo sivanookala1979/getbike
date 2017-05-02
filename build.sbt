@@ -13,7 +13,9 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "2.2.22",
   "com.google.code.gson" % "gson" % "1.7.1",
   "commons-io" % "commons-io" % "2.4",
-  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4"
+  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4",
+  "org.apache.poi" % "poi" %"3.9",
+  "org.apache.poi" % "poi-ooxml" % "3.9"
 )
 
 jacoco.settings

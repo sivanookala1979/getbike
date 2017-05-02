@@ -77,11 +77,15 @@ public class BaseController extends Controller {
         return session("vendor") != null;
 
     }
-
-
     public boolean isNotNullAndEmpty(String value) {
 
         return value != null && !value.isEmpty();
     }
 
+    protected User validateVendor( String authToken) {
+        if (authToken != null && !authToken.trim().isEmpty()) {
+            return User.find.where().eq("authToken", authToken).findUnique();
+        }
+        return null;
+    }
 }

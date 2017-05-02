@@ -126,6 +126,11 @@ GET     /parcel/home                            controllers.RideController.homeS
 GET     /getTripsAmountForDate                  controllers.RideController.getTripsAmountForDate
 GET     /editTripDetails/:id                    controllers.RideController.editTripDetails(id: Long)
 GET     /updateTripDetail                       controllers.RideController.updateTripDetail
+GET     /parcel/import                          controllers.RideController.importExcelData
+POST    /parcel/saveExcel                       controllers.RideController.saveImportedExcelData
+POST    /parcel/vendor                          controllers.RideController.vendorStoreData
+POST    /parcel/createVendorOrder               controllers.RideController.createVendorOrder
+POST    /parcel/getVendorOrderStatus            controllers.RideController.getVendorOrderStatus
 
 POST    /saveUserCashInAdvanceRequest           controllers.CashInAdvanceController.saveUserCashInAdvanceRequest
 GET     /viewCashInAdvanceList                  controllers.CashInAdvanceController.viewCashInAdvanceList

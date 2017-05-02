@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Siva Sudarsi on 1/12/16.
@@ -45,9 +46,11 @@ public class LoginController extends BaseController {
             User uniqueUser = User.find.where().eq("email", user.getEmail()).eq("password", user.getPassword()).findUnique();
             if (uniqueUser.getRole() != null){
                 if(uniqueUser.getRole().equalsIgnoreCase("Admin")) {
+                    session().clear();
                     session("admin", uniqueUser.getRole());
                 }
                 if(uniqueUser.getRole().equalsIgnoreCase("Vendor")){
+                    session().clear();
                     session("vendor", uniqueUser.getRole());
                     System.out.println("ID----"+uniqueUser.getId().toString());
                     session("vendorName", uniqueUser.getEmail());
@@ -106,6 +109,7 @@ public class LoginController extends BaseController {
     public Result createNewLoginDetails() {
         Form<User> logInForm = formFactory.form(User.class).bindFromRequest();
         User user = logInForm.get();
+        user.setAuthToken(UUID.randomUUID().toString());
         int rowCount = User.find.where().eq("email", user.getEmail()).findRowCount();
         Logger.info("Row count  " + rowCount);
         if (rowCount == 0) {
