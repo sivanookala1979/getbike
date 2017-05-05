@@ -34,6 +34,7 @@ public class Ride extends Model {
     Date acceptedAt;
     Date rideStartedAt;
     Date rideEndedAt;
+    Date parcelRequestRaisedAt;
     Double startLatitude;
     Double startLongitude;
     String sourceAddress;
@@ -455,5 +456,13 @@ public class Ride extends Model {
 
     public void setCodAmount(Double codAmount) {
         this.codAmount = codAmount;
+    }
+
+    public Date getParcelRequestRaisedAt() {
+        return parcelRequestRaisedAt;
+    }
+
+    public void setParcelRequestRaisedAt(Date parcelRequestRaisedAt) {
+        this.parcelRequestRaisedAt = parcelRequestRaisedAt;
     }
 }

@@ -128,9 +128,10 @@ th {
                                 {{product.parcelDropoffDetails}}<br/>
                                 {{product.parcelDropoffNumber }}<br/>
                             </td>
-                            <td>{{product.rideType}}<br/>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/>{{product.ridePaymentStatus}}<br/><b data-ng-if="product.freeRide == true">Free Ride</b></td>
+                            <td>{{product.rideType}}<br/>{{product.rideStatus}}<br/>{{product.modeOfPayment}}<br/><b data-ng-if="product.freeRide == true">Free Ride</b></td>
                             <td>{{product.orderDistance}}<br/>{{product.codAmount}}</td>
-                            <td>{{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
+                            <td>{{product.parcelRequestRaisedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
+                                {{product.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.acceptedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.rideStartedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}<br/>
                                 {{product.rideEndedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}

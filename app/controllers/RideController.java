@@ -1142,6 +1142,7 @@ public class RideController extends BaseController {
         ride.setRideStatus(RideStatus.RideRequested);
         ride.setModeOfPayment("Cash");
         ride.setRequestedAt(new Date());
+        ride.setParcelRequestRaisedAt(new Date());
         ride.setRideType("Parcel");
         ride.save();
         User vendor = User.find.byId(ride.getRequestorId());
@@ -1178,6 +1179,7 @@ public class RideController extends BaseController {
                     }
                     ride.setModeOfPayment("Cash");
                     ride.setRequestedAt(DateUtils.getDateFromString(jsonNode.get("createdAt").asText()));
+                    ride.setParcelRequestRaisedAt(new Date());
                     ride.setParcelPickupDetails(jsonNode.get("pickupDetails").asText());
                     ride.setParcelDropoffDetails(jsonNode.get("dropDetails").asText());
                     ride.setRideType("Parcel");
@@ -1379,6 +1381,8 @@ public class RideController extends BaseController {
             rideStatus = RideCancelled;
         } else if ("RideRescheduled".equals(requestData.get("rideStatus"))) {
             rideStatus = Rescheduled;
+        } else if ("RideStarted".equals(requestData.get("rideStatus"))) {
+            rideStatus = RideStarted;
         }
         Long riderId = Long.parseLong(requestData.get("riderId"));
         SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
@@ -1509,7 +1513,7 @@ public class RideController extends BaseController {
     public Result createVendorOrder(){
         JsonNode userJson = request().body().asJson();
         String apiKey = userJson.get("apiKey").textValue();
-        System.out.println("Authentacation:"+apiKey);
+        System.out.println("Authentication:"+apiKey);
         ObjectNode objectNode = Json.newObject();
         String result = "FAILURE";
         String statusCode = "500";
@@ -1559,7 +1563,7 @@ public class RideController extends BaseController {
     public Result getVendorOrderStatus(){
         JsonNode userJson = request().body().asJson();
         String apiKey = userJson.get("apiKey").textValue();
-        System.out.println("Authentacation:"+apiKey);
+        System.out.println("Authentication:"+apiKey);
         ObjectNode objectNode = Json.newObject();
         JSONObject obj = new JSONObject();
         JSONObject obj2 = new JSONObject();
