@@ -1,0 +1,82 @@
+@(cashInAdvance:CashInAdvance)
+@main("Get Bike" , "Process CashInAdvance"){
+<style>
+    body {
+    background-color: #eee;
+}
+
+*[role="form"] {
+    max-width: 530px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 0.3em;
+}
+
+*[role="form"] h2 {
+    margin-left: 3em;
+    margin-bottom: 1em;
+}
+.well{
+background: rgb(142, 201, 249);
+}
+select {
+        width:280px;
+    }
+</style>
+<div class="container">
+    <form class="form-horizontal" action="@routes.CashInAdvanceController.processCashInAdvanceRequest()" method="POST" role="form">
+        <h2>Process CashInAdvance</h2>
+        <div class="form-group">
+            <label for="id" class="col-sm-3 control-label">Id</label>
+            <div class="col-sm-7">
+                <input type="text" id="id" name="id" placeholder="id" value="@cashInAdvance.id" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="riderName" class="col-sm-3 control-label">Rider Name</label>
+            <div class="col-sm-7">
+                <input type="text" id="riderName" name="riderName" placeholder="riderName" value="@cashInAdvance.getRiderName()" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="requestedAt" class="col-sm-3 control-label">Requested At</label>
+            <div class="col-sm-7">
+                <input type="text" id="requestedAt" name="requestedAt" placeholder="reuestedAt" value="@cashInAdvance.getRequestedAt()" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="amount" class="col-sm-3 control-label">Amount </label>
+            <div class="col-sm-7">
+                <input type="text" id="amount" name="amount" placeholder="Amount" value="@cashInAdvance.getAmount()" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="amount" class="col-sm-3 control-label">Request Status </label>
+            <div class="col-sm-7">
+            <select id="requestStatus" name="requestStatus">
+                <option value=null selected="@cashInAdvance.getRequestStatus()" >Requested</option>
+                <option value=true>Accepted</option>
+                <option value=false>Rejected</option>
+            </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="col-sm-3 control-label">Description </label>
+              <div class="col-sm-7">
+                    <textarea class="form-control" name="description" id ="description" placeholder=" Admin Description to Request For Response" value="@cashInAdvance.getAdminDescription()"></textarea>
+              </div>
+        </div>
+        <!-- Button -->
+        <div class="form-group">
+            <div class="col-lg-2 col-lg-offset-3">
+                <button type="submit" class="btn btn-primary "><span class="glyphicon glyphicon-ok-sign"></span></span> Submit</button>
+            </div>
+            <div class="col-lg-2 col-lg-offset-2">
+                <button type="button" class="btn btn-primary " onclick="window.location='/getAllCashInAdvanceList';"><span class="glyphicon glyphicon-remove-sign"></span> Cancel</button>
+            </div>
+        </div>
+      </form>
+</div>
+}

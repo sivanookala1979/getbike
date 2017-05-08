@@ -6,23 +6,31 @@
             <table class="table table-striped">
                 <tr bgcolor="#f2f2f2">
                     <th>Id</th>
-                    <th>riderMobileNumber</th>
-                    <th>riderName</th>
-                    <th>requestedStatus</th>
-                    <th>riderDescription</th>
-                    <th>adminDescription</th>
-                    <th>amount</th>
-                    <th>requestedAt</th>
+                    <th>Rider Number</th>
+                    <th>Rider Name</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>RequestedAt</th>
+                    <th>Admin Description</th>
+                    <th>Requested Status</th>
                 </tr>
                 <tr ng-repeat="location in data.locations">
                     <td>{{location.id}}</td>
                     <td>{{location.riderMobileNumber}}</td>
                     <td>{{location.riderName}}</td>
-                    <td>{{location.requestStatus}}</td>
                     <td>{{location.riderDescription}}</td>
-                    <td>{{location.adminDescription}}</td>
                     <td>{{location.amount}}</td>
                     <td>{{location.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}</td>
+                    <td>{{location.adminDescription}}</td>
+                    <td data-ng-if="(location.requestStatus == null )" width="15">Requested
+                        <a href="/cashInAdvance/approvereject/{{location.id}}">Approve/Reject</a>
+                    </td>
+                    <td data-ng-if="(location.requestStatus != null && location.requestStatus == true)" width="15">Accepted
+                        <a href="/cashInAdvance/approvereject/{{location.id}}">Edit</a>
+                    </td>
+                    <td data-ng-if="(location.requestStatus != null && location.requestStatus == false)" width="15">Rejected
+                        <a href="/cashInAdvance/approvereject/{{location.id}}">Edit</a>
+                    </td>
                 </tr>
             </table>
         </div>

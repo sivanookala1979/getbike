@@ -6,6 +6,7 @@ import models.CashInAdvance;
 import models.GeoFencingLocation;
 import models.User;
 import play.Logger;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -62,7 +63,22 @@ public class CashInAdvanceController extends BaseController {
         }
         return ok(views.html.cashInAdvanceList.render());
     }
-
+    public  Result processCashInAdvance(Long id){
+       CashInAdvance  cashInAdvance = CashInAdvance.find.byId(id);
+       return ok(views.html.processCashInAdvanceRequest.render(cashInAdvance));
+    }
+    public Result processCashInAdvanceRequest(){
+        DynamicForm requestData = formFactory.form().bindFromRequest();
+        Long id = Long.parseLong(requestData.get("id"));
+        Boolean requestStatus = Boolean.valueOf(requestData.get("requestStatus"));
+        System.out.print("----------------"+requestData);
+        String description = requestData.get("description");
+        CashInAdvance cashInAdvance = CashInAdvance.find.byId(id);
+        cashInAdvance.setAdminDescription(description);
+        cashInAdvance.setRequestStatus(requestStatus);
+        cashInAdvance.update();
+        return redirect("/getAllCashInAdvanceList");
+    }
     public Result makeRequestApprove(Long id) {
         CashInAdvance cashInAdvance = CashInAdvance.find.where().eq("id", id).findUnique();
         cashInAdvance.setRequestStatus(true);

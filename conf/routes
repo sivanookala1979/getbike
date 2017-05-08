@@ -137,7 +137,9 @@ GET     /viewCashInAdvanceList                  controllers.CashInAdvanceControl
 GET     /getAllCashInAdvanceList                controllers.CashInAdvanceController.getAllCashInAdvanceList
 GET     /cashInAdvance/approve/:id              controllers.CashInAdvanceController.makeRequestApprove(id: Long)
 GET     /cashInAdvance/reject/:id               controllers.CashInAdvanceController.makeRequestReject(id: Long)
+GET     /cashInAdvance/approvereject/:id        controllers.CashInAdvanceController.processCashInAdvance(id: Long)
 GET     /getCashRequests                        controllers.CashInAdvanceController.getCashRequests
+POST    /processCashInAdvanceRequest            controllers.CashInAdvanceController.processCashInAdvanceRequest
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
 GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile
