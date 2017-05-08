@@ -1420,6 +1420,7 @@ public class RideController extends BaseController {
 
     public Result saveImportedExcelData() throws IOException{
         DataFormatter formatter = new DataFormatter();
+        String dateFormat = "dd/MM/yy HH:mm";
         ObjectNode objectNode = Json.newObject();
         try {
         Http.MultipartFormData body = request().body().asMultipartFormData();
@@ -1451,7 +1452,7 @@ public class RideController extends BaseController {
                     int columnIndex = nextCell.getColumnIndex();
                     switch (columnIndex) {
                         case 1:
-                            aRide.setRequestedAt(DateUtils.getDateFromString(formatter.formatCellValue(nextCell)));
+                            aRide.setRequestedAt(DateUtils.dateFromString(formatter.formatCellValue(nextCell),dateFormat));
                             break;
                         case 2:
                             aRide.setParcelPickupDetails((String) getCellValue(nextCell));
@@ -1473,6 +1474,9 @@ public class RideController extends BaseController {
                             break;
                         case 8:
                             aRide.setCodAmount((double) getCellValue(nextCell));
+                            break;
+                        case 9:
+                            aRide.setParcelOrderId(formatter.formatCellValue(nextCell));
                             break;
                     }
                 }

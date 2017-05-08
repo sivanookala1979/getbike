@@ -91,4 +91,15 @@ public class DateUtils {
         }
         return date;
     }
+    public static Date dateFromString(String userDate,String format){
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        Date date = null;
+        try {
+            date = formatter.parse(userDate);
+            System.out.println(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
 }
