@@ -3,6 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.CashInAdvance;
+import models.LeaveInAdvance;
 import models.RoasterRecord;
 import models.User;
 import org.junit.Test;
@@ -150,5 +151,91 @@ public class RoasterRecordControllerTest extends BaseControllerTest {
         assertEquals(false,dbCashInAdvance.getRequestStatus().booleanValue());
         assertEquals(dbCashInAdvance.getRiderId(),user.getId());
     }
+
+    @Test
+    public void saveLeaveRequestHappyTestFlow() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please please provide 2 days leave plz asap!"));
+        requestObjectNode.set("leavesRequired",Json.toJson("2 days"));
+        requestObjectNode.set("fromDate",Json.toJson("07-05-2016"));
+        requestObjectNode.set("toDate",Json.toJson("09-05-2016"));
+        Result result = route(fakeRequest(POST,"/saveLeaveRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+    }
+
+    @Test
+    public void getLeaveRequestsHappyFlow() {
+        User user = loggedInUser();
+        LeaveInAdvance leaveInAdvance = new LeaveInAdvance();
+        leaveInAdvance.setRiderId(user.getId());
+        leaveInAdvance.setLeavesRequired("2 days");
+        leaveInAdvance.setFromDate("01-05-2017");
+        leaveInAdvance.setToDate("03-05-2017");
+        leaveInAdvance.setRequestStatus(false);
+        leaveInAdvance.setRiderDescription("asap!");
+        leaveInAdvance.save();
+
+        LeaveInAdvance leaveInAdvance1 = new LeaveInAdvance();
+        leaveInAdvance1.setRiderId(user.getId());
+        leaveInAdvance1.setLeavesRequired("5 days");
+        leaveInAdvance1.setFromDate("17-05-2017");
+        leaveInAdvance1.setToDate("22-05-2017");
+        leaveInAdvance1.setRequestStatus(true);
+        leaveInAdvance1.setRiderDescription("asap for 5 days!");
+        leaveInAdvance1.save();
+        Result actual = route(fakeRequest(GET, "/getLeaveRequests").header("Authorization", user.getAuthToken()));
+        JsonNode jsonNode = jsonFromResult(actual);
+        assertEquals("success", jsonNode.get("result").textValue());
+        JsonNode recordsList = jsonNode.get("records");
+        int knownNumberOfRecords = 2;
+        assertEquals(knownNumberOfRecords, recordsList.size());
+        assertEquals("5 days", recordsList.get(0).get("leavesRequired").textValue());
+        assertEquals("2 days", recordsList.get(1).get("leavesRequired").textValue());
+        assertEquals("asap!",recordsList.get(1).get("riderDescription").textValue());
+    }
+
+    @Test
+    public void saveLeaveRequestTestFlowForApprove() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please please give 4 days leave asap!"));
+        requestObjectNode.set("leavesRequired",Json.toJson("4 days"));
+        requestObjectNode.set("fromDate",Json.toJson("19-05-2016"));
+        requestObjectNode.set("toDate",Json.toJson("22-05-2016"));
+        Result result = route(fakeRequest(POST,"/saveLeaveRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+        Long id = jsonNode.get("requestId").longValue();
+        Result result1 = route(fakeRequest(GET, "/leaveInAdvance/approve/" + id).header("Authorization", user.getAuthToken()));
+        LeaveInAdvance leaveInAdvance = LeaveInAdvance.find.where().eq("id",id).findUnique();
+        assertEquals("4 days",leaveInAdvance.getLeavesRequired());
+        assertEquals(true,leaveInAdvance.getRequestStatus().booleanValue());
+        assertEquals(leaveInAdvance.getRiderId(),user.getId());
+    }
+
+    @Test
+    public void saveLeaveRequestTestFlowForReject() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("riderDescription", Json.toJson("Please please give 1 day leave asap!"));
+        requestObjectNode.set("leavesRequired",Json.toJson("1 day"));
+        requestObjectNode.set("fromDate",Json.toJson("25-05-2016"));
+        requestObjectNode.set("toDate",Json.toJson("25-05-2016"));
+        Result result = route(fakeRequest(POST,"/saveLeaveRequest").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        assertEquals(null, jsonNode.get("requestStatus").textValue());
+        Long id = jsonNode.get("requestId").longValue();
+        Result result1 = route(fakeRequest(GET, "/leaveInAdvance/reject/" + id).header("Authorization", user.getAuthToken()));
+        LeaveInAdvance leaveInAdvance = LeaveInAdvance.find.where().eq("id",id).findUnique();
+        assertEquals("1 day",leaveInAdvance.getLeavesRequired());
+        assertEquals(false,leaveInAdvance.getRequestStatus().booleanValue());
+        assertEquals(leaveInAdvance.getRiderId(),user.getId());
+    }
+
 
 }

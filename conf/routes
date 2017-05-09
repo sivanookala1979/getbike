@@ -141,6 +141,13 @@ GET     /cashInAdvance/approvereject/:id        controllers.CashInAdvanceControl
 GET     /getCashRequests                        controllers.CashInAdvanceController.getCashRequests
 POST    /processCashInAdvanceRequest            controllers.CashInAdvanceController.processCashInAdvanceRequest
 
+POST    /saveLeaveRequest                       controllers.LeaveInAdvanceController.saveLeaveRequest
+GET     /viewLeaveInAdvanceList                 controllers.LeaveInAdvanceController.viewLeaveInAdvanceList
+GET     /getAllLeaveInAdvanceList               controllers.LeaveInAdvanceController.getAllLeaveInAdvanceList
+GET     /leaveInAdvance/approve/:id             controllers.LeaveInAdvanceController.makeRequestApprove(id: Long)
+GET     /leaveInAdvance/reject/:id              controllers.LeaveInAdvanceController.makeRequestReject(id: Long)
+GET     /getLeaveRequests                       controllers.LeaveInAdvanceController.getLeaveRequests
+
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
 GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile
 GET     /getCurrentRide                         controllers.UserController.getCurrentRide

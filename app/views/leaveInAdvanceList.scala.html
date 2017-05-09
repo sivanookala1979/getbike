@@ -1,0 +1,57 @@
+@main("Get Bike", "LeaveInAdvance"){
+<div data-ng-app="myApp">
+    <div data-ng-controller="myCtrl as data">
+
+        <div class="container">
+            <table class="table table-striped">
+                <tr bgcolor="#f2f2f2">
+                    <th>Id</th>
+                    <th>riderMobileNumber /<br> riderName</th>
+                    <th>requestedStatus</th>
+                    <th>riderDescription /<br> adminDescription</th>
+                    <th>from date /<br> to date</th>
+                    <th>leaves requested</th>
+                    <th>requestedAt</th>
+                </tr>
+                <tr ng-repeat="location in data.locations">
+                    <td>{{location.id}}</td>
+                    <td>{{location.riderMobileNumber}} <br> {{location.riderName}}</td>
+                    <td>{{location.requestStatus}}</td>
+                    <td>{{location.riderDescription}} <br> {{location.adminDescription}}</td>
+                    <td>{{location.fromDate}} <br> {{location.toDate}}</td>
+                    <td>{{location.leavesRequired}}</td>
+                    <td>{{location.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+var listViewApp = angular.module('myApp', ['angularUtils.directives.dirPagination']);
+listViewApp.controller('myCtrl', function ($scope, $http) {
+    var vm = this;
+    vm.locations = [];
+    vm.pageno = 1;
+    vm.total_count = 0;
+    vm.itemsPerPage = 10;
+    vm.getData = function(pageno){
+     var url = "/viewLeaveInAdvanceList?";
+        var httpRequest = $http({
+            method : 'GET',
+            url : url,
+            }).success(function(data, status) {
+                console.log(data);
+                if(data!=null){
+                vm.locations = [];
+                vm.locations = data["result"];
+                vm.total_count = data["size"];
+            }
+        }).error(function(arg) {
+        console.log(arg);
+        });
+    };
+    vm.getData(vm.pageno);
+});
+</script>
+}
