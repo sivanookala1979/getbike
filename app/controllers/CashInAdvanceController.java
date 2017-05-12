@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.CashInAdvance;
 import models.GeoFencingLocation;
+import models.LeaveInAdvance;
 import models.User;
 import play.Logger;
 import play.data.DynamicForm;
@@ -104,6 +105,17 @@ public class CashInAdvanceController extends BaseController {
             result = "success";
         }
         objectNode.set("result", Json.toJson(result));
+        return ok(Json.toJson(objectNode));
+    }
+    public Result notificationsUpdateforCashAndLeaveInAdvanceToDashboard() {
+        ObjectNode objectNode = Json.newObject();
+        List<CashInAdvance> cashInAdvanceList = CashInAdvance.find.where().eq("requestStatus", null).findList();
+        int cashInAdvanceCount = cashInAdvanceList.size();
+        List<LeaveInAdvance> leaveInAdvanceList = LeaveInAdvance.find.where().eq("requestStatus", null).findList();
+        int leaveInAdvanceCount = leaveInAdvanceList.size();
+        objectNode.put("notificationCountForCashInAdvance", cashInAdvanceCount);
+        objectNode.put("notificationCountForLeaveInAdvance", leaveInAdvanceCount);
+        objectNode.put("totalCount", leaveInAdvanceCount +cashInAdvanceCount);
         return ok(Json.toJson(objectNode));
     }
 

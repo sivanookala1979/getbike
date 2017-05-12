@@ -51,7 +51,7 @@
               <li><a href="/users/usersList"><span class="glyphicon glyphicon-user"></span> Users</a></li>
               <li><a href="/ride/rideList"><span class="glyphicon glyphicon-fire"></span>  Rides </a></li>
               <li><a href="/allRiders"><span class="glyphicon glyphicon-globe"></span> Rider Locations</a></li>
-              <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"></span></a></li>
+              <li><a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info"   style="background-color:red;" id="notificationId"></span></a></li>
               <li><a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-equalizer"> Analytics<b class="caret"></b></a>
@@ -70,7 +70,7 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" align="right"><span class="glyphicon glyphicon-th"> More<b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" align="right"><span class="glyphicon glyphicon-th"></span> More<span class="badge badge-info" style="background-color:red;" id="totalNotification"></span><b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="/users/loginOtpList"><span class="glyphicon glyphicon-envelope"></span> OTPs</a></li>
                 <li><a href="/systemSettings/all"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
@@ -78,9 +78,9 @@
                 <li><a href="/allFencinglocations"><span class="glyphicon glyphicon-globe"></span> Geo Locations</a></li>
                 <li><a href="/allNonGeoFencingLocations"><span class="glyphicon glyphicon-globe"></span> Non GeoLocations</a></li>
                 <li><a href="/users/viewSignUpPromoCode"><span class="glyphicon glyphicon-cog"></span> Promo Code Search</a></li>
-                <li><a href="/pricingProfile"><span class="glyphicon glyphicon-equalizer"></span>Pricing Profile</a></li>
-                <li><a href="/getAllCashInAdvanceList"><span class="fa fa-money"></span>Cash in advance</a></li>
-                <li><a href="/getAllLeaveInAdvanceList"><span class="fa fa-money"></span>Leave in advance</a></li>
+                <li><a href="/pricingProfile"><span class="glyphicon glyphicon-equalizer"></span> Pricing Profile</a></li>
+                <li><a href="/getAllCashInAdvanceList"><span class="fa fa-money"></span> Cash In Advance <span class="badge badge-info"  style="background-color:red;" id="notificationIdForCashInAdvance"></span></a></li>
+                <li><a href="/getAllLeaveInAdvanceList"><span class="glyphicon glyphicon-alert"></span> Leave In Advance <span class="badge badge-info"  style="background-color:red;" id="notificationIdForLeaveInAdvance"></span></a></li>
               </ul>
             </li>
         </ul>
@@ -98,7 +98,7 @@
               <a href="/ride/rideList"><span class="glyphicon glyphicon-fire"></span>  Rides </a>
               <a href="/users/loginOtpList"><span class="glyphicon glyphicon-envelope"></span> OTPs</a>
               <a href="/allRiders"><span class="glyphicon glyphicon-globe"></span> Rider Locations</a>
-              <a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"></span></a>
+              <a href="/wallet/redeemWalletEntries"><span class="fa fa-inr"></span> Redeem Event <span class="badge badge-info" id="notificationId"  style="background-color:red;"></span></a>
               <a href="/paymentOrdersList"><span class="fa fa-inr"></span> Payment Order</a>
               <a href="/allFencinglocations"><span class="glyphicon glyphicon-globe"></span> Geo Locations</a>
               <a href="/systemSettings/all"><span class="glyphicon glyphicon-cog"></span> Settings</a>
@@ -167,11 +167,28 @@
 </html>
 <script>
      window.onload = function() {
+       var totalCount = 0;
+       var countForCashNotification = 0;
+       var countForLeaveNotification = 0;
        $.get("/wallet/notificationsUpdate" , function(data){
        var count = 0;
        count = data["notificationSeenCount"];
        if(count>0){
        document.getElementById("notificationId").innerHTML = count;
+       }
+       });
+       $.get("/cashAndLeaveRequest/notification" , function(data){
+       countForCashNotification = data["notificationCountForCashInAdvance"];
+       countForLeaveNotification = data["notificationCountForLeaveInAdvance"];
+       totalCount = data["totalCount"];
+       if(countForCashNotification > 0 ){
+       document.getElementById("notificationIdForCashInAdvance").innerHTML = countForCashNotification;
+       }
+       if(countForLeaveNotification > 0 ){
+       document.getElementById("notificationIdForLeaveInAdvance").innerHTML = countForLeaveNotification;
+       }
+       if(totalCount > 0 ){
+       document.getElementById("totalNotification").innerHTML = totalCount;
        }
        });
      };

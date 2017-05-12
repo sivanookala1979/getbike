@@ -1264,6 +1264,8 @@ public class RideControllerTest extends BaseControllerTest {
         user.setPhoneNumber("8282828282");
         user.setAuthToken(UUID.randomUUID().toString());
         user.save();
+        String sourceAddress = "Jubilee Hills Hyderabad Telangana";
+        String destinationAddress = "Lumbini Avenue Gachibowli Hyderabad Telangana";
         RideLocation firstRideLocation = new RideLocation();
         firstRideLocation.setLatitude(23.45);
         firstRideLocation.setLongitude(57.68);
@@ -1272,7 +1274,7 @@ public class RideControllerTest extends BaseControllerTest {
         latLongs.add("hi");
         Ride ride = new Ride();
         ride.save();
-        Content html = views.html.ridePath.render(latLongs, firstRideLocation, ride);
+        Content html = views.html.ridePath.render(latLongs, firstRideLocation, ride,sourceAddress,destinationAddress);
         Assert.assertEquals("text/html", html.contentType());
         String body = html.body();
         assertTrue(body.contains("hello"));

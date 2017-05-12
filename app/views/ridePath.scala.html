@@ -1,4 +1,4 @@
-@(rideLocations: List[String], firstLocation: models.RideLocation, ride: models.Ride)
+@(rideLocations: List[String], firstLocation: models.RideLocation, ride: models.Ride,sourceAddress: String, destinationAddress: String)
 @import views.html.custom_views._
 <div class="container">
     <div class="row">
@@ -93,10 +93,10 @@
                 </tr>
             </table>
         </div>
+        <div id="map"></div>
         @firstLatitude = @{firstLocation.getLatitude()}
         @firstLongitude = @{firstLocation.getLongitude()}
         @if(firstLatitude != null && firstLongitude != null){
-        <div id="map"></div>
         <script>
 
                   // This example creates a 2-pixel-wide red polyline showing the path of William
@@ -124,6 +124,86 @@
                     flightPath.setMap(map);
                   }
 
+        </script>
+        }
+        <input  type="hidden" id="sourceLatitude"/>
+        <input  type="hidden" id="sourceLongitude"/>
+        <input  type="hidden" id="destinationLatitude"/>
+        <input  type="hidden" id="destinationLongitude"/>
+        @if(firstLatitude == null && firstLongitude == null && sourceAddress != null && destinationAddress != null){
+
+        <script>
+          function initMap() {
+            var geocoder = new google.maps.Geocoder();
+            var geocoder2 = new google.maps.Geocoder();
+            var map = new google.maps.Map(document.getElementById('map'), {
+              zoom: 12,
+              center: {lat: 17.3850, lng: 78.4867}
+            });
+              geocodeAddress(geocoder, map,'@sourceAddress');
+              geocodeAddress2(geocoder2, map,'@destinationAddress');
+          function geocodeAddress(geocoder,resultsMap,address) {
+            var address = address;
+            geocoder.geocode({'address': address}, function(results, status) {
+              if (status === 'OK') {
+                resultsMap.setCenter(results[0].geometry.location);
+                var marker = new google.maps.Marker({
+                  map: resultsMap,
+                  position: results[0].geometry.location
+                });
+                var sourceLatitude = results[0].geometry.location.lat();
+                var sourceLongitude = results[0].geometry.location.lng();
+                document.getElementById('sourceLatitude').value =sourceLatitude;
+                document.getElementById('sourceLongitude').value =sourceLongitude;
+              } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+              }
+            });
+          }
+          function geocodeAddress2(geocoder2,resultsMap,address) {
+            var address = address;
+            geocoder2.geocode({'address': address}, function(results, status) {
+              if (status === 'OK') {
+                resultsMap.setCenter(results[0].geometry.location);
+                var marker = new google.maps.Marker({
+                  map: resultsMap,
+                  position: results[0].geometry.location
+                });
+                var destinationLatitude = results[0].geometry.location.lat();
+                var destinationLongitude = results[0].geometry.location.lng();
+                document.getElementById('destinationLatitude').value = destinationLatitude;
+                document.getElementById('destinationLongitude').value = destinationLongitude;
+                var directionsService = new google.maps.DirectionsService;
+                var directionsDisplay = new google.maps.DirectionsRenderer( { polylineOptions: { strokeColor: "#FF0000" } });
+                directionsDisplay.setMap(map);
+                directionsDisplay.setOptions({ suppressMarkers: true });
+                calculateAndDisplayRoute(directionsService, directionsDisplay);
+
+              } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+              }
+            });
+          }
+          function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+          var originLat = parseFloat(document.getElementById('sourceLatitude').value);
+          var originLng = parseFloat(document.getElementById('sourceLongitude').value);
+          var destLat = parseFloat(document.getElementById('destinationLatitude').value);
+          var destLng = parseFloat(document.getElementById('destinationLongitude').value);
+            directionsService.route({
+              origin:  {lat: originLat, lng: originLng},
+              destination:{lat: destLat, lng: destLng},
+              travelMode: 'DRIVING'
+            }, function(response, status) {
+            console.log(response);
+              if (status === 'OK') {
+              console.log(response);
+                directionsDisplay.setDirections(response);
+              } else {
+                window.alert('Directions request failed due to ' + status);
+              }
+            });
+          }
+         }
         </script>
         }
         <script async defer

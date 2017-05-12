@@ -466,9 +466,21 @@ public class RideController extends BaseController {
                     "}");
         }
         Ride ride = Ride.find.where().eq("id", rideId).findUnique();
+        String sourceAddress="";
+        String destinationAddress ="";
+        String lastSixWordsFromDestinationAddress ="";
+        Logger.info("Ride firstLocation  " + firstLocation);
+        if(ride.getRideStatus().equals(RideClosed) && rideLocationStrings.isEmpty()) {
+            sourceAddress = ride.getSourceAddress();
+            destinationAddress = ride.getDestinationAddress();
+            Logger.info("Ride Locations  sourceAddress : " + sourceAddress);
+            Logger.info("Ride Locations  destinationAddress " + destinationAddress);
+            String[] tokens = destinationAddress.split(" ");
+            lastSixWordsFromDestinationAddress =tokens[tokens.length - 8]+" "+tokens[tokens.length - 7]+" "+tokens[tokens.length - 6]+" "+ tokens[tokens.length - 5] + " " + tokens[tokens.length - 4] + " " + tokens[tokens.length - 3] + " " + tokens[tokens.length - 2] + " " + tokens[tokens.length - 1];
+            Logger.info("Ride Locations  last:  " + lastSixWordsFromDestinationAddress);
+        }
         loadNames(ride);
-        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride));
-
+        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride,sourceAddress.replaceAll("[^a-zA-Z ;]+", ""), lastSixWordsFromDestinationAddress.replaceAll("[^a-zA-Z ;]+", "")));
     }
 
     public Result openRides() {
