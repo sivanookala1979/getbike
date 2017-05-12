@@ -776,6 +776,32 @@ public class UserControllerTest extends BaseControllerTest {
         assertEquals(cleanseHigh.getName(), recordsList.get(1).get("name").textValue());
     }
 
+    @Test
+    public void storeMobileTrackingDetailsHappyTestFlow() {
+        User user = loggedInUser();
+        ObjectNode requestObjectNode = Json.newObject();
+        requestObjectNode.set("batteryLevel", Json.toJson(78));
+        requestObjectNode.set("signalLevel", Json.toJson(11));
+        requestObjectNode.set("callStatus", Json.toJson("IDLE"));
+        requestObjectNode.set("networkOperator", Json.toJson("AIRTEL"));
+        requestObjectNode.set("serviceState", Json.toJson("IN SERVICE"));
+        requestObjectNode.set("operatingSystem", Json.toJson("6.0"));
+        requestObjectNode.set("IMEI", Json.toJson("8686092065419658"));
+        requestObjectNode.set("brand", Json.toJson("MOTOROLA"));
+        requestObjectNode.set("model", Json.toJson("XT2010"));
+        requestObjectNode.set("dataConnection", Json.toJson("CONNECTED"));
+        requestObjectNode.set("address", Json.toJson("Madhapur, Hyderabad, Telengana"));
+        Result result = route(fakeRequest(POST, "/storeMobileTrackingDetails").header("Authorization", user.getAuthToken()).bodyJson(requestObjectNode)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals("success", jsonNode.get("result").textValue());
+        User user1 = User.find.where().eq("id",user.getId()).findUnique();
+        assertEquals(78,user1.getMobileBatteryLevel().intValue());
+        assertEquals(11,user1.getMobileSignalLevel().intValue());
+        assertEquals("IDLE",user1.getMobileCallStatus());
+        assertEquals("AIRTEL",user1.getMobileNetworkOperator());
+        assertEquals("MOTOROLA",user1.getMobileBrand());
+        assertEquals("Madhapur, Hyderabad, Telengana",user1.getLastKnownAddress());
+    }
 
     IGcmUtils gcmUtilsMock;
 

@@ -46,6 +46,8 @@ POST    /signup                                 controllers.UserController.signu
 GET     /pricingForm                            controllers.UserController.pricingForm
 GET     /pricingProfile                         controllers.UserController.pricingProfile
 GET     /updatePricingProfile/:id               controllers.UserController.updatePricingProfile(id: Long)
+POST    /storeMobileTrackingDetails             controllers.UserController.storeMobileTrackingDetails
+GET     /viewUserDetails/:id                    controllers.UserController.viewMobileTrackingDetails(id: Long)
 
 POST    /login                                  controllers.UserController.login
 POST    /loginWithOtp                           controllers.UserController.loginWithOtp

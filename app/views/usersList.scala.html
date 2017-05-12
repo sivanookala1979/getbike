@@ -96,7 +96,9 @@ element.style {
                                                     width="40"/><br>{{user.id}}
                             </td>
                             <td>{{user.name}} ({{user.gender}})<br>{{user.email}}<br>{{user.phoneNumber}}
-                                <br><a href="/editUserDetails/{{user.id}}"><span class="glyphicon glyphicon-edit"></span>Edit</a></td></td>
+                                <br><a href="/editUserDetails/{{user.id}}"><span class="glyphicon glyphicon-edit"></span>Edit</a>
+                                    <a href="/viewUserDetails/{{user.id}}"><span class="glyphicon glyphicon-phone"></span>View</a>
+                            </td></td>
                             <td>{{user.promoCode}}<br/>{{user.signupPromoCode}}<br/>Earned : {{user.freeRidesEarned}}
                                 Spent : {{user.freeRidesSpent}}<br/>{{user.appVersion}}
                             </td>
@@ -120,6 +122,8 @@ element.style {
                             </td>
                             <td><a href="/riderPositions/{{user.id}}/10">Rider Positions</a>
                                 <br/><a ng-if="user.vendor == true" href="/addParcel?vendorId={{user.id}}">Add Parcel</a>
+                                <br />Battery:{{user.mobileBatteryLevel}} Signal:{{user.mobileSignalLevel}}
+                                <br/>{{user.lastKnownAddress}}
                             </td>
                         </tr>
                         </tbody>

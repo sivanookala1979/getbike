@@ -1,0 +1,153 @@
+@(user: User)
+@import views.html.custom_views._
+@main("Get Bike", "Edit User"){
+<style>
+
+
+*[role="form"] {
+    max-width: 730px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 0.3em;
+}
+
+*[role="form"] h2 {
+    margin-left: 3em;
+    margin-bottom: 1em;
+}
+</style>
+<div class="container">
+    <div class="col-md-6 col-md-offset-3">
+        @if(flash.containsKey("error")) {
+        <div class="well">
+            <div id="error-message" class="text-danger" style="font-size:150%">
+                <center>@flash.get("error")</center>
+            </div>
+        </div>
+        }
+    </div>
+    <div class="well well-lg">
+    <form class="form-horizontal" action="@routes.UserController.updateUserDetail()" method="GET" role="form">
+        <center><h4>AuthToken: @user.authToken</h4></center>
+        <h2>User Details</h2>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">User Id</label>
+            <div class="col-sm-6">
+                <h4>@user.id</h4>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile Number</label>
+            <div class="col-sm-6">
+                <h4>@user.phoneNumber</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Name</label>
+            <div class="col-sm-6">
+                <h4>@user.name</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Last Updated At</label>
+            <div class="col-sm-6">
+                <h4>@user.getLastLocationTime()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Last Known Address</label>
+            <div class="col-sm-6">
+                <h4>@user.getLastKnownAddress()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Last Known Lat,Lng</label>
+            <div class="col-sm-6">
+                <h4>@user.getLastKnownLatitude(),@user.getLastKnownLongitude()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Battery Percentage</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileBatteryLevel()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Network Signal Strength</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileSignalLevel()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Network Operator</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileNetworkOperator()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Network Service State</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileServiceState()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Data Connection</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileDataConnection()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile Call Status</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileCallStatus()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile Operating System</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileOperatingSystem()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile IMEI</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileIMEI()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile Brand</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileBrand()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mobile Model</label>
+            <div class="col-sm-6">
+                <h4>@user.getMobileModel()</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-4 col-sm-offset-1">
+                <button type="button" class="btn btn-primary btn-block" onclick="window.location='/users/usersList';">Close</button>
+            </div>
+        </div>
+    </form>
+    </div>
+</div>
+}

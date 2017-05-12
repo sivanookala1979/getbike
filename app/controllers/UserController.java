@@ -473,6 +473,35 @@ public class UserController extends BaseController {
         return redirect("/users/usersList");
     }
 
+    public Result viewMobileTrackingDetails(Long id) {
+        User user = User.find.byId(id);
+        return ok(views.html.viewUserDetails.render(user));
+    }
+
+    public Result storeMobileTrackingDetails() {
+        ObjectNode objectNode = Json.newObject();
+        String result = FAILURE;
+        User user = currentUser();
+        if (user != null) {
+            JsonNode locationsJson = request().body().asJson();
+            user.setMobileBatteryLevel(locationsJson.get("batteryLevel").intValue());
+            user.setMobileSignalLevel(locationsJson.get("signalLevel").intValue());
+            user.setMobileCallStatus(locationsJson.get("callStatus").textValue());
+            user.setMobileNetworkOperator(locationsJson.get("networkOperator").textValue());
+            user.setMobileServiceState(locationsJson.get("serviceState").textValue());
+            user.setMobileOperatingSystem(locationsJson.get("operatingSystem").textValue());
+            user.setMobileIMEI(locationsJson.get("IMEI").textValue());
+            user.setMobileBrand(locationsJson.get("brand").textValue());
+            user.setMobileModel(locationsJson.get("model").textValue());
+            user.setMobileDataConnection(locationsJson.get("dataConnection").textValue());
+            user.setLastKnownAddress(locationsJson.get("address").textValue());
+            user.save();
+            result = SUCCESS;
+        }
+        setResult(objectNode, result);
+        return ok(Json.toJson(objectNode));
+    }
+
     public Result editUserDetails(Long id) {
         User user = User.find.byId(id);
         return ok(views.html.editUsersDetails.render(user));
