@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.LeaveInAdvance;
 import models.User;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -86,6 +87,24 @@ public class LeaveInAdvanceController extends BaseController {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.leaveInAdvanceList.render());
+    }
+
+    public  Result processLeaveInAdvance(Long id){
+        LeaveInAdvance leaveInAdvance = LeaveInAdvance.find.byId(id);
+        return ok(views.html.processLeaveInAdvanceRequest.render(leaveInAdvance));
+    }
+
+    public Result processLeaveInAdvanceRequest(){
+        DynamicForm requestData = formFactory.form().bindFromRequest();
+        Long id = Long.parseLong(requestData.get("id"));
+        Boolean requestStatus = Boolean.valueOf(requestData.get("requestStatus"));
+        System.out.print("----------------"+requestData);
+        String description = requestData.get("description");
+        LeaveInAdvance leaveInAdvance = LeaveInAdvance.find.byId(id);
+        leaveInAdvance.setAdminDescription(description);
+        leaveInAdvance.setRequestStatus(requestStatus);
+        leaveInAdvance.update();
+        return redirect("/getAllLeaveInAdvanceList");
     }
 
 }

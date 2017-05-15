@@ -7,20 +7,28 @@
                 <tr bgcolor="#f2f2f2">
                     <th>Id</th>
                     <th>riderMobileNumber /<br> riderName</th>
-                    <th>requestedStatus</th>
                     <th>riderDescription /<br> adminDescription</th>
                     <th>from date /<br> to date</th>
                     <th>leaves requested</th>
                     <th>requestedAt</th>
+                    <th>requestedStatus</th>
                 </tr>
                 <tr ng-repeat="location in data.locations">
                     <td>{{location.id}}</td>
                     <td>{{location.riderMobileNumber}} <br> {{location.riderName}}</td>
-                    <td>{{location.requestStatus}}</td>
                     <td>{{location.riderDescription}} <br> {{location.adminDescription}}</td>
                     <td>{{location.fromDate}} <br> {{location.toDate}}</td>
                     <td>{{location.leavesRequired}}</td>
                     <td>{{location.requestedAt | date:'MMM d yyyy h:mm:ss a':'IST'}}</td>
+                    <td data-ng-if="(location.requestStatus == null )" width="15">Requested
+                        <a href="/leaveInAdvance/approvereject/{{location.id}}">Approve/Reject</a>
+                    </td>
+                    <td data-ng-if="(location.requestStatus != null && location.requestStatus == true)" width="15">Accepted
+                        <a href="/leaveInAdvance/approvereject/{{location.id}}">Edit</a>
+                    </td>
+                    <td data-ng-if="(location.requestStatus != null && location.requestStatus == false)" width="15">Rejected
+                        <a href="/leaveInAdvance/approvereject/{{location.id}}">Edit</a>
+                    </td>
                 </tr>
             </table>
         </div>

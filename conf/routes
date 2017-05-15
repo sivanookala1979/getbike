@@ -150,6 +150,8 @@ GET     /getAllLeaveInAdvanceList               controllers.LeaveInAdvanceContro
 GET     /leaveInAdvance/approve/:id             controllers.LeaveInAdvanceController.makeRequestApprove(id: Long)
 GET     /leaveInAdvance/reject/:id              controllers.LeaveInAdvanceController.makeRequestReject(id: Long)
 GET     /getLeaveRequests                       controllers.LeaveInAdvanceController.getLeaveRequests
+GET     /leaveInAdvance/approvereject/:id       controllers.LeaveInAdvanceController.processLeaveInAdvance(id: Long)
+POST    /processLeaveInAdvanceRequest           controllers.LeaveInAdvanceController.processLeaveInAdvanceRequest
 
 GET     /getPublicProfile/:userId               controllers.UserController.getPublicProfile(userId:Long)
 GET     /getPrivateProfile                      controllers.UserController.getPrivateProfile
