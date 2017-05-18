@@ -8,8 +8,8 @@ import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dataobject.RideStatus;
-import dataobject.WalletEntryType;
+import dataobject.*;
+import dataobject.Point;
 import models.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -18,6 +18,7 @@ import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
+import org.w3c.dom.Document;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -31,14 +32,21 @@ import play.mvc.Result;
 import utils.*;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathConstants;
 
 import static controllers.UserController.JOINING_BONUS;
 import static controllers.WalletController.getWalletAmount;
@@ -466,21 +474,21 @@ public class RideController extends BaseController {
                     "}");
         }
         Ride ride = Ride.find.where().eq("id", rideId).findUnique();
-        String sourceAddress="";
-        String destinationAddress ="";
-        String lastSixWordsFromDestinationAddress ="";
+        String sourceAddress = "";
+        String destinationAddress = "";
+        String lastSixWordsFromDestinationAddress = "";
         Logger.info("Ride firstLocation  " + firstLocation);
-        if(ride.getRideStatus().equals(RideClosed) && rideLocationStrings.isEmpty()) {
+        if (ride.getRideStatus().equals(RideClosed) && rideLocationStrings.isEmpty()) {
             sourceAddress = ride.getSourceAddress();
             destinationAddress = ride.getDestinationAddress();
             Logger.info("Ride Locations  sourceAddress : " + sourceAddress);
             Logger.info("Ride Locations  destinationAddress " + destinationAddress);
             String[] tokens = destinationAddress.split(" ");
-            lastSixWordsFromDestinationAddress =tokens[tokens.length - 8]+" "+tokens[tokens.length - 7]+" "+tokens[tokens.length - 6]+" "+ tokens[tokens.length - 5] + " " + tokens[tokens.length - 4] + " " + tokens[tokens.length - 3] + " " + tokens[tokens.length - 2] + " " + tokens[tokens.length - 1];
+            lastSixWordsFromDestinationAddress = tokens[tokens.length - 8] + " " + tokens[tokens.length - 7] + " " + tokens[tokens.length - 6] + " " + tokens[tokens.length - 5] + " " + tokens[tokens.length - 4] + " " + tokens[tokens.length - 3] + " " + tokens[tokens.length - 2] + " " + tokens[tokens.length - 1];
             Logger.info("Ride Locations  last:  " + lastSixWordsFromDestinationAddress);
         }
         loadNames(ride);
-        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride,sourceAddress.replaceAll("[^a-zA-Z ;]+", ""), lastSixWordsFromDestinationAddress.replaceAll("[^a-zA-Z ;]+", "")));
+        return ok(views.html.ridePath.render(rideLocationStrings, firstLocation, ride, sourceAddress.replaceAll("[^a-zA-Z ;]+", ""), lastSixWordsFromDestinationAddress.replaceAll("[^a-zA-Z ;]+", "")));
     }
 
     public Result openRides() {
@@ -770,6 +778,17 @@ public class RideController extends BaseController {
             return redirect(routes.LoginController.login());
         }
         return ok(views.html.rideList.render(rideTableHeaders, "col-sm-12", "", "Ride", "", "", ""));
+    }
+
+    public Result pendingList() {
+        List<String> profileTypes = new ArrayList<>();
+        for (PricingProfile user : PricingProfile.find.all()) {
+            if (isNotNullAndEmpty(user.getName())) {
+                profileTypes.add(user.getName());
+            }
+        }
+
+        return ok(views.html.pendingList.render(profileTypes, rideTableHeaders, "col-sm-12", "", "Ride", "", "", ""));
     }
 
     public Result rideLocationList() {
@@ -1414,7 +1433,7 @@ public class RideController extends BaseController {
             if (endTime.length() != 0) {
                 ride.setRideEndedAt(DateUtils.getDateFromString(endTime));
             }
-            if (parcelOrderId != null){
+            if (parcelOrderId != null) {
                 ride.setParcelOrderId(parcelOrderId);
             }
             ride.setRideStatus(rideStatus);
@@ -1426,35 +1445,36 @@ public class RideController extends BaseController {
         }
         return redirect("/ride/rideList");
     }
-    public Result importExcelData(){
+
+    public Result importExcelData() {
         return ok(views.html.importExcelData.render());
     }
 
-    public Result saveImportedExcelData() throws IOException{
+    public Result saveImportedExcelData() throws IOException {
         DataFormatter formatter = new DataFormatter();
         String dateFormat = "dd/MM/yy HH:mm";
         ObjectNode objectNode = Json.newObject();
         try {
-        Http.MultipartFormData body = request().body().asMultipartFormData();
-        if (body == null) {
-            return badRequest("Invalid request, required is POST with enctype=multipart/form-data.");
-        }
+            Http.MultipartFormData body = request().body().asMultipartFormData();
+            if (body == null) {
+                return badRequest("Invalid request, required is POST with enctype=multipart/form-data.");
+            }
             String importedFile = fileUtils.fileUpload(body.getFile("importedFile"));
-            Logger.info("File Name :" +importedFile);
-            String excelFilePath = "public/uploads/"+importedFile;
+            Logger.info("File Name :" + importedFile);
+            String excelFilePath = "public/uploads/" + importedFile;
             FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
-            Workbook workbook = getWorkbook(inputStream,excelFilePath);
+            Workbook workbook = getWorkbook(inputStream, excelFilePath);
             Sheet firstSheet = workbook.getSheetAt(0);
             Iterator<Row> iterator = firstSheet.iterator();
             while (iterator.hasNext()) {
                 Row nextRow = iterator.next();
                 // display row number in the console.
-                System.out.println ("Row No.: ---------" + nextRow.getRowNum ());
-                if(nextRow.getRowNum()==0){
+                System.out.println("Row No.: ---------" + nextRow.getRowNum());
+                if (nextRow.getRowNum() == 0) {
                     continue; //just skip the rows if row number is 0
                 }
                 Iterator<Cell> cellIterator = nextRow.cellIterator();
-                Ride  aRide = new Ride();
+                Ride aRide = new Ride();
                 aRide.setRequestorName(session("vendorName"));
                 aRide.setRideStatus(RideStatus.RideRequested);
                 aRide.setRequestorId(User.find.where().eq("email", session("vendorName")).findUnique().getId());
@@ -1464,7 +1484,7 @@ public class RideController extends BaseController {
                     int columnIndex = nextCell.getColumnIndex();
                     switch (columnIndex) {
                         case 1:
-                            aRide.setRequestedAt(DateUtils.dateFromString(formatter.formatCellValue(nextCell),dateFormat));
+                            aRide.setRequestedAt(DateUtils.dateFromString(formatter.formatCellValue(nextCell), dateFormat));
                             break;
                         case 2:
                             aRide.setParcelPickupDetails((String) getCellValue(nextCell));
@@ -1496,13 +1516,14 @@ public class RideController extends BaseController {
             }
             inputStream.close();
             objectNode.put(SUCCESS, SUCCESS);
-            } catch (Exception e) {
-                e.printStackTrace();
-                objectNode.put(FAILURE, FAILURE);
-            }
-            return redirect("/parcel/all");
+        } catch (Exception e) {
+            e.printStackTrace();
+            objectNode.put(FAILURE, FAILURE);
+        }
+        return redirect("/parcel/all");
     }
-    public  Result vendorStoreData(){
+
+    public Result vendorStoreData() {
         JsonNode userJson = request().body().asJson();
         ObjectNode objectNode = Json.newObject();
         String result = FAILURE;
@@ -1510,46 +1531,47 @@ public class RideController extends BaseController {
         List<Ride> parcelList = new ArrayList<>();
         int numberOfRides = 0;
         User vendorUser = currentUser();
-        if (vendorUser != null){
-            User user = User.find.where().eq("email",vendorUser.getEmail()).findUnique();
+        if (vendorUser != null) {
+            User user = User.find.where().eq("email", vendorUser.getEmail()).findUnique();
             ExpressionList<Ride> parcelExpressionList = Ride.find.where().eq("requestorId", user.getId());
             parcelList = parcelExpressionList.orderBy("requested_at desc").findList();
             numberOfRides = parcelList.size();
-            System.out.print("Ride List Size ---> " +numberOfRides);
+            System.out.print("Ride List Size ---> " + numberOfRides);
             result = SUCCESS;
-            responseDetail = user.getEmail()+" is a Valid User";
+            responseDetail = user.getEmail() + " is a Valid User";
         }
         JSONObject obj = new JSONObject();
         obj.put("STATUS", result);
-        obj.put("RESPONSE DETAILS",responseDetail);
+        obj.put("RESPONSE DETAILS", responseDetail);
         setJson(objectNode, "RESPONSE", obj);
         setResult(objectNode, parcelList);
         return ok(Json.toJson(objectNode));
     }
-    public Result createVendorOrder(){
+
+    public Result createVendorOrder() {
         JsonNode userJson = request().body().asJson();
         String apiKey = userJson.get("apiKey").textValue();
-        System.out.println("Authentication:"+apiKey);
+        System.out.println("Authentication:" + apiKey);
         ObjectNode objectNode = Json.newObject();
         String result = "FAILURE";
         String statusCode = "500";
-        String msg = "Order Creation Fails Due to Unauthorized  API token :"+apiKey;
+        String msg = "Order Creation Fails Due to Unauthorized  API token :" + apiKey;
         User vendorUser = validateVendor(apiKey);
-        int count = Ride.find.where().eq("parcelOrderId",userJson.get("data").get("parcelOrderId").asText()).findRowCount();
-        Ride  aRide = new Ride();
-        if (count != 0 ){
+        int count = Ride.find.where().eq("parcelOrderId", userJson.get("data").get("parcelOrderId").asText()).findRowCount();
+        Ride aRide = new Ride();
+        if (count != 0) {
             msg = "Order Creation Fails Due to Duplicate ParcelOrderId";
         }
-        if (vendorUser != null && count == 0){
+        if (vendorUser != null && count == 0) {
             aRide.setRequestorId(vendorUser.getId());
             aRide.setRequestorName(vendorUser.getName());
             aRide.setRideStatus(RideStatus.RideRequested);
             aRide.setModeOfPayment("Cash");
             aRide.setRideType("Parcel");
             aRide.setSourceAddress(userJson.get("data").get("sourceAddress").textValue());
-            System.out.print("Addd:"+userJson.get("data").get("sourceAddress").textValue());
+            System.out.print("Addd:" + userJson.get("data").get("sourceAddress").textValue());
             aRide.setParcelOrderId(userJson.get("data").get("parcelOrderId").asText());
-            System.out.print("ParcelOrderId :"+userJson.get("data").get("parcelOrderId").asText());
+            System.out.print("ParcelOrderId :" + userJson.get("data").get("parcelOrderId").asText());
             aRide.setDestinationAddress(userJson.get("data").get("destinationAddress").textValue());
             aRide.setStartLatitude(userJson.get("data").get("startLatitude").asDouble());
             aRide.setStartLongitude(userJson.get("data").get("startLongitude").asDouble());
@@ -1561,48 +1583,49 @@ public class RideController extends BaseController {
             aRide.setCodAmount(userJson.get("data").get("codAmount").asDouble());
             aRide.save();
             result = "SUCCESS";
-            statusCode ="200K";
+            statusCode = "200K";
             msg = "Order Created Successfully ";
         }
         JSONObject obj = new JSONObject();
         obj.put("STATUS", result);
-        obj.put("CODE",statusCode);
-        obj.put("MSG",msg);
+        obj.put("CODE", statusCode);
+        obj.put("MSG", msg);
         JSONObject obj2 = new JSONObject();
-        obj2.put("tripId",aRide.getId());
-        obj2.put("vendorId",aRide.getRequestorId());
-        obj2.put("rideStatus",aRide.getRideStatus());
+        obj2.put("tripId", aRide.getId());
+        obj2.put("vendorId", aRide.getRequestorId());
+        obj2.put("rideStatus", aRide.getRideStatus());
         setJson(objectNode, "RESPONSE", obj);
         setJson(objectNode, "data", obj2);
         return ok(Json.toJson(objectNode));
     }
-    public Result getVendorOrderStatus(){
+
+    public Result getVendorOrderStatus() {
         JsonNode userJson = request().body().asJson();
         String apiKey = userJson.get("apiKey").textValue();
-        System.out.println("Authentication:"+apiKey);
+        System.out.println("Authentication:" + apiKey);
         ObjectNode objectNode = Json.newObject();
         JSONObject obj = new JSONObject();
         JSONObject obj2 = new JSONObject();
         String result = "FAILURE";
         String statusCode = "500";
-        String msg = "Order Retrieval Fails Due to Unauthorized  API token :"+apiKey;
+        String msg = "Order Retrieval Fails Due to Unauthorized  API token :" + apiKey;
         User vendorUser = validateVendor(apiKey);
         String dateFormat = "MM/dd/yyyy hh:mm a";
         Ride aRide = null;
         if (vendorUser != null) {
             Long parcelOrderId = Long.parseLong(userJson.get("data").get("parcelOrderId").asText());
-            System.out.println("Order Id "+parcelOrderId);
-            aRide = Ride.find.where().eq("requestorId",vendorUser.getId()).eq("parcelOrderId", parcelOrderId).findUnique();
+            System.out.println("Order Id " + parcelOrderId);
+            aRide = Ride.find.where().eq("requestorId", vendorUser.getId()).eq("parcelOrderId", parcelOrderId).findUnique();
             if (aRide != null) {
                 obj2.put("tripId", aRide.getId());
                 obj2.put("vendorId", aRide.getRequestorId());
                 obj2.put("rideStatus", aRide.getRideStatus());
-                obj2.put("requestedAt", DateUtils.convertDateToString(aRide.getRequestedAt(),dateFormat));
+                obj2.put("requestedAt", DateUtils.convertDateToString(aRide.getRequestedAt(), dateFormat));
                 obj2.put("riderId", aRide.getRiderId());
-                obj2.put("riderName", (aRide.getRiderId() != null ) ? User.find.where().eq("id", aRide.getRiderId()).findUnique().getName(): null);
-                obj2.put("acceptedAt", (aRide.getAcceptedAt() != null )? DateUtils.convertDateToString(aRide.getAcceptedAt(),dateFormat): null);
-                obj2.put("startedAt", (aRide.getRideStartedAt() != null )? DateUtils.convertDateToString(aRide.getRideStartedAt(),dateFormat) :null);
-                obj2.put("rideEndedAt", (aRide.getRideEndedAt() != null )? DateUtils.convertDateToString(aRide.getRideEndedAt(),dateFormat) :null);
+                obj2.put("riderName", (aRide.getRiderId() != null) ? User.find.where().eq("id", aRide.getRiderId()).findUnique().getName() : null);
+                obj2.put("acceptedAt", (aRide.getAcceptedAt() != null) ? DateUtils.convertDateToString(aRide.getAcceptedAt(), dateFormat) : null);
+                obj2.put("startedAt", (aRide.getRideStartedAt() != null) ? DateUtils.convertDateToString(aRide.getRideStartedAt(), dateFormat) : null);
+                obj2.put("rideEndedAt", (aRide.getRideEndedAt() != null) ? DateUtils.convertDateToString(aRide.getRideEndedAt(), dateFormat) : null);
                 obj2.put("totalBill", aRide.getTotalBill());
                 result = "SUCCESS";
                 statusCode = "200K";
@@ -1614,14 +1637,15 @@ public class RideController extends BaseController {
         }
 
         obj.put("STATUS", result);
-        obj.put("CODE",statusCode);
-        obj.put("MSG",msg);
+        obj.put("CODE", statusCode);
+        obj.put("MSG", msg);
 
 
         setJson(objectNode, "RESPONSE", obj);
         setJson(objectNode, "data", obj2);
         return ok(Json.toJson(objectNode));
     }
+
     private Object getCellValue(Cell cell) {
         switch (cell.getCellType()) {
             case Cell.CELL_TYPE_STRING:
@@ -1633,6 +1657,7 @@ public class RideController extends BaseController {
         }
         return null;
     }
+
     private Workbook getWorkbook(FileInputStream inputStream, String excelFilePath) throws IOException {
         Workbook workbook = null;
         if (excelFilePath.endsWith("xlsx")) {
@@ -1644,4 +1669,176 @@ public class RideController extends BaseController {
         }
         return workbook;
     }
+
+    public Result getPendingRides() {
+        String startDate = request().getQueryString("startDate");
+        String endDate = request().getQueryString("endDate");
+        String status = request().getQueryString("status");
+
+        if ("ALL".equals(status) || "null".equals(status)) {
+            status = null;
+        }
+        List<Ride> listOfRides = new ArrayList<>();
+
+        ExpressionList<Ride> rideQuery = Ride.find.where();
+        if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+        } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
+            listOfRides = rideQuery.eq("ride_status", status).orderBy("requested_at desc").findList();
+        } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+        } else  {
+            listOfRides = rideQuery.eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+        }
+        for (Ride ride :listOfRides) {
+            loadNames(ride);
+        }
+
+        ObjectNode objectNode = Json.newObject();
+        setResult(objectNode, listOfRides);
+        return ok(Json.toJson(objectNode));
+    }
+
+    public Result getGroupRides(String ids) {
+        String[] split = ids.split(",");
+        List<Ride> rideList = new ArrayList<>();
+        for(String id : split) {
+            Ride ride = Ride.find.byId(Long.valueOf(id));
+            if(isNotNullAndEmpty(ride.getDestinationAddress())) {
+                String[] latLongPositions = getLatLongPositions(ride.getDestinationAddress());
+                if(latLongPositions != null && latLongPositions[0] != null && latLongPositions[1] != null) {
+                    ride.setEndLatitude(Double.valueOf(latLongPositions[0]));
+                    ride.setEndLongitude(Double.valueOf(latLongPositions[1]));
+                rideList.add(ride);
+                }
+            }
+        }
+
+        List<Point> orderedPoints = getOrderedPoints(rideList);
+
+        String riderLocationString = "[";
+        for (Point point : orderedPoints) {
+            System.out.println(point.getLat() + " " + point.getLng());
+            if (point.getLat() != null && point.getLng() != null && point.getLat() != 0.0 && point.getLng() != 0.0) {
+                if(point.isSource()) {
+                    riderLocationString += "['" + point.getSourceAddress() + "'," + point.getLat() + "," + point.getLng() + "," + point.getRideId() + "],";
+                }else{
+                    riderLocationString += "['" + point.getDestinationAddress() + "'," + point.getLat() + "," + point.getLng() + "," + point.getRideId() + "],";
+                }
+            }
+        }
+        if (riderLocationString.endsWith(",")) {
+            riderLocationString = riderLocationString.substring(0, riderLocationString.length() - 1);
+        }
+
+        riderLocationString += "]";
+
+        System.out.println("All json format data is "+riderLocationString);
+        return ok(views.html.grouprides.render(riderLocationString , ids));
+    }
+
+    public Result saveGroupRides(String ids) {
+        if (isNotNullAndEmpty(ids)) {
+            String[] split = ids.split(",");
+
+            Ride groupRide = new Ride();
+            groupRide.save();
+            for (String id : split) {
+                Ride ride = Ride.find.byId(Long.valueOf(id));
+                ride.setGroupRideId(groupRide.id);
+                //ride.setRideStatus(RideStatus.RideStarted);
+                ride.save();
+            }
+
+        }
+        return redirect("/pending");
+    }
+
+    public List<Point> getOrderedPoints(List<Ride> rides) {
+
+        List<Point> result = new ArrayList<>();
+        List<Point> eligiblePoints = getEligiblePoints(rides);
+        System.out.println(eligiblePoints.size() + " Size");
+        Ride firstRide = rides.get(0);
+        Point referencePoint = new Point(firstRide.getStartLatitude(), firstRide.getStartLongitude());
+        for(int i = 0; i < rides.size() * 2; i++){
+            Collections.sort(eligiblePoints, new LatLongSortDistanceWise(referencePoint));
+            referencePoint = eligiblePoints.get(0);
+            for (Ride ride : rides) {
+                if (ride.getId().equals(referencePoint.getRideId())) {
+                    if (referencePoint.isSource()) {
+                        ride.setProcessRideSource(true);
+                    } else {
+                        ride.setProcessRideDestination(true);
+                    }
+                    break;
+                }
+            }
+            result.add(referencePoint);
+            eligiblePoints = getEligiblePoints(rides);
+            System.out.println(eligiblePoints.size() + " Size");
+        }
+        return result;
+    }
+
+    public List<Point> getEligiblePoints(List<Ride> rides) {
+        List<Point> result = new ArrayList<>();
+        for (Ride ride : rides) {
+            System.out.println(ride.getStartLatitude()+" "+ride.getStartLongitude()+" "+ride.getEndLatitude()+" "+ride.getEndLongitude());
+            if (!ride.isProcessRideSource()) {
+                Point start = new Point(ride.getStartLatitude(), ride.getStartLongitude());
+                start.setRideId(ride.getId());
+                start.setSourceAddress(ride.getSourceAddress());
+                start.setSource(true);
+                result.add(start);
+            } else if (ride.isProcessRideSource() && !ride.isProcessRideDestination()) {
+                if(ride.getEndLatitude() != null && ride.getEndLongitude() != null) {
+                    Point end = new Point(ride.getEndLatitude(), ride.getEndLongitude());
+                    end.setDestinationAddress(ride.getDestinationAddress());
+                    end.setRideId(ride.getId());
+                    end.setSource(false);
+                    result.add(end);
+                }
+            }
+        }
+        System.out.println("Input Rides Size " + rides.size() + " output points " + result.size());
+        return result;
+    }
+
+
+
+        public static String[] getLatLongPositions(String address)
+        {
+            System.out.println("Address is "+address);
+            int responseCode = 0;
+            try {
+                String api = "http://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8") + "&sensor=true";
+                URL url = new URL(api);
+                HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+                httpConnection.connect();
+                responseCode = httpConnection.getResponseCode();
+                if (responseCode == 200) {
+                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    ;
+                    Document document = builder.parse(httpConnection.getInputStream());
+                    XPathFactory xPathfactory = XPathFactory.newInstance();
+                    XPath xpath = xPathfactory.newXPath();
+                    XPathExpression expr = xpath.compile("/GeocodeResponse/status");
+                    String status = (String) expr.evaluate(document, XPathConstants.STRING);
+                    if (status.equals("OK")) {
+                        expr = xpath.compile("//geometry/location/lat");
+                        String latitude = (String) expr.evaluate(document, XPathConstants.STRING);
+                        expr = xpath.compile("//geometry/location/lng");
+                        String longitude = (String) expr.evaluate(document, XPathConstants.STRING);
+                        return new String[]{latitude, longitude};
+                    } else {
+                        throw new Exception("Error from the API - response status: " + status);
+                    }
+                }
+            }catch (Exception ex){
+                ex.getStackTrace();
+            }
+            return null;
+        }
+
 }

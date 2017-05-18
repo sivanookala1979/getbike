@@ -15,7 +15,9 @@ libraryDependencies ++= Seq(
   "commons-io" % "commons-io" % "2.4",
   "org.apache.directory.studio" % "org.apache.commons.io" % "2.4",
   "org.apache.poi" % "poi" %"3.9",
-  "org.apache.poi" % "poi-ooxml" % "3.9"
+  "org.apache.poi" % "poi-ooxml" % "3.9",
+  "com.google.code.geocoder-java" % "geocoder-java" % "0.16"
+
 )
 
 jacoco.settings

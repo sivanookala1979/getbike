@@ -3,6 +3,7 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dataobject.Point;
 import dataobject.RideStatus;
 import models.*;
 import mothers.RideLocationMother;
@@ -34,6 +35,8 @@ import static utils.GetBikeErrorCodes.RIDE_ALREADY_IN_PROGRESS;
  * Created by sivanookala on 21/10/16.
  */
 public class RideControllerTest extends BaseControllerTest {
+
+    IGcmUtils gcmUtilsMock;
 
     @Test
     public void getBikeTESTHappyFlow() {
@@ -182,6 +185,7 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(ride.getId(), requestorReloaded.getCurrentRequestRideId());
         assertEquals(true, requestorReloaded.isRequestInProgress());
     }
+
     @Test
     public void hailCustomerTESTWithVendor() {
         User user = loggedInUser();
@@ -799,7 +803,6 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(walletAmountBefore - ride.getTotalBill(), walletAmountAfter);
     }
 
-
     @Test
     public void closeRideTESTWithUpdatingActualSourceAddressAndActualDestinationAddress() {
         User user = loggedInUser();
@@ -978,7 +981,6 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(walletAmountBefore - ride.getTotalBill() + (ride.getTotalBill() * 10.0), walletAmountAfter);
     }
 
-
     @Test
     public void closeRideTESTWithNoSignupPromoCode() {
         User referrer = new User();
@@ -1112,7 +1114,6 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
         assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
     }
-
 
     @Test
     public void openRidesTESTWithOldRides() {
@@ -1274,7 +1275,7 @@ public class RideControllerTest extends BaseControllerTest {
         latLongs.add("hi");
         Ride ride = new Ride();
         ride.save();
-        Content html = views.html.ridePath.render(latLongs, firstRideLocation, ride,sourceAddress,destinationAddress);
+        Content html = views.html.ridePath.render(latLongs, firstRideLocation, ride, sourceAddress, destinationAddress);
         Assert.assertEquals("text/html", html.contentType());
         String body = html.body();
         assertTrue(body.contains("hello"));
@@ -1304,7 +1305,6 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("failure", responseObject.get("result").textValue());
     }
-
 
     @Test
     public void getRideByIdTESTHappyFlow() {
@@ -1482,7 +1482,6 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode responseObject = jsonFromResult(actual);
         assertEquals("failure", responseObject.get("result").textValue());
     }
-
 
     @Test
     public void getRideByIdTESTWithInvalidRideId() {
@@ -1728,8 +1727,8 @@ public class RideControllerTest extends BaseControllerTest {
         ride2.save();
         Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(actual);
-        assertEquals(154.0,jsonNode.get("parcelTripsAmount").doubleValue());
-        assertEquals(265.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals(154.0, jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0, jsonNode.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
 
@@ -1764,21 +1763,20 @@ public class RideControllerTest extends BaseControllerTest {
         ride3.save();
         Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(actual);
-        assertEquals(59.0,jsonNode.get("parcelTripsAmount").doubleValue());
-        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals(59.0, jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
         Result actual1 = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-03").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode1 = jsonFromResult(actual1);
-        assertEquals(95.0,jsonNode1.get("parcelTripsAmount").doubleValue());
-        assertEquals(0.0,jsonNode1.get("customerTripsAmount").doubleValue());
+        assertEquals(95.0, jsonNode1.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode1.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode1.get("result").textValue());
         Result actual2 = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-02").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode2 = jsonFromResult(actual2);
-        assertEquals(0.0,jsonNode2.get("parcelTripsAmount").doubleValue());
-        assertEquals(265.0,jsonNode2.get("customerTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode2.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0, jsonNode2.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode2.get("result").textValue());
     }
-
 
     @Test
     public void getTripsAmountForDateTestFlowWithNoTripsForSelectedDate() {
@@ -1791,8 +1789,8 @@ public class RideControllerTest extends BaseControllerTest {
         ride2.save();
         Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-01").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(actual);
-        assertEquals(0.0,jsonNode.get("parcelTripsAmount").doubleValue());
-        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
 
@@ -1815,11 +1813,10 @@ public class RideControllerTest extends BaseControllerTest {
         ride1.save();
         Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(actual);
-        assertEquals(154.0,jsonNode.get("parcelTripsAmount").doubleValue());
-        assertEquals(0.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals(154.0, jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
-
 
     @Test
     public void getTripsAmountForDateTestFlowWithOnlyCustomerTrips() {
@@ -1832,14 +1829,264 @@ public class RideControllerTest extends BaseControllerTest {
         ride2.save();
         Result actual = route(fakeRequest(GET, "/getTripsAmountForDate?dateString=2017-04-04").header("Authorization", user.getAuthToken()));
         JsonNode jsonNode = jsonFromResult(actual);
-        assertEquals(0.0,jsonNode.get("parcelTripsAmount").doubleValue());
-        assertEquals(265.0,jsonNode.get("customerTripsAmount").doubleValue());
+        assertEquals(0.0, jsonNode.get("parcelTripsAmount").doubleValue());
+        assertEquals(265.0, jsonNode.get("customerTripsAmount").doubleValue());
         assertEquals("success", jsonNode.get("result").textValue());
     }
 
+    @Test
+    public void getGroupRidesTestWithHappyFlow() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.0);
+        ride1.setStartLongitude(79.0);
+        ride1.setEndLatitude(15.0);
+        ride1.setEndLongitude(79.0);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        Ride ride2 = new Ride();
+        ride2.setStartLatitude(16.0);
+        ride2.setStartLongitude(79.0);
+        ride2.setEndLatitude(17.0);
+        ride2.setEndLongitude(79.0);
+        ride2.setRideStatus(RideStatus.RideRequested);
+        ride2.save();
+        Ride ride3 = new Ride();
+        ride3.setStartLatitude(18.0);
+        ride3.setStartLongitude(79.0);
+        ride3.setEndLatitude(19.0);
+        ride3.setEndLongitude(79.0);
+        ride3.setRideStatus(RideStatus.RideRequested);
+        ride3.save();
+        Ride ride4 = new Ride();
+        ride4.setStartLatitude(20.0);
+        ride4.setStartLongitude(79.0);
+        ride4.setEndLatitude(21.0);
+        ride4.setEndLongitude(79.0);
+        ride4.setRideStatus(RideStatus.RideRequested);
+        ride4.save();
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        rides.add(ride2);
+        rides.add(ride3);
+        rides.add(ride4);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        int index = 0;
+        cAssertSource(ride1, result.get(index++));
+        cAssertDestination(ride1, result.get(index++));
+        cAssertSource(ride2, result.get(index++));
+        cAssertDestination(ride2, result.get(index++));
+        cAssertSource(ride3, result.get(index++));
+        cAssertDestination(ride3, result.get(index++));
+        cAssertSource(ride4, result.get(index++));
+        cAssertDestination(ride4, result.get(index++));
+    }
 
+    @Test
+    public void getGroupRidesTestWithHappyFlow2() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.0);
+        ride1.setStartLongitude(79.0);
+        ride1.setEndLatitude(18.0);
+        ride1.setEndLongitude(79.0);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        Ride ride2 = new Ride();
+        ride2.setStartLatitude(15.0);
+        ride2.setStartLongitude(79.0);
+        ride2.setEndLatitude(19.0);
+        ride2.setEndLongitude(79.0);
+        ride2.setRideStatus(RideStatus.RideRequested);
+        ride2.save();
+        Ride ride3 = new Ride();
+        ride3.setStartLatitude(16.0);
+        ride3.setStartLongitude(79.0);
+        ride3.setEndLatitude(20.0);
+        ride3.setEndLongitude(79.0);
+        ride3.setRideStatus(RideStatus.RideRequested);
+        ride3.save();
+        Ride ride4 = new Ride();
+        ride4.setStartLatitude(17.0);
+        ride4.setStartLongitude(79.0);
+        ride4.setEndLatitude(21.0);
+        ride4.setEndLongitude(79.0);
+        ride4.setRideStatus(RideStatus.RideRequested);
+        ride4.save();
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        rides.add(ride2);
+        rides.add(ride3);
+        rides.add(ride4);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        int index = 0;
+        cAssertSource(ride1, result.get(index++));
+        cAssertSource(ride2, result.get(index++));
+        cAssertSource(ride3, result.get(index++));
+        cAssertSource(ride4, result.get(index++));
+        cAssertDestination(ride1, result.get(index++));
+        cAssertDestination(ride2, result.get(index++));
+        cAssertDestination(ride3, result.get(index++));
+        cAssertDestination(ride4, result.get(index++));
+    }
+    @Test
+    public void getGroupRidesTestWithEightRides() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.0);
+        ride1.setStartLongitude(79.0);
+        ride1.setEndLatitude(28.0);
+        ride1.setEndLongitude(79.0);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        Ride ride2 = new Ride();
+        ride2.setStartLatitude(15.0);
+        ride2.setStartLongitude(79.0);
+        ride2.setEndLatitude(22.0);
+        ride2.setEndLongitude(79.0);
+        ride2.setRideStatus(RideStatus.RideRequested);
+        ride2.save();
+        Ride ride3 = new Ride();
+        ride3.setStartLatitude(16.0);
+        ride3.setStartLongitude(79.0);
+        ride3.setEndLatitude(29.0);
+        ride3.setEndLongitude(79.0);
+        ride3.setRideStatus(RideStatus.RideRequested);
+        ride3.save();
+        Ride ride4 = new Ride();
+        ride4.setStartLatitude(17.0);
+        ride4.setStartLongitude(79.0);
+        ride4.setEndLatitude(23.0);
+        ride4.setEndLongitude(79.0);
+        ride4.setRideStatus(RideStatus.RideRequested);
+        ride4.save();
 
-    IGcmUtils gcmUtilsMock;
+        Ride ride5 = new Ride();
+        ride5.setStartLatitude(18.0);
+        ride5.setStartLongitude(79.0);
+        ride5.setEndLatitude(27.0);
+        ride5.setEndLongitude(79.0);
+        ride5.setRideStatus(RideStatus.RideRequested);
+        ride5.save();
+        Ride ride6 = new Ride();
+        ride6.setStartLatitude(19.0);
+        ride6.setStartLongitude(79.0);
+        ride6.setEndLatitude(24.0);
+        ride6.setEndLongitude(79.0);
+        ride6.setRideStatus(RideStatus.RideRequested);
+        ride6.save();
+        Ride ride7 = new Ride();
+        ride7.setStartLatitude(20.0);
+        ride7.setStartLongitude(79.0);
+        ride7.setEndLatitude(26.0);
+        ride7.setEndLongitude(79.0);
+        ride7.setRideStatus(RideStatus.RideRequested);
+        ride7.save();
+        Ride ride8 = new Ride();
+        ride8.setStartLatitude(21.0);
+        ride8.setStartLongitude(79.0);
+        ride8.setEndLatitude(25.0);
+        ride8.setEndLongitude(79.0);
+        ride8.setRideStatus(RideStatus.RideRequested);
+        ride8.save();
+
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        rides.add(ride2);
+        rides.add(ride3);
+        rides.add(ride4);
+        rides.add(ride5);
+        rides.add(ride6);
+        rides.add(ride7);
+        rides.add(ride8);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        int index = 0;
+        cAssertSource(ride1, result.get(index++));
+        cAssertSource(ride2, result.get(index++));
+        cAssertSource(ride3, result.get(index++));
+        cAssertSource(ride4, result.get(index++));
+        cAssertSource(ride5, result.get(index++));
+        cAssertSource(ride6, result.get(index++));
+        cAssertSource(ride7, result.get(index++));
+        cAssertSource(ride8, result.get(index++));
+        cAssertDestination(ride2, result.get(index++));
+        cAssertDestination(ride4, result.get(index++));
+        cAssertDestination(ride6, result.get(index++));
+        cAssertDestination(ride8, result.get(index++));
+        cAssertDestination(ride7, result.get(index++));
+        cAssertDestination(ride5, result.get(index++));
+        cAssertDestination(ride1, result.get(index++));
+        cAssertDestination(ride3, result.get(index++));
+    }
+    @Test
+    public void getGroupRidesTESTWithTwoRides() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.9011);
+        ride1.setStartLongitude(79.9941);
+        ride1.setEndLatitude(14.9193);
+        ride1.setEndLongitude(79.9937);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        Ride ride2 = new Ride();
+        ride2.setStartLatitude(15.9241);
+        ride2.setStartLongitude(79.9891);
+        ride2.setEndLatitude(15.9157);
+        ride2.setEndLongitude(79.9886);
+        ride2.setRideStatus(RideStatus.RideRequested);
+        ride2.save();
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        rides.add(ride2);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        assertEquals(2 * rides.size(), result.size());
+        int index = 0;
+        cAssertSource(ride1, result.get(index++));
+        cAssertDestination(ride1, result.get(index++));
+        cAssertSource(ride2, result.get(index++));
+        cAssertDestination(ride2, result.get(index++));
+    }
+
+    @Test
+    public void getGroupRidesTESTWithTwoRidesSourceSourceDestinationDestination() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.9011);
+        ride1.setStartLongitude(79.9941);
+        ride1.setEndLatitude(15.9193);
+        ride1.setEndLongitude(79.9937);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        Ride ride2 = new Ride();
+        ride2.setStartLatitude(14.9241);
+        ride2.setStartLongitude(79.9891);
+        ride2.setEndLatitude(15.9157);
+        ride2.setEndLongitude(79.9886);
+        ride2.setRideStatus(RideStatus.RideRequested);
+        ride2.save();
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        rides.add(ride2);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        assertEquals(2 * rides.size(), result.size());
+        int index = 0;
+        cAssertSource(ride1, result.get(index++));
+        cAssertSource(ride2, result.get(index++));
+        cAssertDestination(ride2, result.get(index++));
+        cAssertDestination(ride1, result.get(index++));
+    }
+
+    @Test
+    public void getGroupRidesTESTWithOneRide() {
+        Ride ride1 = new Ride();
+        ride1.setStartLatitude(14.9011);
+        ride1.setStartLongitude(79.9941);
+        ride1.setEndLatitude(14.9193);
+        ride1.setEndLongitude(79.9937);
+        ride1.setRideStatus(RideStatus.RideRequested);
+        ride1.save();
+        List<Ride> rides = new ArrayList<>();
+        rides.add(ride1);
+        List<Point> result = new RideController().getOrderedPoints(rides);
+        assertEquals(2 * rides.size(), result.size());
+        cAssertSource(ride1, result.get(0));
+        cAssertDestination(ride1, result.get(1));
+    }
 
     //--------------------------------------------
     //       Setup
@@ -1885,5 +2132,24 @@ public class RideControllerTest extends BaseControllerTest {
         }
         assertTrue("Could not find user " + searchUser.getId(), found);
     }
+
+    private void cAssertSource(Ride ride, Point point)
+    {
+        assertEquals(ride.getStartLatitude(), point.getLat());
+        assertEquals(ride.getStartLongitude(), point.getLng());
+        assertEquals(ride.getId(), point.getRideId());
+        assertEquals(true, point.isSource());
+
+    }
+    private void cAssertDestination(Ride ride, Point point)
+    {
+        assertEquals(ride.getEndLatitude(), point.getLat());
+        assertEquals(ride.getEndLongitude(), point.getLng());
+        assertEquals(ride.getId(), point.getRideId());
+        assertEquals(false, point.isSource());
+
+    }
+
+
 
 }

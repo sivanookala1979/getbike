@@ -64,6 +64,7 @@ public class Ride extends Model {
     String parcelDropoffDetails;
     String parcelOrderId;
     Double codAmount;
+    Long groupRideId;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -73,6 +74,10 @@ public class Ride extends Model {
     private transient String customerMobileNumber;
     private transient String riderMobileNumber;
     private transient String ridePaymentStatus;
+    private transient boolean processRideSource;
+    private transient boolean processRideDestination;
+    private transient Double endLatitude;
+    private transient Double endLongitude;
 
     public Long getId() {
         return id;
@@ -464,5 +469,47 @@ public class Ride extends Model {
 
     public void setParcelRequestRaisedAt(Date parcelRequestRaisedAt) {
         this.parcelRequestRaisedAt = parcelRequestRaisedAt;
+    }
+
+    public Long getGroupRideId() {
+        return groupRideId;
+    }
+
+    public void setGroupRideId(Long groupRideId) {
+        this.groupRideId = groupRideId;
+    }
+
+    public Double getEndLatitude() {
+        return endLatitude;
+    }
+
+    public void setEndLatitude(Double endLatitude) {
+        this.endLatitude = endLatitude;
+    }
+
+    public Double getEndLongitude() {
+        return endLongitude;
+    }
+
+    public void setEndLongitude(Double endLongitude) {
+        this.endLongitude = endLongitude;
+    }
+
+    public boolean isProcessRideSource() {
+        return processRideSource;
+    }
+
+    public void setProcessRideSource(boolean processRideSource) {
+        System.out.println("Setting source true for " + id);
+        this.processRideSource = processRideSource;
+    }
+
+    public boolean isProcessRideDestination() {
+        return processRideDestination;
+    }
+
+    public void setProcessRideDestination(boolean processRideDestination) {
+        System.out.println("Setting destination true for " + id);
+        this.processRideDestination = processRideDestination;
     }
 }

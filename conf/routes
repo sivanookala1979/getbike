@@ -35,9 +35,9 @@ GET     /reports                                    controllers.AnalyticsControl
 GET     /wallet/notificationsUpdate                 controllers.WalletController.notificationsUpdate
 
 
-GET     /allRiders                                  controllers.DashboardController.allRiders
-GET     /radiusRiders                               controllers.DashboardController.getRadiusRiders
-GET     /riderPositions/:id/:count                  controllers.DashboardController.riderPositions(id: Long, count: Integer)
+GET     /allRiders                              controllers.DashboardController.allRiders
+GET     /radiusRiders                           controllers.DashboardController.getRadiusRiders
+GET     /riderPositions/:id/:count              controllers.DashboardController.riderPositions(id: Long, count: Integer)
 
 GET     /index                                  controllers.HomeController.index
 GET     /editPricingForm/:id                    controllers.UserController.editPricingForm(id: Long)
@@ -80,6 +80,7 @@ GET     /users/makeDriverAvailabilityFalse      controllers.UserController.makeD
 GET     /users/getDriverAvailabilityStatus      controllers.UserController.getDriverAvailabilityStatus
 POST    /savePrice                              controllers.UserController.savePrice
 
+GET     /pending                                controllers.RideController.pendingList
 POST    /getBike                                controllers.RideController.getBike
 POST    /hailCustomer                           controllers.RideController.hailCustomer
 GET     /acceptRide                             controllers.RideController.acceptRide
@@ -133,6 +134,9 @@ POST    /parcel/saveExcel                       controllers.RideController.saveI
 POST    /parcel/vendor                          controllers.RideController.vendorStoreData
 POST    /parcel/createVendorOrder               controllers.RideController.createVendorOrder
 POST    /parcel/getVendorOrderStatus            controllers.RideController.getVendorOrderStatus
+GET     /pendingRides                           controllers.RideController.getPendingRides
+GET     /getGroupRides/:ids                     controllers.RideController.getGroupRides(ids: String)
+GET     /saveGroupRides/:rideIds                controllers.RideController.saveGroupRides(rideIds: String)
 
 POST    /saveUserCashInAdvanceRequest           controllers.CashInAdvanceController.saveUserCashInAdvanceRequest
 GET     /viewCashInAdvanceList                  controllers.CashInAdvanceController.viewCashInAdvanceList
