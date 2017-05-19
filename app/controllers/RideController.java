@@ -1682,13 +1682,13 @@ public class RideController extends BaseController {
 
         ExpressionList<Ride> rideQuery = Ride.find.where();
         if (isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).isNull("group_ride_id").eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
         } else if (isNotNullAndEmpty(status) && !isNotNullAndEmpty(startDate) && !isNotNullAndEmpty(endDate)) {
             listOfRides = rideQuery.eq("ride_status", status).orderBy("requested_at desc").findList();
         } else if (!isNotNullAndEmpty(status) && isNotNullAndEmpty(startDate) && isNotNullAndEmpty(endDate)) {
-            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+            listOfRides = rideQuery.between("requested_at", DateUtils.getNewDate(startDate, 0, 0, 0), DateUtils.getNewDate(endDate, 23, 59, 59)).isNull("group_ride_id").eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
         } else  {
-            listOfRides = rideQuery.eq("ride_status", "RideRequested").orderBy("requested_at desc").findList();
+            listOfRides = rideQuery.eq("ride_status", "RideRequested").isNull("group_ride_id").orderBy("requested_at desc").findList();
         }
         for (Ride ride :listOfRides) {
             loadNames(ride);
@@ -1746,7 +1746,6 @@ public class RideController extends BaseController {
             for (String id : split) {
                 Ride ride = Ride.find.byId(Long.valueOf(id));
                 ride.setGroupRideId(groupRide.id);
-                //ride.setRideStatus(RideStatus.RideStarted);
                 ride.save();
             }
 
@@ -1786,11 +1785,13 @@ public class RideController extends BaseController {
         for (Ride ride : rides) {
             System.out.println(ride.getStartLatitude()+" "+ride.getStartLongitude()+" "+ride.getEndLatitude()+" "+ride.getEndLongitude());
             if (!ride.isProcessRideSource()) {
-                Point start = new Point(ride.getStartLatitude(), ride.getStartLongitude());
-                start.setRideId(ride.getId());
-                start.setSourceAddress(ride.getSourceAddress());
-                start.setSource(true);
-                result.add(start);
+                if(ride.getStartLatitude() != null && ride.getStartLongitude() != null) {
+                    Point start = new Point(ride.getStartLatitude(), ride.getStartLongitude());
+                    start.setRideId(ride.getId());
+                    start.setSourceAddress(ride.getSourceAddress());
+                    start.setSource(true);
+                    result.add(start);
+                }
             } else if (ride.isProcessRideSource() && !ride.isProcessRideDestination()) {
                 if(ride.getEndLatitude() != null && ride.getEndLongitude() != null) {
                     Point end = new Point(ride.getEndLatitude(), ride.getEndLongitude());
