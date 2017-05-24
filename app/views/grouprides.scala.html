@@ -1,4 +1,4 @@
-@(rideLocations: String , rideList: String)
+@(rideLocations: String , rideList: String , primeRiders: List[User])
 @import views.html.custom_views._
 <div class="container">
     <div class="row">
@@ -28,22 +28,31 @@
         <br>
         <form action="@routes.RideController.saveGroupRides(rideList)" method="GET" role="form">
             <div class="row">
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-6">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <button type="button" class="btn btn-primary btn-block"
                                     onclick="window.location='/pending';"><span
                                     class="glyphicon glyphicon-remove-sign"></span> Cancel
                             </button>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
+                           <select id="primeRider" name="PrimeRider" class="form-control">
+                                <option value="" disabled selected>Select Prime Rider</option>
+                                @for(user <- primeRiders){
+                                <option value="@user.id">@user.name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
                             <button type="submit" class="btn btn-primary btn-block"><span
                                     class="glyphicon glyphicon-ok-sign"></span> Confirm
                             </button>
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-3"></div>
             </div>
         </form>
 

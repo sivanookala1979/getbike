@@ -65,6 +65,7 @@ public class Ride extends Model {
     String parcelOrderId;
     Double codAmount;
     Long groupRideId;
+    boolean isGroupRide;
     private transient String requestorName;
     private transient String riderName;
     private transient String formatedRequestAt;
@@ -511,5 +512,13 @@ public class Ride extends Model {
     public void setProcessRideDestination(boolean processRideDestination) {
         System.out.println("Setting destination true for " + id);
         this.processRideDestination = processRideDestination;
+    }
+
+    public boolean isGroupRide() {
+        return isGroupRide;
+    }
+
+    public void setGroupRide(boolean groupRide) {
+        isGroupRide = groupRide;
     }
 }

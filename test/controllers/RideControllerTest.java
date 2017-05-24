@@ -1038,6 +1038,43 @@ public class RideControllerTest extends BaseControllerTest {
         assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
     }
 
+
+    @Test
+    public void openRidesWithGroupRidesTESTHappyFlow() {
+        User user = loggedInUser();
+        user.setPrimeRider(true);
+        user.save();
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
+        Ride secondRide = createRide(otherUser.getId());
+        Ride ride = new Ride();
+        ride.setGroupRide(true);
+        ride.setRideStatus(RideStatus.RideAccepted);
+        ride.setRiderId(user.id);
+        ride.save();
+        firstRide.setGroupRideId(ride.id);
+        firstRide.save();
+        secondRide.setGroupRideId(ride.id);
+        secondRide.save();
+        Result actual = route(fakeRequest(GET, "/openRides?latitude=" + firstRide.getStartLatitude() + "&longitude=" + firstRide.getStartLongitude()).header("Authorization", user.getAuthToken()));
+        JsonNode responseObject = jsonFromResult(actual);
+        assertEquals("success", responseObject.get("result").textValue());
+        JsonNode ridesList = responseObject.get("rides");
+        int knownNumberOfRides = 2;
+        assertEquals(knownNumberOfRides, ridesList.size());
+        assertEquals(secondRide.getId().longValue(), ridesList.get(0).get("ride").get("id").longValue());
+        assertEquals(firstRide.getId().longValue(), ridesList.get(1).get("ride").get("id").longValue());
+        assertEquals(otherUser.getName(), ridesList.get(0).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(0).get("requestorPhoneNumber").textValue());
+        assertEquals(otherUser.getName(), ridesList.get(1).get("requestorName").textValue());
+        assertEquals(otherUser.getPhoneNumber(), ridesList.get(1).get("requestorPhoneNumber").textValue());
+        JsonNode groupRides = responseObject.get("groupRides");
+        assertNotNull(groupRides);
+        assertEquals(ride.id.longValue() , groupRides.findPath("groupId").longValue());
+        assertEquals(ride.isGroupRide() , groupRides.findPath("isGroupRide").booleanValue());
+        assertEquals(2 , groupRides.findPath("numberOfRides").intValue());
+    }
+
     @Test
     public void openRidesTESTWithNoOpenRides() {
         User user = loggedInUser();
@@ -2096,6 +2133,7 @@ public class RideControllerTest extends BaseControllerTest {
         super.setUp();
         Ebean.createSqlUpdate("delete from ride").execute();
         Ebean.createSqlUpdate("delete from ride_location").execute();
+        Ebean.createSqlUpdate("delete from geo_fencing_location").execute();
         gcmUtilsMock = mock(IGcmUtils.class);
         ApplicationContext.defaultContext().setGcmUtils(gcmUtilsMock);
     }

@@ -523,6 +523,20 @@ public class RideController extends BaseController {
                 rideNode.set("requestorAddress", Json.toJson("Address of " + ride.getStartLatitude() + "," + ride.getStartLongitude()));
                 ridesNodes.add(rideNode);
             }
+
+            List<Ride> allGroupRides = Ride.find.where().eq("is_group_ride", true).eq("rider_id" , user.id).eq("ride_status" , RideAccepted).findList();
+            ArrayNode groupNodes = Json.newArray();
+            for(Ride ride :allGroupRides){
+                ObjectNode groupRide = Json.newObject();
+                List<Ride> rideList = Ride.find.where().eq("group_ride_id", ride.id).findList();
+                groupRide.set("groupId" , Json.toJson(ride.id));
+                groupRide.set("firstRide" , Json.toJson(rideList.get(0)));
+                groupRide.set("lastRide" , Json.toJson(rideList.get(rideList.size()-1)));
+                groupRide.set("isGroupRide" , Json.toJson(true));
+                groupRide.set("numberOfRides" , Json.toJson(rideList.size()));
+                groupNodes.add(groupRide);
+            }
+            objectNode.set("groupRides" , groupNodes);
             objectNode.set("rides", ridesNodes);
             result = SUCCESS;
         }
@@ -1733,22 +1747,28 @@ public class RideController extends BaseController {
 
         riderLocationString += "]";
 
-        System.out.println("All json format data is "+riderLocationString);
-        return ok(views.html.grouprides.render(riderLocationString , ids));
+        List<User> primeRiders = User.find.where().eq("primeRider", true).findList();
+
+        return ok(views.html.grouprides.render(riderLocationString , ids , primeRiders));
     }
 
     public Result saveGroupRides(String ids) {
+        DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+        String primeRiderId = dynamicForm.get("PrimeRider");
+        System.out.println("prime rider id "+primeRiderId);
         if (isNotNullAndEmpty(ids)) {
             String[] split = ids.split(",");
 
             Ride groupRide = new Ride();
+            groupRide.setRiderId(Long.valueOf(primeRiderId));
+            groupRide.setRideStatus(RideStatus.RideAccepted);
+            groupRide.setGroupRide(true);
             groupRide.save();
             for (String id : split) {
                 Ride ride = Ride.find.byId(Long.valueOf(id));
                 ride.setGroupRideId(groupRide.id);
                 ride.save();
             }
-
         }
         return redirect("/pending");
     }
