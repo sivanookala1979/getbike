@@ -2125,6 +2125,32 @@ public class RideControllerTest extends BaseControllerTest {
         cAssertDestination(ride1, result.get(1));
     }
 
+    @Test
+    public void getRiderLocationsTESTHappyFlow(){
+        User user = loggedInUser();
+        user.setPrimeRider(true);
+        user.save();
+        User otherUser = otherUser();
+        Ride firstRide = createRide(otherUser.getId());
+        Ride secondRide = createRide(otherUser.getId());
+        Ride ride = new Ride();
+        ride.setGroupRide(true);
+        ride.setRideStatus(RideStatus.RideAccepted);
+        ride.setRiderId(user.id);
+        ride.save();
+        firstRide.setGroupRideId(ride.id);
+        firstRide.setDestinationAddress("Ramky Grandiose, Survey No. 136/2 & 4, Gachibowli, Hyderabad, Telangana 500032");
+        firstRide.save();
+        secondRide.setGroupRideId(ride.id);
+        secondRide.setDestinationAddress("Ramky Towers, Hyderabad, Telangana, India");
+        secondRide.save();
+        Result result = route(fakeRequest(GET, "/getRiderLocations/" + ride.id)).withHeader("Content-Type", "application/json");
+        JsonNode jsonNode = jsonFromResult(result);
+        assertEquals(firstRide.getStartLatitude().doubleValue() , jsonNode.findPath("lat").doubleValue());
+        assertEquals(firstRide.getStartLongitude().doubleValue() , jsonNode.findPath("lng").doubleValue());
+
+    }
+
     //--------------------------------------------
     //       Setup
     //--------------------------------------------

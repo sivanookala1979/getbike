@@ -1825,9 +1825,6 @@ public class RideController extends BaseController {
         System.out.println("Input Rides Size " + rides.size() + " output points " + result.size());
         return result;
     }
-
-
-
         public static String[] getLatLongPositions(String address)
         {
             System.out.println("Address is "+address);
@@ -1860,6 +1857,31 @@ public class RideController extends BaseController {
                 ex.getStackTrace();
             }
             return null;
+        }
+
+        public Result getRiderLocations(Long id){
+            ArrayNode jsonNodes = Json.newArray();
+            if(id != null){
+                List<Ride> group_ride_id = Ride.find.where().eq("group_ride_id", id).findList();
+                List<Ride> rideList = new ArrayList<>();
+                for(Ride ride: group_ride_id){
+                    if(isNotNullAndEmpty(ride.getDestinationAddress())) {
+                        String[] latLongPositions = getLatLongPositions(ride.getDestinationAddress());
+                        if(latLongPositions != null && latLongPositions[0] != null && latLongPositions[1] != null) {
+                            ride.setEndLatitude(Double.valueOf(latLongPositions[0]));
+                            ride.setEndLongitude(Double.valueOf(latLongPositions[1]));
+                            rideList.add(ride);
+                        }
+                    }
+                }
+                List<Point> orderedPoints = getOrderedPoints(rideList);
+                for (Point point:orderedPoints){
+                    jsonNodes.add(Json.toJson(point));
+                }
+            }
+            ObjectNode objectNode = Json.newObject();
+            objectNode.set("riderLocations" , jsonNodes);
+            return ok(objectNode);
         }
 
 }
