@@ -1861,6 +1861,7 @@ public class RideController extends BaseController {
 
         public Result getRiderLocations(Long id){
             ArrayNode jsonNodes = Json.newArray();
+            Ride groupRide = Ride.find.byId(id);
             if(id != null){
                 List<Ride> group_ride_id = Ride.find.where().eq("group_ride_id", id).findList();
                 List<Ride> rideList = new ArrayList<>();
@@ -1881,6 +1882,8 @@ public class RideController extends BaseController {
             }
             ObjectNode objectNode = Json.newObject();
             objectNode.set("riderLocations" , jsonNodes);
+            objectNode.set("groupId" , Json.toJson(id));
+            objectNode.set("groupRiderId" , Json.toJson(groupRide.getRiderId()));
             return ok(objectNode);
         }
 

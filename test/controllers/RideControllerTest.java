@@ -2148,7 +2148,8 @@ public class RideControllerTest extends BaseControllerTest {
         JsonNode jsonNode = jsonFromResult(result);
         assertEquals(firstRide.getStartLatitude().doubleValue() , jsonNode.findPath("lat").doubleValue());
         assertEquals(firstRide.getStartLongitude().doubleValue() , jsonNode.findPath("lng").doubleValue());
-
+        assertEquals(ride.id.longValue() , jsonNode.findPath("groupId").longValue());
+        assertEquals(ride.getRiderId().longValue() , jsonNode.findPath("groupRiderId").longValue());
     }
 
     //--------------------------------------------
