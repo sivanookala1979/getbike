@@ -69,6 +69,13 @@
         </div>
 
         <div class="form-group">
+            <label for="rideComments" class="col-sm-3 control-label">Ride Comments </label>
+            <div class="col-sm-6">
+                <input type="text" id="rideComments" name="rideComments" placeholder="Ride Comments" value="@ride.getRideComments()" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group">
             <label for="riderId" class="col-sm-3 control-label">Rider Id </label>
             <div class="col-sm-6">
                 <input type="text" id="riderId" name="riderId" placeholder="riderId" value="@ride.getRiderId()" class="form-control" required>

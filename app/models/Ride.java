@@ -63,6 +63,7 @@ public class Ride extends Model {
     String parcelPickupDetails;
     String parcelDropoffDetails;
     String parcelOrderId;
+    String rideComments;
     Double codAmount;
     Long groupRideId;
     boolean isGroupRide;
@@ -520,5 +521,13 @@ public class Ride extends Model {
 
     public void setGroupRide(boolean groupRide) {
         isGroupRide = groupRide;
+    }
+
+    public String getRideComments() {
+        return rideComments;
+    }
+
+    public void setRideComments(String rideComments) {
+        this.rideComments = rideComments;
     }
 }

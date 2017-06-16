@@ -1412,6 +1412,7 @@ public class RideController extends BaseController {
         DynamicForm requestData = formFactory.form().bindFromRequest();
         String rideId = requestData.get("tripId");
         String amount = requestData.get("amount");
+        String rideComments = requestData.get("rideComments");
         String parcelOrderId = requestData.get("parcelOrderId");
         String distance = requestData.get("distance");
         String requestedAtTime = requestData.get("requestedTime");
@@ -1449,6 +1450,9 @@ public class RideController extends BaseController {
             }
             if (parcelOrderId != null) {
                 ride.setParcelOrderId(parcelOrderId);
+            }
+            if (!(rideComments.length()==0)) {
+                ride.setRideComments(rideComments);
             }
             ride.setRideStatus(rideStatus);
             ride.setRiderId(riderId);
@@ -1595,6 +1599,7 @@ public class RideController extends BaseController {
             aRide.setParcelPickupDetails(userJson.get("data").get("parcelPickupDetails").textValue());
             aRide.setParcelDropoffDetails(userJson.get("data").get("parcelDropoffDetails").textValue());
             aRide.setCodAmount(userJson.get("data").get("codAmount").asDouble());
+            aRide.setParcelRequestRaisedAt(new Date());
             aRide.save();
             result = "SUCCESS";
             statusCode = "200K";
@@ -1633,9 +1638,18 @@ public class RideController extends BaseController {
             if (aRide != null) {
                 obj2.put("tripId", aRide.getId());
                 obj2.put("vendorId", aRide.getRequestorId());
-                obj2.put("rideStatus", aRide.getRideStatus());
+                if (Rescheduled.equals(aRide.getRideStatus())) {
+                    obj2.put("rideStatus", "RequestForReschedule");
+                    obj2.put("comments",aRide.getRideComments());
+                } else if (RideCancelled.equals(aRide.getRideStatus())) {
+                    obj2.put("rideStatus", "RequestForCancel");
+                    obj2.put("comments",aRide.getRideComments());
+                } else {
+                    obj2.put("rideStatus", aRide.getRideStatus());
+                }
                 obj2.put("requestedAt", DateUtils.convertDateToString(aRide.getRequestedAt(), dateFormat));
                 obj2.put("riderId", aRide.getRiderId());
+                obj2.put("parcelRequestRaisedAt",(aRide.getParcelRequestRaisedAt() != null) ? DateUtils.convertDateToString(aRide.getParcelRequestRaisedAt(), dateFormat) : null);
                 obj2.put("riderName", (aRide.getRiderId() != null) ? User.find.where().eq("id", aRide.getRiderId()).findUnique().getName() : null);
                 obj2.put("acceptedAt", (aRide.getAcceptedAt() != null) ? DateUtils.convertDateToString(aRide.getAcceptedAt(), dateFormat) : null);
                 obj2.put("startedAt", (aRide.getRideStartedAt() != null) ? DateUtils.convertDateToString(aRide.getRideStartedAt(), dateFormat) : null);
