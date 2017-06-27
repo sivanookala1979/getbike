@@ -1467,8 +1467,23 @@ public class RideController extends BaseController {
             //update call health api call here;
             //call health id is 2017 in dev and change when we push to prod;
             if (ride.getRequestorId()==2017) {
-                System.out.println("values are:"+ride.getParcelOrderId()+" "+ride.getRideStatus());
-                String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
+                String payload = null;
+                String requestUrl="https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
+                if (Rescheduled.equals(ride.getRideStatus())) {
+                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\"RequestForReschedule\",\"last_updated_on\":\""+new Date()+"\"";
+                } else if (RideCancelled.equals(ride.getRideStatus())) {
+
+                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\"RequestForCancel\",\"last_updated_on\":\""+new Date()+"\"";
+                } else {
+                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\""+ride.getRideStatus()+"\",\"last_updated_on\":\""+new Date()+"\"";
+                }
+                System.out.println("Testing phase...........payload"+payload);
+                String apiResponse = sendPostRequest(requestUrl, payload);
+
+
+                System.out.println("Testing phase..... response  "+apiResponse);
+
+                /*String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
@@ -1480,13 +1495,41 @@ public class RideController extends BaseController {
                     jsonBody.put("order_status", ride.getRideStatus());
                 }
                 jsonBody.put("last_updated_on", new Date());
-                apiPostCall(url,jsonBody.toString());
+                apiPostCall(url,jsonBody.toString());*/
             }
         } else {
             flash("error", "Invalid RiderId " + riderId + " Please Give Valid RiderId !");
             return badRequest(views.html.editTripsDetails.render(ride));
         }
         return redirect("/ride/rideList");
+    }
+
+    public static String sendPostRequest(String requestUrl, String payload) {
+        StringBuffer jsonString = new StringBuffer();
+        try {
+            URL url = new URL(requestUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            System.out.println("Testing phase..... response  called my sendPostRequest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+            writer.write(payload);
+            writer.close();
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                jsonString.append(line);
+            }
+            br.close();
+            connection.disconnect();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return jsonString.toString();
     }
 
     public void apiPostCall(String completeUrl, String body) {
