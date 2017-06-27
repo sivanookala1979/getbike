@@ -28,6 +28,9 @@
         $(function () {
                     $('#createdAtDate2').datetimepicker();
                 });
+        $(function () {
+                    $('#acceptedAtDate').datetimepicker();
+                });
    });
 </script>
 <div class="container">
@@ -107,6 +110,15 @@
                     <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
             </div>
+
+            <div class="col-xs-6 col-sm-offset-3 date">
+                <label for="acceptedAtDate"  style="display: block;">Accepted At Time </label>
+                <div class='input-group date'id='acceptedAtDate' >
+                    <input type='text'   class="form-control"  placeholder="Select Date" value="@ride.getAcceptedAt()" id="acceptedAt" name="acceptedTime" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+
         <div class="col-xs-6 col-sm-offset-3 date">
             <label for="createdAtDate"  style="display: block;">Start date and Time </label>
             <div class='input-group date'id='createdAtDate' >

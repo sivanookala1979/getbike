@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobject.*;
 import dataobject.Point;
 import models.*;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -1416,6 +1420,7 @@ public class RideController extends BaseController {
         String parcelOrderId = requestData.get("parcelOrderId");
         String distance = requestData.get("distance");
         String requestedAtTime = requestData.get("requestedTime");
+        String acceptedTime = requestData.get("acceptedTime");
         String startTime = requestData.get("startTime");
         String endTime = requestData.get("endTime");
         RideStatus rideStatus = RideClosed;
@@ -1441,8 +1446,10 @@ public class RideController extends BaseController {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            if (acceptedTime.length() != 0) {
+                ride.setAcceptedAt(DateUtils.getDateFromString(acceptedTime));
+            }
             if (startTime.length() != 0) {
-                ride.setAcceptedAt(DateUtils.getDateFromString(startTime));
                 ride.setRideStartedAt(DateUtils.getDateFromString(startTime));
             }
             if (endTime.length() != 0) {
@@ -1457,11 +1464,43 @@ public class RideController extends BaseController {
             ride.setRideStatus(rideStatus);
             ride.setRiderId(riderId);
             ride.update();
+            //update call health api call here;
+            //call health id is 2017 in dev and change when we push to prod;
+            if (ride.getRequestorId()==2017) {
+                System.out.println("values are:"+ride.getParcelOrderId()+" "+ride.getRideStatus());
+                String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
+                JSONObject jsonBody = new JSONObject();
+                jsonBody.put("source_type", "getbike");
+                jsonBody.put("omorder_id", ride.getParcelOrderId());
+                if (Rescheduled.equals(ride.getRideStatus())) {
+                    jsonBody.put("order_status", "RequestForReschedule");
+                } else if (RideCancelled.equals(ride.getRideStatus())) {
+                    jsonBody.put("order_status", "RequestForCancel");
+                } else {
+                    jsonBody.put("order_status", ride.getRideStatus());
+                }
+                jsonBody.put("last_updated_on", new Date());
+                apiPostCall(url,jsonBody.toString());
+            }
         } else {
             flash("error", "Invalid RiderId " + riderId + " Please Give Valid RiderId !");
             return badRequest(views.html.editTripsDetails.render(ride));
         }
         return redirect("/ride/rideList");
+    }
+
+    public void apiPostCall(String completeUrl, String body) {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpPost httpPost = new HttpPost(completeUrl);
+        httpPost.setHeader("Content-type", "application/json");
+        try {
+            StringEntity stringEntity = new StringEntity(body);
+            httpPost.getRequestLine();
+            httpPost.setEntity(stringEntity);
+            httpClient.execute(httpPost);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Result importExcelData() {
@@ -1618,6 +1657,48 @@ public class RideController extends BaseController {
         return ok(Json.toJson(objectNode));
     }
 
+    public Result createReOrderId() {
+        JsonNode userJson = request().body().asJson();
+        String apiKey = userJson.get("apiKey").textValue();
+        System.out.println("Authentication IN REORDER ID:---------------" + apiKey);
+        ObjectNode objectNode = Json.newObject();
+        String result = "FAILURE";
+        String statusCode = "500";
+        String msg = "Order Creation Fails Due to Unauthorized  API token :" + apiKey;
+        Ride ride = null;
+        User vendorUser = validateVendor(apiKey);
+        int count = Ride.find.where().eq("parcelOrderId", userJson.get("data").get("parcelOrderId").asText()).findRowCount();
+        System.out.println("count match is : "+count);
+        if (count != 1) {
+            msg = "wrong parameters(in valid order id)";
+        }
+        if (vendorUser != null && count == 1) {
+            ride = Ride.find.where().eq("parcelOrderId",userJson.get("data").get("parcelOrderId").asText()).findUnique();
+            if (ride != null) {
+                ride.setRequestedAt(DateUtils.getDateFromString(userJson.get("data").get("updatedTime").textValue()));
+                ride.setRideStatus(Rescheduled);
+                ride.setParcelReOrderId(userJson.get("data").get("parcelReOrderId").asText());
+                ride.update();
+                result = "SUCCESS";
+                statusCode = "200K";
+                msg = "Order Updated Successfully";
+            }
+        }
+        JSONObject obj = new JSONObject();
+        obj.put("STATUS", result);
+        obj.put("CODE", statusCode);
+        obj.put("MSG", msg);
+        JSONObject obj2 = new JSONObject();
+        if (ride != null) {
+            obj2.put("tripId", ride.getId());
+            obj2.put("vendorId", ride.getRequestorId());
+            obj2.put("rideStatus", ride.getRideStatus());
+        }
+        setJson(objectNode, "RESPONSE", obj);
+        setJson(objectNode, "data", obj2);
+        return ok(Json.toJson(objectNode));
+    }
+
     public Result getVendorOrderStatus() {
         JsonNode userJson = request().body().asJson();
         String apiKey = userJson.get("apiKey").textValue();
@@ -1638,7 +1719,7 @@ public class RideController extends BaseController {
             if (aRide != null) {
                 obj2.put("tripId", aRide.getId());
                 obj2.put("vendorId", aRide.getRequestorId());
-                if (Rescheduled.equals(aRide.getRideStatus())) {
+                if (Rescheduled.equals(aRide.getRideStatus()) && aRide.getParcelReOrderId() == null) {
                     obj2.put("rideStatus", "RequestForReschedule");
                     obj2.put("comments",aRide.getRideComments());
                 } else if (RideCancelled.equals(aRide.getRideStatus())) {
@@ -1647,9 +1728,11 @@ public class RideController extends BaseController {
                 } else {
                     obj2.put("rideStatus", aRide.getRideStatus());
                 }
+                if (aRide.getParcelReOrderId() != null) {
+                    obj2.put("parcelReOrderId",aRide.getParcelReOrderId());
+                }
                 obj2.put("requestedAt", DateUtils.convertDateToString(aRide.getRequestedAt(), dateFormat));
                 obj2.put("riderId", aRide.getRiderId());
-                obj2.put("parcelRequestRaisedAt",(aRide.getParcelRequestRaisedAt() != null) ? DateUtils.convertDateToString(aRide.getParcelRequestRaisedAt(), dateFormat) : null);
                 obj2.put("riderName", (aRide.getRiderId() != null) ? User.find.where().eq("id", aRide.getRiderId()).findUnique().getName() : null);
                 obj2.put("acceptedAt", (aRide.getAcceptedAt() != null) ? DateUtils.convertDateToString(aRide.getAcceptedAt(), dateFormat) : null);
                 obj2.put("startedAt", (aRide.getRideStartedAt() != null) ? DateUtils.convertDateToString(aRide.getRideStartedAt(), dateFormat) : null);
@@ -1667,7 +1750,6 @@ public class RideController extends BaseController {
         obj.put("STATUS", result);
         obj.put("CODE", statusCode);
         obj.put("MSG", msg);
-
 
         setJson(objectNode, "RESPONSE", obj);
         setJson(objectNode, "data", obj2);

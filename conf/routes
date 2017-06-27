@@ -138,6 +138,7 @@ GET     /pendingRides                           controllers.RideController.getPe
 GET     /getGroupRides/:ids                     controllers.RideController.getGroupRides(ids: String)
 GET     /saveGroupRides/:rideIds                controllers.RideController.saveGroupRides(rideIds: String)
 GET     /getRiderLocations/:id                  controllers.RideController.getRiderLocations(id: Long)
+POST    /parcel/createReOrderId                 controllers.RideController.createReOrderId
 
 POST    /saveUserCashInAdvanceRequest           controllers.CashInAdvanceController.saveUserCashInAdvanceRequest
 GET     /viewCashInAdvanceList                  controllers.CashInAdvanceController.viewCashInAdvanceList

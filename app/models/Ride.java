@@ -63,6 +63,7 @@ public class Ride extends Model {
     String parcelPickupDetails;
     String parcelDropoffDetails;
     String parcelOrderId;
+    String parcelReOrderId;
     String rideComments;
     Double codAmount;
     Long groupRideId;
@@ -529,5 +530,13 @@ public class Ride extends Model {
 
     public void setRideComments(String rideComments) {
         this.rideComments = rideComments;
+    }
+
+    public String getParcelReOrderId() {
+        return parcelReOrderId;
+    }
+
+    public void setParcelReOrderId(String parcelReOrderId) {
+        this.parcelReOrderId = parcelReOrderId;
     }
 }
