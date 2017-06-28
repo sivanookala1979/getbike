@@ -65,6 +65,9 @@ import static utils.NumericUtils.zeroIfNull;
 import static utils.SMSHelper.sendSms;
 import static utils.SMSHelper.smsPrepare;
 
+import play.mvc.*;
+import play.libs.ws.*;
+import java.util.concurrent.CompletionStage;
 /**
  * Created by sivanookala on 21/10/16.
  */
@@ -72,6 +75,7 @@ public class RideController extends BaseController {
 
     @Inject
     FormFactory formFactory;
+    @Inject WSClient ws;
 
     final static double MAX_DISTANCE_IN_KILOMETERS = 6.0;
     public static final double MINIMUM_WALLET_AMOUNT_FOR_ACCEPTING_RIDE = 200.0;
@@ -1467,6 +1471,34 @@ public class RideController extends BaseController {
             //update call health api call here;
             //call health id is 2017 in dev and change when we push to prod;
             if (ride.getRequestorId()==2017) {
+                sendSms("53731", "7995053001", "&F1=" + ride.getTotalBill());
+                String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
+                JSONObject jsonBody = new JSONObject();
+                jsonBody.put("source_type", "getbike");
+                jsonBody.put("omorder_id", ride.getParcelOrderId());
+                if (Rescheduled.equals(ride.getRideStatus())) {
+                    jsonBody.put("order_status", "RequestForReschedule");
+                } else if (RideCancelled.equals(ride.getRideStatus())) {
+                    jsonBody.put("order_status", "RequestForCancel");
+                } else {
+                    jsonBody.put("order_status", ride.getRideStatus());
+                }
+                jsonBody.put("last_updated_on", new Date());
+
+                WSRequest request = ws.url(url);
+                request.setHeader("Content-Type", "application/json").post(String.valueOf(jsonBody.toJSONString()));
+                request.setRequestTimeout(1000).get();
+                request.post(jsonBody.toJSONString());
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                CompletionStage<JsonNode> jsonPromise = request.get()
+                        .thenApply(WSResponse::asJson);
+                System.out.println("response is json promise------------------------------------------  "+jsonPromise);
+
+/*
                 String payload = null;
                 String requestUrl="https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 if (Rescheduled.equals(ride.getRideStatus())) {
@@ -1482,6 +1514,7 @@ public class RideController extends BaseController {
 
 
                 System.out.println("Testing phase..... response  "+apiResponse);
+*/
 
                 /*String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 JSONObject jsonBody = new JSONObject();
