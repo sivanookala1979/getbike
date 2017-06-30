@@ -33,6 +33,7 @@ import play.libs.ws.ahc.AhcWSClient;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.ExecutionContextExecutor;
 import utils.*;
 
 import javax.inject.Inject;
@@ -64,10 +65,6 @@ import static utils.NumericUtils.increment;
 import static utils.NumericUtils.zeroIfNull;
 import static utils.SMSHelper.sendSms;
 import static utils.SMSHelper.smsPrepare;
-
-import play.mvc.*;
-import play.libs.ws.*;
-import java.util.concurrent.CompletionStage;
 /**
  * Created by sivanookala on 21/10/16.
  */
@@ -1470,9 +1467,9 @@ public class RideController extends BaseController {
             ride.update();
             //update call health api call here;
             //call health id is 2017 in dev and change when we push to prod;
-            if (ride.getRequestorId()==2017) {
+            if (ride.getRequestorId()==1697) {
                 sendSms("53731", "7995053001", "&F1=" + ride.getTotalBill());
-                String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
+                /*String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
@@ -1483,38 +1480,9 @@ public class RideController extends BaseController {
                 } else {
                     jsonBody.put("order_status", ride.getRideStatus());
                 }
-                jsonBody.put("last_updated_on", new Date());
+                jsonBody.put("last_updated_on", new Date());*/
 
-                WSRequest request = ws.url(url);
-                request.setHeader("Content-Type", "application/json").post(String.valueOf(jsonBody.toJSONString()));
-                request.setRequestTimeout(1000).get();
-                request.post(jsonBody.toJSONString());
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                CompletionStage<JsonNode> jsonPromise = request.get()
-                        .thenApply(WSResponse::asJson);
-                System.out.println("response is json promise------------------------------------------  "+jsonPromise);
-
-/*
-                String payload = null;
-                String requestUrl="https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
-                if (Rescheduled.equals(ride.getRideStatus())) {
-                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\"RequestForReschedule\",\"last_updated_on\":\""+new Date()+"\"";
-                } else if (RideCancelled.equals(ride.getRideStatus())) {
-
-                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\"RequestForCancel\",\"last_updated_on\":\""+new Date()+"\"";
-                } else {
-                    payload="{\"source_type\":\"getbike\",\"omorder_id\":\""+ride.getParcelOrderId()+"\",\"order_status\":\""+ride.getRideStatus()+"\",\"last_updated_on\":\""+new Date()+"\"";
-                }
-                System.out.println("Testing phase...........payload"+payload);
-                String apiResponse = sendPostRequest(requestUrl, payload);
-
-
-                System.out.println("Testing phase..... response  "+apiResponse);
-*/
+                callHealthAPICall(ride);
 
                 /*String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 JSONObject jsonBody = new JSONObject();
@@ -1536,6 +1504,47 @@ public class RideController extends BaseController {
         }
         return redirect("/ride/rideList");
     }
+
+    public void callHealthAPICall(Ride ride) {
+        System.out.println("conrol111-1-1-1-1-1-1-1--1-1-1-1-1=====");
+        AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
+                .setMaxRequestRetry(0)
+                .setShutdownQuietPeriod(0)
+                .setShutdownTimeout(0).build();
+        String name = "wsclient";
+        final JsonNode task = Json.newObject()
+                .put("source_type", "getbike")
+                .put("omorder_id", ride.getParcelOrderId())
+                .put("order_status", String.valueOf(ride.getRideStatus()))
+                .put("last_updated_on", String.valueOf(new Date()));
+        ActorSystem system = ActorSystem.create(name);
+        ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
+        ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
+        WSClient client = new AhcWSClient(config, materializer);
+        client.url("https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(task).whenComplete((r, e) -> {
+        }).thenRun(() -> {
+            try {
+                client.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).thenRun(system::terminate);
+    }
+
+     /*public CompletionStage<Result> callHealthAPICall(Ride ride) {
+         System.out.println("Controller inside my async callss method!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        final JsonNode task = Json.newObject()
+                .put("source_type", "getbike")
+                .put("omorder_id", ride.getParcelOrderId())
+                .put("order_status", String.valueOf(ride.getRideStatus()))
+                .put("last_updated_on", String.valueOf(new Date()));
+
+        final CompletionStage<WSResponse> eventualResponse = ws.url("https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus")
+                .post(task);
+
+        return eventualResponse.thenApplyAsync(response -> ok(response.asJson()),
+                exec);
+    }*/
 
     public static String sendPostRequest(String requestUrl, String payload) {
         StringBuffer jsonString = new StringBuffer();
