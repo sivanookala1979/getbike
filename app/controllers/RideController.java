@@ -1467,7 +1467,7 @@ public class RideController extends BaseController {
             ride.update();
             //update call health api call here;
             //call health id is 2017 in dev and change when we push to prod;
-            if (ride.getRequestorId()==1697) {
+            if (ride.getRequestorId()==2017) {
                 sendSms("53731", "7995053001", "&F1=" + ride.getTotalBill());
                 /*String url = "https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus";
                 JSONObject jsonBody = new JSONObject();
@@ -1506,7 +1506,6 @@ public class RideController extends BaseController {
     }
 
     public void callHealthAPICall(Ride ride) {
-        System.out.println("conrol111-1-1-1-1-1-1-1--1-1-1-1-1=====");
         AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
                 .setMaxRequestRetry(0)
                 .setShutdownQuietPeriod(0)
@@ -1522,6 +1521,7 @@ public class RideController extends BaseController {
         ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
         WSClient client = new AhcWSClient(config, materializer);
         client.url("https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(task).whenComplete((r, e) -> {
+            System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
                 client.close();
