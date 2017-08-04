@@ -1702,13 +1702,23 @@ public class RideController extends BaseController {
         if (vendorUser != null && count == 1) {
             ride = Ride.find.where().eq("parcelOrderId",userJson.get("data").get("parcelOrderId").asText()).findUnique();
             if (ride != null) {
-                ride.setRequestedAt(DateUtils.getDateFromString(userJson.get("data").get("updatedTime").textValue()));
-                ride.setRideStatus(Rescheduled);
-                ride.setParcelReOrderId(userJson.get("data").get("parcelReOrderId").asText());
-                ride.update();
-                result = "SUCCESS";
-                statusCode = "200K";
-                msg = "Order Updated Successfully";
+                if ("RideRequested".equals(userJson.get("data").get("status").asText())) {
+                    ride.setRequestedAt(DateUtils.getDateFromString(userJson.get("data").get("updatedTime").textValue()));
+                    ride.setRideStatus(Rescheduled);
+                    ride.setParcelReOrderId(userJson.get("data").get("parcelReOrderId").asText());
+                    ride.update();
+                    result = "SUCCESS";
+                    statusCode = "200K";
+                    msg = "Order Updated Successfully";
+                } else if ("RideCancelled".equals(userJson.get("data").get("status").asText())) {
+                    ride.setRequestedAt(DateUtils.getDateFromString(userJson.get("data").get("updatedTime").textValue()));
+                    ride.setRideStatus(RideCancelled);
+                    ride.setParcelReOrderId(userJson.get("data").get("parcelReOrderId").asText());
+                    ride.update();
+                    result = "SUCCESS";
+                    statusCode = "200K";
+                    msg = "Order Updated Successfully";
+                }
             }
         }
         JSONObject obj = new JSONObject();
