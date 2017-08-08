@@ -1468,7 +1468,7 @@ public class RideController extends BaseController {
             ride.setRiderId(riderId);
             ride.update();
             //update call health api call here;
-            //call health id is 2017 in dev and change when we push to prod;
+            //call health id is 2017 in dev and 2429 in prod change when we push to dev and prod respectively;
             if (ride.getRequestorId()==2017) {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
@@ -1519,7 +1519,7 @@ public class RideController extends BaseController {
         ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
         ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
         WSClient client = new AhcWSClient(config, materializer);
-        client.url("https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
+        client.url("https://medicines-preprod.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
             System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
