@@ -1519,7 +1519,7 @@ public class RideController extends BaseController {
         ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
         ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
         WSClient client = new AhcWSClient(config, materializer);
-        client.url("https://medicines.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
+        client.url("https://medicines-preprod.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
             System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
