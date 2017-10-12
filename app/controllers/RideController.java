@@ -1469,7 +1469,7 @@ public class RideController extends BaseController {
             ride.update();
             //update call health api call here;
             //call health id is 2017 in dev and 2429 in prod change when we push to dev and prod respectively;
-            if (ride.getRequestorId()==2017) {
+            if (ride.getRequestorId()==2429) {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
