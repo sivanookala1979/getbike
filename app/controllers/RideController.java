@@ -1469,7 +1469,7 @@ public class RideController extends BaseController {
             ride.update();
             //update call health api call here;
             //call health id is 2017 in dev and 2429 in prod change when we push to dev and prod respectively;
-            if (ride.getRequestorId()==2429) {
+            if (ride.getRequestorId()==2017) {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
@@ -1477,8 +1477,10 @@ public class RideController extends BaseController {
                     jsonBody.put("order_status", "RequestForReschedule");
                 } else if (RideCancelled.equals(ride.getRideStatus())) {
                     jsonBody.put("order_status", "RequestForCancel");
+                    jsonBody.put("comment",ride.getRideComments());
                 } else {
                     jsonBody.put("order_status", ride.getRideStatus());
+                    jsonBody.put("comment",ride.getRideComments());
                 }
                 jsonBody.put("last_updated_on", new Date());
 
@@ -1519,7 +1521,8 @@ public class RideController extends BaseController {
         ActorMaterializerSettings settings = ActorMaterializerSettings.create(system);
         ActorMaterializer materializer = ActorMaterializer.create(settings, system, name);
         WSClient client = new AhcWSClient(config, materializer);
-        client.url("https://medicines.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
+        //Call health url https://medicines.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus and change the RequestorId to 2429
+        client.url("http://dev.callhealthshop.com/chdrugs/MZIMRestServices/v1/postMZIMOrderStatus").post(jsonNode).whenComplete((r, e) -> {
             System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
