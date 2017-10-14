@@ -1475,12 +1475,12 @@ public class RideController extends BaseController {
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
                 if (Rescheduled.equals(ride.getRideStatus())) {
                     jsonBody.put("order_status", "RequestForReschedule");
+                    jsonBody.put("comment",ride.getRideComments());
                 } else if (RideCancelled.equals(ride.getRideStatus())) {
                     jsonBody.put("order_status", "RequestForCancel");
                     jsonBody.put("comment",ride.getRideComments());
                 } else {
                     jsonBody.put("order_status", ride.getRideStatus());
-                    jsonBody.put("comment",ride.getRideComments());
                 }
                 jsonBody.put("last_updated_on", new Date());
 

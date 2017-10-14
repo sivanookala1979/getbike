@@ -74,7 +74,27 @@
         <div class="form-group">
             <label for="rideComments" class="col-sm-3 control-label">Ride Comments </label>
             <div class="col-sm-6">
-                <input type="text" id="rideComments" name="rideComments" placeholder="Ride Comments" value="@ride.getRideComments()" class="form-control">
+
+                <!--<input type="text" id="rideComments1" name="rideComments" placeholder="Ride Comments" value="@ride.getRideComments()" class="form-control">-->
+
+                <select id="rideComments" name="rideComments">
+                    <option value="Customer is busy">Customer is busy</option>
+                    <option value="Incorrect order raised">Incorrect order raised</option>
+                    <option value="Customer out of station">Customer out of station</option>
+                    <option value="Delivery officer not available">Delivery officer not available</option>
+                    <option value="Customer mobile switch-off">Customer mobile switch-off</option>
+                    <option value="Delivery officer delay">Delivery officer delay</option>
+                    <option value="Address Not Found">Address Not Found</option>
+                    <option value="Customer Denied The Services">Customer Denied The Services</option>
+                    <option value="Customer Not Answering Call">Customer Not Answering Call</option>
+                    <option value="Customer Request">Customer Request</option>
+                    <option value="Delay in delivery officer Reaching Cust. Place">Delay in delivery officer Reaching Cust. Place</option>
+                    <option value="Faulty Swipe Machine">Faulty Swipe Machine</option>
+                    <option value="Partial Delivery">Partial Delivery</option>
+                    <option value="System Issues">System Issues</option>
+                    <option value="Wrong Order Booking">Wrong Order Booking</option>
+                </select>
+
             </div>
         </div>
 
