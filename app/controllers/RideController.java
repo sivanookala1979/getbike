@@ -1469,7 +1469,7 @@ public class RideController extends BaseController {
             ride.update();
             //update call health api call here;
             //call health id is 2017 in dev and 2429 in prod change when we push to dev and prod respectively;
-            if (ride.getRequestorId()==2017) {
+            if (ride.getRequestorId()==2429) {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("source_type", "getbike");
                 jsonBody.put("omorder_id", ride.getParcelOrderId());
@@ -1524,7 +1524,8 @@ public class RideController extends BaseController {
         //Call health url https://medicines.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus and change the RequestorId to 2429
         //Call health url uat https://medicines-uat.callhealthshop.com/MZIMRestServices/v1/postMZIMOrderStatus
         //Call health new url https://ormpreprod.callhealth.com/PharmaServices/v1/updateOrderStatus
-        client.url("https://ormpreprod.callhealth.com/PharmaServices/v1/updateOrderStatus").post(jsonNode).whenComplete((r, e) -> {
+        //Call health prod server https://orm.callhealth.com/PharmaServices/v1/updateOrderStatus
+        client.url("https://orm.callhealth.com/PharmaServices/v1/updateOrderStatus").post(jsonNode).whenComplete((r, e) -> {
             System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
