@@ -1,6 +1,7 @@
 
 # --- !Ups
-ALTER TABLE ride ALTER COLUMN source_address text;
-ALTER TABLE ride ALTER COLUMN destination_address text;
+INSERT INTO ride (rider_id, ride_status, requested_at)
+VALUES (5, "RideClosed",  '1515678119049' );
+
 
 # --- !Downs
