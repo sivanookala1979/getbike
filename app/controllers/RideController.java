@@ -1526,7 +1526,7 @@ public class RideController extends BaseController {
         //Call health new url https://ormpreprod.callhealth.com/PharmaServices/v1/updateOrderStatus
         //Call health prod server https://orm.callhealth.com/PharmaServices/v1/updateOrderStatus
         //Url https://orm.callhealth.com/PharmaServices/v1/updateOrderStatus;
-        client.url("https://orm.callhealth.com/PharmaServices/v1/updateOrderStatus").post(jsonNode).whenComplete((r, e) -> {
+        client.url("https://ormpreprod.callhealth.com/PharmaServices/v1/updateOrderStatus").post(jsonNode).whenComplete((r, e) -> {
             System.out.println("++++++++++++++++++++++++++++"+r.getBody());
         }).thenRun(() -> {
             try {
